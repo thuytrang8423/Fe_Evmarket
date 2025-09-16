@@ -98,7 +98,7 @@ function TopEV() {
                   {ev.verified && (
                     <div className="flex items-center">
                       <Image
-                        src="/HomePage/Verified.svg"
+                        src="/Homepage/Verified.svg"
                         alt="Verified"
                         width={81}
                         height={20}
