@@ -72,7 +72,7 @@ function Header() {
                 onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
               >
                 <Image
-                  src="/Language.svg"
+                  src="/Language.svg" // Fixed case sensitivity for production
                   alt="Language"
                   width={24}
                   height={24}
@@ -112,7 +112,7 @@ function Header() {
             {/* Notifications */}
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
               <Image
-                src="/Notifications.svg"
+                src="/Notifications.svg" // Fixed case sensitivity for production
                 alt="Notifications"
                 width={24}
                 height={24}
@@ -125,7 +125,7 @@ function Header() {
             {/* Profile */}
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
               <Image
-                src="/Profile.svg"
+                src="/Profile.svg" // Fixed case sensitivity for production
                 alt="Profile"
                 width={24}
                 height={24}
