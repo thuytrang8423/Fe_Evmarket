@@ -10,7 +10,8 @@
     "rating": "Đánh giá",
     "verified": "Đã xác minh",
     "fastSale": "Bán nhanh",
-    "popular": "Phổ biến"
+    "popular": "Phổ biến",
+    "login": "Đăng nhập"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -100,5 +101,136 @@
       "address": "123 Đường Xanh, TP. EV, VN 12345"
     },
     "copyright": "© 2024 EcoTrade EV. Tất cả quyền được bảo lưu."
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Bảng điều khiển người bán",
+      "subtitle": "Quản lý tin đăng và theo dõi doanh số"
+    },
+    "tabs": {
+      "dashboard": "Bảng điều khiển",
+      "listings": "Tin đăng của tôi",
+      "addListing": "Thêm tin đăng"
+    },
+    "stats": {
+      "activeListings": "Tin đăng hoạt động",
+      "totalViews": "Tổng lượt xem",
+      "messages": "Tin nhắn",
+      "totalEarnings": "Tổng thu nhập",
+      "active": "Hoạt động",
+      "thisWeek": "tuần này",
+      "itemsSold": "sản phẩm đã bán"
+    },
+    "activity": {
+      "title": "Hoạt động gần đây",
+      "newMessage": "Tin nhắn mới",
+      "messageDesc": "Bạn nhận được tin nhắn mới về tin đăng Tesla Model 3.",
+      "listingViews": "Lượt xem tin đăng",
+      "viewsDesc": "Tin đăng Tesla Model Y của bạn nhận được 23 lượt xem hôm nay.",
+      "profileVisit": "Xem hồ sơ",
+      "profileDesc": "Một người mua tiềm năng đã xem hồ sơ người bán của bạn.",
+      "newReview": "Đánh giá mới",
+      "reviewDesc": "Bạn nhận được đánh giá 5 sao từ việc bán BMW i3.",
+      "hoursAgo": "giờ trước",
+      "yesterday": "Hôm qua",
+      "daysAgo": "ngày trước"
+    },
+    "tips": {
+      "title": "Mẹo cho người bán",
+      "viewGuide": "Xem hướng dẫn bán hàng",
+      "detailedDesc": "Thêm mô tả chi tiết",
+      "detailedDescTip": "Tin đăng có mô tả chi tiết nhận được nhiều lượt xem hơn 50%.",
+      "qualityPhotos": "Tải lên ảnh chất lượng cao",
+      "qualityPhotosTip": "Tin đăng có 20+ ảnh nhận được nhiều câu hỏi hơn 70%.",
+      "respondQuickly": "Phản hồi nhanh chóng",
+      "respondTip": "Phản hồi nhanh tăng cơ hội bán được lên 50%.",
+      "batteryReports": "Cung cấp báo cáo pin",
+      "batteryTip": "Báo cáo tình trạng pin đã xác minh tạo niềm tin với người mua."
+    },
+    "listings": {
+      "title": "Tin đăng của tôi",
+      "subtitle": "Quản lý và theo dõi tin đăng xe của bạn",
+      "all": "Tất cả",
+      "active": "Hoạt động",
+      "sold": "Đã bán",
+      "pending": "Chờ duyệt",
+      "views": "lượt xem",
+      "messages": "tin nhắn",
+      "edit": "Chỉnh sửa",
+      "view": "Xem",
+      "noListings": "Không tìm thấy tin đăng",
+      "noListingsDesc": "Bạn chưa tạo tin đăng nào. Hãy bắt đầu bằng cách thêm chiếc xe đầu tiên."
+    },
+    "addListing": {
+      "title": "Thêm tin đăng mới",
+      "subtitle": "Tạo tin đăng chi tiết để thu hút người mua tiềm năng",
+      "steps": {
+        "basicInfo": "Thông tin cơ bản",
+        "details": "Chi tiết",
+        "battery": "Pin",
+        "description": "Mô tả",
+        "photos": "Hình ảnh"
+      },
+      "fields": {
+        "listingTitle": "Tiêu đề tin đăng",
+        "price": "Giá",
+        "make": "Hãng xe",
+        "model": "Mẫu xe",
+        "year": "Năm sản xuất",
+        "mileage": "Số km đã đi",
+        "location": "Địa điểm",
+        "bodyType": "Kiểu dáng",
+        "exteriorColor": "Màu ngoại thất",
+        "interiorColor": "Màu nội thất",
+        "batteryHealth": "Tình trạng pin",
+        "range": "Phạm vi hoạt động",
+        "chargingType": "Loại sạc",
+        "description": "Mô tả",
+        "features": "Tính năng",
+        "uploadPhotos": "Tải lên hình ảnh",
+        "photosTip": "Thêm tối đa 30 ảnh để giới thiệu xe của bạn",
+        "selectPhotos": "Chọn ảnh"
+      },
+      "buttons": {
+        "previous": "Trước",
+        "next": "Tiếp",
+        "saveDraft": "Lưu nháp",
+        "publish": "Đăng tin"
+      }
+    }
+  },
+  "browse": {
+    "title": "Khám phá xe điện & Pin",
+    "subtitle": "Tìm xe điện hoặc pin hoàn hảo từ người bán đã xác minh",
+    "filters": "Bộ lọc",
+    "clearAll": "Xóa tất cả",
+    "search": "Tìm kiếm",
+    "searchPlaceholder": "Tìm Tesla, VinFast, pin...",
+    "productType": "Loại sản phẩm",
+    "allProducts": "Tất cả sản phẩm",
+    "vehicles": "Xe điện",
+    "batteries": "Pin",
+    "priceRange": "Khoảng giá",
+    "brands": "Thương hiệu",
+    "batteryHealth": "Tình trạng pin",
+    "verifiedOnly": "Chỉ người bán đã xác minh",
+    "results": "Kết quả",
+    "sortBy": "Sắp xếp theo",
+    "sortOptions": {
+      "newest": "Mới nhất",
+      "priceLow": "Giá: Thấp đến cao",
+      "priceHigh": "Giá: Cao đến thấp",
+      "rating": "Đánh giá cao nhất"
+    },
+    "badges": {
+      "featured": "Nổi bật"
+    },
+    "sold": "ĐÃ BÁN",
+    "viewDetails": "Xem chi tiết",
+    "loadMore": "Tải thêm",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "noResults": "Không tìm thấy kết quả",
+    "noResultsDesc": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm"
   }
 }
