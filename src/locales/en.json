@@ -1,0 +1,104 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "home": "Home",
+    "about": "About",
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "success": "Success",
+    "viewAll": "View All",
+    "rating": "Rating",
+    "verified": "Verified",
+    "fastSale": "Fast Sale",
+    "popular": "Popular"
+  },
+  "navigation": {
+    "home": "Home",
+    "about": "About Us",
+    "browse": "Explore EVs & Batteries",
+    "sell": "Sell Your EV"
+  },
+  "home": {
+    "title": "Home",
+    "description": "Welcome to our EV & Battery platform"
+  },
+  "about": {
+    "title": "About Us",
+    "description": "Learn more about our mission and services"
+  },
+  "homepage": {
+    "hero": {
+      "title": "The Trusted Marketplace",
+      "subtitle": "Second-hand EVs",
+      "description1": "Buy and sell pre-owned electric vehicles and batteries with confidence.",
+      "description2": "Verified sellers, battery health reports, and secure transactions.",
+      "browseBtn": "Browse EVs",
+      "sellBtn": "Sell Your EV"
+    },
+    "search": {
+      "title": "Find Your Perfect Electric Vehicle or Battery",
+      "placeholder": "Search for Tesla, Nissan Leaf, or any EV model...",
+      "searchBtn": "Search Now"
+    },
+    "topEV": {
+      "title": "Top EV Deals",
+      "miles": "miles"
+    },
+    "topBattery": {
+      "title": "Top Battery Listings"
+    },
+    "verifiedSeller": {
+      "title": "Verified Sellers You Can Trust"
+    },
+    "reasons": {
+      "title": "Why Choose EcoTrade EV?",
+      "quality": {
+        "title": "Quality Guaranteed",
+        "description": "Every vehicle undergoes comprehensive inspection with detailed battery health reports."
+      },
+      "secure": {
+        "title": "Secure Transactions",
+        "description": "Safe and secure payment processing with buyer protection and escrow services."
+      },
+      "support": {
+        "title": "Expert Support",
+        "description": "Our EV specialists provide guidance throughout your buying or selling journey."
+      }
+    },
+    "cta": {
+      "title": "Ready to Buy or Sell Your Electric Vehicle?",
+      "description": "Join thousands of satisfied customers who trust EcoTrade EV for their electric vehicle needs.",
+      "startBtn": "Get Started Today"
+    }
+  },
+  "footer": {
+    "tagline": "The trusted marketplace for electric vehicles and batteries",
+    "marketplace": {
+      "title": "Marketplace",
+      "browse": "Browse EVs",
+      "batteries": "Battery Listings",
+      "sellers": "Verified Sellers",
+      "deals": "Latest Deals"
+    },
+    "support": {
+      "title": "Support",
+      "help": "Help Center",
+      "contact": "Contact Us",
+      "safety": "Safety Tips",
+      "faq": "FAQ"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About Us",
+      "careers": "Careers",
+      "press": "Press",
+      "blog": "Blog"
+    },
+    "contact": {
+      "phone": "+1 (555) 123-4567",
+      "email": "support@ecotrade-ev.com",
+      "address": "123 Green Street, EV City, EC 12345"
+    },
+    "copyright": "© 2024 EcoTrade EV. All rights reserved."
+  }
+}
