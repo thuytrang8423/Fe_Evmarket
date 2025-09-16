@@ -10,7 +10,8 @@
     "rating": "Rating",
     "verified": "Verified",
     "fastSale": "Fast Sale",
-    "popular": "Popular"
+    "popular": "Popular",
+    "login": "Login"
   },
   "navigation": {
     "home": "Home",
@@ -100,5 +101,136 @@
       "address": "123 Green Street, EV City, EC 12345"
     },
     "copyright": "© 2024 EcoTrade EV. All rights reserved."
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Seller Dashboard",
+      "subtitle": "Manage your listings and track your sales"
+    },
+    "tabs": {
+      "dashboard": "Dashboard",
+      "listings": "My Listings",
+      "addListing": "Add Listing"
+    },
+    "stats": {
+      "activeListings": "Active Listings",
+      "totalViews": "Total Views",
+      "messages": "Messages",
+      "totalEarnings": "Total Earnings",
+      "active": "Active",
+      "thisWeek": "this week",
+      "itemsSold": "items sold"
+    },
+    "activity": {
+      "title": "Recent Activity",
+      "newMessage": "New Message",
+      "messageDesc": "You received a new message about your Tesla Model 3 listing.",
+      "listingViews": "Listing Views",
+      "viewsDesc": "Your Tesla Model Y listing received 23 new views today.",
+      "profileVisit": "Profile Visit",
+      "profileDesc": "A potential buyer viewed your seller profile.",
+      "newReview": "New Review",
+      "reviewDesc": "You received a 5-star review from your BMW i3 sale.",
+      "hoursAgo": "hours ago",
+      "yesterday": "Yesterday",
+      "daysAgo": "days ago"
+    },
+    "tips": {
+      "title": "Tips for Sellers",
+      "viewGuide": "View Seller Guide",
+      "detailedDesc": "Add detailed descriptions",
+      "detailedDescTip": "Listings with detailed descriptions get 50% more views.",
+      "qualityPhotos": "Upload high-quality photos",
+      "qualityPhotosTip": "Listings with 20+ photos receive 70% more inquiries.",
+      "respondQuickly": "Respond quickly",
+      "respondTip": "Fast responses increase your chance of selling by 50%.",
+      "batteryReports": "Provide battery reports",
+      "batteryTip": "Verified battery health reports build trust with buyers."
+    },
+    "listings": {
+      "title": "My Listings",
+      "subtitle": "Manage and track your vehicle listings",
+      "all": "All",
+      "active": "Active",
+      "sold": "Sold",
+      "pending": "Pending",
+      "views": "views",
+      "messages": "messages",
+      "edit": "Edit",
+      "view": "View",
+      "noListings": "No listings found",
+      "noListingsDesc": "You haven't created any listings yet. Start by adding your first vehicle."
+    },
+    "addListing": {
+      "title": "Add New Listing",
+      "subtitle": "Create a detailed listing to attract potential buyers",
+      "steps": {
+        "basicInfo": "Basic Info",
+        "details": "Details",
+        "battery": "Battery",
+        "description": "Description",
+        "photos": "Photos"
+      },
+      "fields": {
+        "listingTitle": "Listing Title",
+        "price": "Price",
+        "make": "Make",
+        "model": "Model",
+        "year": "Year",
+        "mileage": "Mileage",
+        "location": "Location",
+        "bodyType": "Body Type",
+        "exteriorColor": "Exterior Color",
+        "interiorColor": "Interior Color",
+        "batteryHealth": "Battery Health",
+        "range": "Range",
+        "chargingType": "Charging Types",
+        "description": "Description",
+        "features": "Features",
+        "uploadPhotos": "Upload Photos",
+        "photosTip": "Add up to 30 photos to showcase your vehicle",
+        "selectPhotos": "Select Photos"
+      },
+      "buttons": {
+        "previous": "Previous",
+        "next": "Next",
+        "saveDraft": "Save Draft",
+        "publish": "Publish Listing"
+      }
+    }
+  },
+  "browse": {
+    "title": "Browse  Vehicles & Batteries",
+    "subtitle": "Find your perfect EV or battery from verified sellers",
+    "filters": "Filters",
+    "clearAll": "Clear All",
+    "search": "Search",
+    "searchPlaceholder": "Search for Tesla, VinFast, battery...",
+    "productType": "Product Type",
+    "allProducts": "All Products",
+    "vehicles": "Vehicles",
+    "batteries": "Batteries",
+    "priceRange": "Price Range",
+    "brands": "Brands",
+    "batteryHealth": "Battery Health",
+    "verifiedOnly": "Verified sellers only",
+    "results": "Results",
+    "sortBy": "Sort by",
+    "sortOptions": {
+      "newest": "Newest",
+      "priceLow": "Price: Low to High",
+      "priceHigh": "Price: High to Low",
+      "rating": "Highest Rated"
+    },
+    "badges": {
+      "featured": "Featured"
+    },
+    "sold": "SOLD",
+    "viewDetails": "View Details",
+    "loadMore": "Load More",
+    "previous": "Previous",
+    "next": "Next",
+    "noResults": "No results found",
+    "noResultsDesc": "Try adjusting your filters or search terms"
   }
 }

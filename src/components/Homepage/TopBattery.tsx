@@ -127,7 +127,7 @@ function TopBattery() {
                   <h3 className="font-semibold text-lg" style={{color: colors.Text}}>
                     {battery.name}
                   </h3>
-                  <span className="text-lg font-bold" style={{color: colors.Price}}>
+                  <span className="text-lg font-bold" style={{color: colors.PriceText}}>
                     {battery.price}
                   </span>
                 </div>
