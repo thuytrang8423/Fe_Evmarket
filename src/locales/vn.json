@@ -1,0 +1,104 @@
+{
+  "common": {
+    "welcome": "Chào mừng bạn",
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "loading": "Đang tải...",
+    "error": "Có lỗi xảy ra",
+    "success": "Thành công",
+    "viewAll": "Xem tất cả",
+    "rating": "Đánh giá",
+    "verified": "Đã xác minh",
+    "fastSale": "Bán nhanh",
+    "popular": "Phổ biến"
+  },
+  "navigation": {
+    "home": "Trang chủ",
+    "about": "Về chúng tôi",
+    "browse": "Khám phá EV & Pin",
+    "sell": "Đăng tin bán EV"
+  },
+  "home": {
+    "title": "Trang chủ",
+    "description": "Chào mừng bạn đến với nền tảng EV & Pin của chúng tôi"
+  },
+  "about": {
+    "title": "Về chúng tôi",
+    "description": "Tìm hiểu thêm về sứ mệnh và dịch vụ của chúng tôi"
+  },
+  "homepage": {
+    "hero": {
+      "title": "Thị trường uy tín",
+      "subtitle": "Xe điện đã qua sử dụng",
+      "description1": "Mua và bán xe điện cũ và pin với sự tin cậy.",
+      "description2": "Người bán đã xác minh, báo cáo tình trạng pin và giao dịch an toàn.",
+      "browseBtn": "Duyệt xe điện",
+      "sellBtn": "Đăng tin bán EV"
+    },
+    "search": {
+      "title": "Tìm xe điện hoặc pin hoàn hảo của bạn",
+      "placeholder": "Tìm kiếm Tesla, Nissan Leaf, hoặc bất kỳ mẫu EV nào...",
+      "searchBtn": "Tìm kiếm ngay"
+    },
+    "topEV": {
+      "title": "Ưu đãi xe điện hàng đầu",
+      "miles": "dặm"
+    },
+    "topBattery": {
+      "title": "Danh sách pin hàng đầu"
+    },
+    "verifiedSeller": {
+      "title": "Người bán đã xác minh"
+    },
+    "reasons": {
+      "title": "Tại sao chọn EcoTrade EV?",
+      "quality": {
+        "title": "Chất lượng đảm bảo",
+        "description": "Mọi xe đều được kiểm tra toàn diện với báo cáo chi tiết về tình trạng pin."
+      },
+      "secure": {
+        "title": "Giao dịch an toàn",
+        "description": "Xử lý thanh toán an toàn với bảo vệ người mua và dịch vụ ký quỹ."
+      },
+      "support": {
+        "title": "Hỗ trợ chuyên gia",
+        "description": "Các chuyên gia EV của chúng tôi hướng dẫn bạn trong suốt quá trình mua hoặc bán."
+      }
+    },
+    "cta": {
+      "title": "Sẵn sàng mua hoặc bán xe điện của bạn?",
+      "description": "Tham gia cùng hàng ngàn khách hàng hài lòng tin tưởng EcoTrade EV cho nhu cầu xe điện của họ.",
+      "startBtn": "Bắt đầu ngay hôm nay"
+    }
+  },
+  "footer": {
+    "tagline": "Thị trường uy tín cho xe điện và pin",
+    "marketplace": {
+      "title": "Thị trường",
+      "browse": "Duyệt xe điện",
+      "batteries": "Danh sách pin",
+      "sellers": "Người bán đã xác minh",
+      "deals": "Ưu đãi mới nhất"
+    },
+    "support": {
+      "title": "Hỗ trợ",
+      "help": "Trung tâm trợ giúp",
+      "contact": "Liên hệ",
+      "safety": "Mẹo an toàn",
+      "faq": "Câu hỏi thường gặp"
+    },
+    "company": {
+      "title": "Công ty",
+      "about": "Về chúng tôi",
+      "careers": "Tuyển dụng",
+      "press": "Báo chí",
+      "blog": "Blog"
+    },
+    "contact": {
+      "phone": "+84 (028) 123-4567",
+      "email": "support@ecotrade-ev.vn",
+      "address": "123 Đường Xanh, TP. EV, VN 12345"
+    },
+    "copyright": "© 2024 EcoTrade EV. Tất cả quyền được bảo lưu."
+  }
+}
