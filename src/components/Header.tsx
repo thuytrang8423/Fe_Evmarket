@@ -72,7 +72,7 @@ function Header() {
                 onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
               >
                 <Image
-                  src="/language.svg"
+                  src="/Language.svg"
                   alt="Language"
                   width={24}
                   height={24}
@@ -112,7 +112,7 @@ function Header() {
             {/* Notifications */}
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
               <Image
-                src="/notifications.svg"
+                src="/Notifications.svg"
                 alt="Notifications"
                 width={24}
                 height={24}
@@ -125,7 +125,7 @@ function Header() {
             {/* Profile */}
             <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
               <Image
-                src="/profile.svg"
+                src="/Profile.svg"
                 alt="Profile"
                 width={24}
                 height={24}
