@@ -130,18 +130,20 @@ function Header() {
                 )}
               </div>
 
-              {/* Notifications */}
-              <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
-                <Image
-                  src="/Notifications.svg"
-                  alt="Notifications"
-                  width={32}
-                  height={32}
-                  className="w-8 h-8"
-                />
-                {/* Notification dot */}
-                <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></div>
-              </button>
+              {/* Notifications - Only show when logged in */}
+              {isLoggedIn && (
+                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
+                  <Image
+                    src="/Notifications.svg"
+                    alt="Notifications"
+                    width={32}
+                    height={32}
+                    className="w-8 h-8"
+                  />
+                  {/* Notification dot */}
+                  <div className="absolute top-2 right-2 w-2.5 h-2.5 bg-red-500 rounded-full"></div>
+                </button>
+              )}
 
               {/* Profile / Login */}
               {isLoggedIn ? (
@@ -242,16 +244,19 @@ function Header() {
 
                 {/* Mobile Icons */}
                 <div className="flex justify-around pt-2">
-                  <button className="flex flex-col items-center gap-1 p-2">
-                    <Image
-                      src="/notifications.svg"
-                      alt="Notifications"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5"
-                    />
-                    <span className="text-xs" style={{color: colors.SubText}}>Notifications</span>
-                  </button>
+                  {/* Notifications - Only show when logged in */}
+                  {isLoggedIn && (
+                    <button className="flex flex-col items-center gap-1 p-2">
+                      <Image
+                        src="/Notifications.svg"
+                        alt="Notifications"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5"
+                      />
+                      <span className="text-xs" style={{color: colors.SubText}}>Notifications</span>
+                    </button>
+                  )}
                   
                   {isLoggedIn ? (
                     <button className="flex flex-col items-center gap-1 p-2">
