@@ -133,7 +133,7 @@ function Header() {
               {/* Notifications */}
               <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300 relative">
                 <Image
-                  src="/notifications.svg"
+                  src="/Notifications.svg"
                   alt="Notifications"
                   width={32}
                   height={32}
@@ -147,7 +147,7 @@ function Header() {
               {isLoggedIn ? (
                 <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
                   <Image
-                    src="/profile.svg"
+                    src="/Profile.svg"
                     alt="Profile"
                     width={32}
                     height={32}
