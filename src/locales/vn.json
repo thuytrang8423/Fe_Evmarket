@@ -232,5 +232,45 @@
     "next": "Tiếp",
     "noResults": "Không tìm thấy kết quả",
     "noResultsDesc": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm"
+  },
+  "auth": {
+    "login": {
+      "title": "Đăng nhập",
+      "subtitle": "Vui lòng nhập thông tin để tiếp tục",
+      "welcomeBack": "Chào mừng trở lại!",
+      "welcomeDesc": "Đăng nhập để tiếp tục hành trình của bạn cùng chúng tôi",
+      "emailLabel": "Địa chỉ Email",
+      "emailPlaceholder": "Nhập email của bạn",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu của bạn",
+      "rememberMe": "Ghi nhớ đăng nhập",
+      "forgotPassword": "Quên mật khẩu?",
+      "loginButton": "Đăng nhập ",
+      "orLoginWith": "Hoặc đăng nhập với",
+      "noAccount": "Chưa có tài khoản?",
+      "signUpFree": "Đăng ký miễn phí"
+    },
+    "register": {
+      "title": "Đăng ký tài khoản",
+      "subtitle": "Hãy nhập tên và địa chỉ email của bạn",
+      "welcomeTitle": "Chào mừng đến với hệ thống EV Dealer!",
+      "welcomeDesc": "Đăng ký tài khoản để bắt đầu quản lý và trải nghiệm xe điện thông minh",
+      "fullNameLabel": "Họ và tên",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn",
+      "emailLabel": "Địa chỉ Email",
+      "emailPlaceholder": "example@email.com",
+      "passwordLabel": "Mật khẩu",
+      "passwordPlaceholder": "Nhập mật khẩu",
+      "confirmPasswordLabel": "Xác nhận mật khẩu",
+      "confirmPasswordPlaceholder": "Nhập lại mật khẩu",
+      "agreeTerms": "Tôi đồng ý với",
+      "terms": "Điều khoản",
+      "privacy": "Chính sách bảo mật",
+      "registerButton": "Đăng ký ",
+      "orRegisterWith": "Hoặc đăng ký bằng",
+      "haveAccount": "Đã có tài khoản?",
+      "signIn": "Đăng nhập",
+      "passwordMismatch": "Mật khẩu xác nhận không khớp!"
+    }
   }
 }

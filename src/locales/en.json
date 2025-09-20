@@ -232,5 +232,45 @@
     "next": "Next",
     "noResults": "No results found",
     "noResultsDesc": "Try adjusting your filters or search terms"
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "subtitle": "Please enter your information to continue",
+      "welcomeBack": "Welcome back!",
+      "welcomeDesc": "Login to continue your journey with us",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "Enter your email",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "loginButton": "Login ",
+      "orLoginWith": "Or login with",
+      "noAccount": "Don't have an account?",
+      "signUpFree": "Sign up now"
+    },
+    "register": {
+      "title": "Create Account",
+      "subtitle": "Please enter your name and email address",
+      "welcomeTitle": "Welcome to the EV Dealer system!",
+      "welcomeDesc": "Register an account to start managing and experiencing smart electric vehicles",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "emailLabel": "Email Address",
+      "emailPlaceholder": "example@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password",
+      "confirmPasswordLabel": "Confirm Password",
+      "confirmPasswordPlaceholder": "Re-enter password",
+      "agreeTerms": "I agree to the",
+      "terms": "Terms",
+      "privacy": "Privacy Policy",
+      "registerButton": "Register ",
+      "orRegisterWith": "Or register with",
+      "haveAccount": "Already have an account?",
+      "signIn": "Sign in",
+      "passwordMismatch": "Password confirmation does not match!"
+    }
   }
 }
