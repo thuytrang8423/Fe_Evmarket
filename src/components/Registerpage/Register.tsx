@@ -3,6 +3,28 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
+import { registerUser } from '../../services'
+
+// Helper function to map server errors to i18n keys
+const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
+  const lowerMessage = serverMessage.toLowerCase()
+  
+  if (lowerMessage.includes('email') && lowerMessage.includes('exist')) {
+    return t('auth.register.emailExists', 'Email này đã được sử dụng')
+  }
+  if (lowerMessage.includes('password') && lowerMessage.includes('short')) {
+    return t('auth.register.passwordTooShort', 'Mật khẩu phải có ít nhất 8 ký tự')
+  }
+  if (lowerMessage.includes('email') && lowerMessage.includes('invalid')) {
+    return t('auth.register.invalidEmail', 'Định dạng email không hợp lệ')
+  }
+  if (lowerMessage.includes('network') || lowerMessage.includes('server')) {
+    return t('auth.register.networkError', 'Lỗi mạng hoặc server không khả dụng')
+  }
+  
+  // Default error message
+  return t('auth.register.registerFailed', 'Đăng ký thất bại')
+}
 
 function Register() {
   const [fullName, setFullName] = useState('')
@@ -12,15 +34,47 @@ function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    // Validate password match
     if (password !== confirmPassword) {
-      alert(t('auth.register.passwordMismatch', 'Mật khẩu xác nhận không khớp!'))
+      setError(t('auth.register.passwordMismatch', 'Mật khẩu xác nhận không khớp!'))
+      setIsLoading(false)
       return
     }
-    console.log('Register attempt:', { fullName, email, password, agreeToTerms })
+
+    try {
+      const response = await registerUser({
+        email,
+        password,
+        fullName
+      })
+      
+      if (response.success) {
+        // Always use localized success message
+        setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'))
+        // Redirect to login page after 2 seconds
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 2000)
+      } else {
+        // Use localized error message based on server response
+        setError(getLocalizedErrorMessage(response.message || '', t))
+      }
+    } catch (error) {
+      setError(t('auth.register.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -70,6 +124,21 @@ function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
+            {/* Success Message */}
+            {success && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{success}</p>
+                <p className="text-xs text-green-500 mt-1">Redirecting to login page...</p>
+              </div>
+            )}
+
             {/* Full Name Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
@@ -190,9 +259,17 @@ function Register() {
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {t('auth.register.registerButton', 'Đăng ký ngay')}
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  {t('common.loading', 'Đang tải...')}
+                </div>
+              ) : (
+                t('auth.register.registerButton', 'Đăng ký ngay')
+              )}
             </button>
 
             {/* Or divider */}

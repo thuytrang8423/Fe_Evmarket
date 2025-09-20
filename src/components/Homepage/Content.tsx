@@ -32,18 +32,22 @@ function Content() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <button className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+              <a 
+                href="/browse"
+                className="px-8 py-4 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 text-center inline-block"
+              >
                 {t('homepage.hero.browseBtn', 'Browse EVs')}
-              </button>
-              <button 
-                className="px-8 py-4 border-2 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg"
+              </a>
+              <a 
+                href="/sell"
+                className="px-8 py-4 border-2 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg text-center inline-block"
                 style={{
                   color: colors.Text,
                   borderColor: colors.SubText
                 }}
               >
                 {t('homepage.hero.sellBtn', 'Sell Your EV')}
-              </button>
+              </a>
             </div>
           </div>
 
