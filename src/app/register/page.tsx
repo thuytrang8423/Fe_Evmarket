@@ -1,15 +1,14 @@
 "use client"
 
 import Header from "@/components/Header";
-import Login from "@/components/Loginpage/Login";
+import Register from "@/components/Registerpage/Register";
 
-
-export default function HomePage() {
+export default function RegisterPage() {
   return (
     <div>
       <main>
         <Header />
-        <Login />
+        <Register />
       </main>
     </div>
   );

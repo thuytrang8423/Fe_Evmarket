@@ -16,6 +16,11 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Pin EV chính hãng | EcoTrade EV",
   description: "Chuyên phân phối pin EV, pin lithium và giải pháp năng lượng xanh, uy tín và chất lượng hàng đầu.",
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
 };
 
 
