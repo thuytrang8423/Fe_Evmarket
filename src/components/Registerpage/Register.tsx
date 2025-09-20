@@ -4,16 +4,23 @@ import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 
-function Login() {
+function Register() {
+  const [fullName, setFullName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [agreeToTerms, setAgreeToTerms] = useState(false)
   const { t } = useI18nContext()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login attempt:', { email, password, rememberMe })
+    if (password !== confirmPassword) {
+      alert(t('auth.register.passwordMismatch', 'Mật khẩu xác nhận không khớp!'))
+      return
+    }
+    console.log('Register attempt:', { fullName, email, password, agreeToTerms })
   }
 
   return (
@@ -27,10 +34,10 @@ function Login() {
         <div className="relative z-10 flex flex-col justify-center items-center text-white h-full w-full">
           <div className="text-center mb-12 px-8 lg:px-12">
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
-              {t('auth.login.welcomeBack', 'Chào mừng trở lại!')}
+              {t('auth.register.welcomeTitle', 'Chào mừng đến với hệ thống EV Dealer!')}
             </h1>
             <p className="text-base sm:text-lg lg:text-xl opacity-90 leading-relaxed max-w-md mx-auto">
-              {t('auth.login.welcomeDesc', 'Đăng nhập để tiếp tục hành trình của bạn cùng chúng tôi')}
+              {t('auth.register.welcomeDesc', 'Đăng ký tài khoản để bắt đầu quản lý và trải nghiệm xe điện thông minh')}
             </p>
           </div>
           
@@ -50,23 +57,42 @@ function Login() {
         </div>
       </div>
 
-      {/* Right Panel - Login Form */}
+      {/* Right Panel - Register Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8" style={{backgroundColor: colors.Background}}>
         <div className="w-full max-w-md">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold mb-2" style={{color: colors.Text}}>
-              {t('auth.login.title', 'Đăng nhập')}
+              {t('auth.register.title', 'Đăng ký tài khoản')}
             </h2>
             <p style={{color: colors.SubText}}>
-              {t('auth.login.subtitle', 'Vui lòng nhập thông tin để tiếp tục')}
+              {t('auth.register.subtitle', 'Hãy nhập tên và địa chỉ email của bạn')}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Full Name Field */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
+                {t('auth.register.fullNameLabel', 'Họ và tên')}
+              </label>
+              <input
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                style={{
+                  borderColor: colors.Border,
+                  color: colors.Text
+                }}
+                placeholder={t('auth.register.fullNamePlaceholder', 'Nhập họ và tên của bạn')}
+                required
+              />
+            </div>
+
             {/* Email Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                {t('auth.login.emailLabel', 'Địa chỉ Email')}
+                {t('auth.register.emailLabel', 'Địa chỉ Email')}
               </label>
               <input
                 type="email"
@@ -77,7 +103,7 @@ function Login() {
                   borderColor: colors.Border,
                   color: colors.Text
                 }}
-                placeholder={t('auth.login.emailPlaceholder', 'Nhập email của bạn')}
+                placeholder={t('auth.register.emailPlaceholder', 'example@email.com')}
                 required
               />
             </div>
@@ -85,7 +111,7 @@ function Login() {
             {/* Password Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                {t('auth.login.passwordLabel', 'Mật khẩu')}
+                {t('auth.register.passwordLabel', 'Mật khẩu')}
               </label>
               <div className="relative">
                 <input
@@ -97,7 +123,7 @@ function Login() {
                     borderColor: colors.Border,
                     color: colors.Text
                   }}
-                  placeholder={t('auth.login.passwordPlaceholder', 'Nhập mật khẩu của bạn')}
+                  placeholder={t('auth.register.passwordPlaceholder', 'Nhập mật khẩu')}
                   required
                 />
                 <button
@@ -111,33 +137,62 @@ function Login() {
               </div>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex items-center justify-between">
-              <label className="flex items-center cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
-                />
-                <span className="ml-2 text-sm" style={{color: colors.SubText}}>
-                  {t('auth.login.rememberMe', 'Ghi nhớ đăng nhập')}
-                </span>
+            {/* Confirm Password Field */}
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
+                {t('auth.register.confirmPasswordLabel', 'Xác nhận mật khẩu')}
               </label>
-              <a 
-                href="#" 
-                className="text-sm font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200"
-              >
-                {t('auth.login.forgotPassword', 'Quên mật khẩu?')}
-              </a>
+              <div className="relative">
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-4 py-3 pr-12 rounded-lg border focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
+                  style={{
+                    borderColor: colors.Border,
+                    color: colors.Text
+                  }}
+                  placeholder={t('auth.register.confirmPasswordPlaceholder', 'Nhập lại mật khẩu')}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-md hover:bg-gray-100 transition-colors duration-200"
+                  style={{color: colors.SubText}}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
 
-            {/* Login Button */}
+            {/* Terms Agreement */}
+            <div className="flex items-start">
+              <input
+                type="checkbox"
+                checked={agreeToTerms}
+                onChange={(e) => setAgreeToTerms(e.target.checked)}
+                className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500 mt-1"
+                required
+              />
+              <label className="ml-2 text-sm cursor-pointer" style={{color: colors.SubText}}>
+                {t('auth.register.agreeTerms', 'Tôi đồng ý với')}{' '}
+                <a href="#" className="text-emerald-600 hover:text-emerald-500 font-medium">
+                  {t('auth.register.terms', 'Điều khoản')}
+                </a>
+                {' '}và{' '}
+                <a href="#" className="text-emerald-600 hover:text-emerald-500 font-medium">
+                  {t('auth.register.privacy', 'Chính sách bảo mật')}
+                </a>
+              </label>
+            </div>
+
+            {/* Register Button */}
             <button
               type="submit"
               className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 transform hover:scale-[1.02]"
             >
-              {t('auth.login.loginButton', 'Đăng nhập ngay')}
+              {t('auth.register.registerButton', 'Đăng ký ngay')}
             </button>
 
             {/* Or divider */}
@@ -147,12 +202,12 @@ function Login() {
               </div>
               <div className="relative flex justify-center text-sm">
                 <span className="px-4 text-gray-500" style={{backgroundColor: colors.Background}}>
-                  {t('auth.login.orLoginWith', 'Hoặc đăng nhập với')}
+                  {t('auth.register.orRegisterWith', 'Hoặc đăng ký bằng')}
                 </span>
               </div>
             </div>
 
-            {/* Social Login */}
+            {/* Social Register */}
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
@@ -180,12 +235,12 @@ function Login() {
               </button>
             </div>
 
-            {/* Sign Up Link */}
+            {/* Login Link */}
             <div className="text-center mt-6">
               <p className="text-sm" style={{color: colors.SubText}}>
-                {t('auth.login.noAccount', 'Chưa có tài khoản?')}{' '}
-                <a href="register" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
-                  {t('auth.login.signUpFree', 'Đăng ký miễn phí')}
+                {t('auth.register.haveAccount', 'Đã có tài khoản?')}{' '}
+                <a href="login" className="font-medium text-emerald-600 hover:text-emerald-500 transition-colors duration-200">
+                  {t('auth.register.signIn', 'Đăng nhập')}
                 </a>
               </p>
             </div>
@@ -196,4 +251,4 @@ function Login() {
   )
 }
 
-export default Login
+export default Register
