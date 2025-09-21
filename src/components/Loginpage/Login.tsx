@@ -43,8 +43,9 @@ function Login() {
       const token = response.data?.token || response.data?.accessToken || response.data?.access_token
       
       if (response.success && token) {
-        // Store token
-        storeAuthToken(token)
+        // Store token with expiration based on remember me option
+        const expirationDays = rememberMe ? 30 : 7 // 30 days if remember me, otherwise 7 days
+        storeAuthToken(token, expirationDays)
         
         // Always show localized success message
         setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))

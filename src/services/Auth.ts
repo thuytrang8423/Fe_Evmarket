@@ -204,31 +204,49 @@ export const logoutUserAPI = async (): Promise<LogoutResponse> => {
   }
 }
 
-// Helper function to store auth token
-export const storeAuthToken = (token: string) => {
+// Helper function to store auth token with expiration
+export const storeAuthToken = (token: string, expirationDays: number = 7) => {
   if (typeof window !== 'undefined') {
+    const expirationTime = Date.now() + (expirationDays * 24 * 60 * 60 * 1000) // Default 7 days
     localStorage.setItem('authToken', token)
+    localStorage.setItem('tokenExpiration', expirationTime.toString())
   }
 }
 
-// Helper function to get auth token
+// Helper function to check if token is expired
+export const isTokenExpired = (): boolean => {
+  if (typeof window !== 'undefined') {
+    const expiration = localStorage.getItem('tokenExpiration')
+    if (!expiration) return true
+    return Date.now() > parseInt(expiration)
+  }
+  return true
+}
+
+// Helper function to get auth token (only if not expired)
 export const getAuthToken = (): string | null => {
   if (typeof window !== 'undefined') {
+    if (isTokenExpired()) {
+      removeAuthToken() // Auto cleanup expired token
+      return null
+    }
     return localStorage.getItem('authToken')
   }
   return null
 }
 
-// Helper function to remove auth token
+// Helper function to remove auth token and expiration
 export const removeAuthToken = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('authToken')
+    localStorage.removeItem('tokenExpiration')
   }
 }
 
-// Helper function to check if user is authenticated
+// Helper function to check if user is authenticated (with expiration check)
 export const isAuthenticated = (): boolean => {
-  return getAuthToken() !== null
+  const token = getAuthToken() // This already checks expiration
+  return token !== null
 }
 
 // Logout function with API call
