@@ -3,9 +3,19 @@ import React from 'react'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useI18nContext } from '../../providers/I18nProvider'
+import { isAuthenticated } from '../../services'
 
 function Content() {
   const { t } = useI18nContext()
+  
+  // Handle navigation with authentication check
+  const handleSellNavigation = () => {
+    if (!isAuthenticated()) {
+      window.location.href = '/login'
+      return
+    }
+    window.location.href = '/sell'
+  }
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 px-6 py-16">
@@ -38,16 +48,16 @@ function Content() {
               >
                 {t('homepage.hero.browseBtn', 'Browse EVs')}
               </a>
-              <a 
-                href="/sell"
-                className="px-8 py-4 border-2 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg text-center inline-block"
+              <button 
+                onClick={handleSellNavigation}
+                className="px-8 py-4 border-2 font-semibold rounded-lg transition-all duration-300 hover:shadow-lg text-center"
                 style={{
                   color: colors.Text,
                   borderColor: colors.SubText
                 }}
               >
                 {t('homepage.hero.sellBtn', 'Sell Your EV')}
-              </a>
+              </button>
             </div>
           </div>
 

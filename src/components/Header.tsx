@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react'
 import colors from '../Utils/Color'
 import Image from 'next/image'
+import { User, List, LogOut } from 'lucide-react'
 import { useI18nContext } from '../providers/I18nProvider'
 import { usePathname } from 'next/navigation'
 import { isAuthenticated, logoutUser } from '../services'
@@ -61,6 +62,17 @@ function Header() {
   // Get current language info
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
 
+  // Handle navigation with authentication check
+  const handleNavigation = (href: string, requireAuth: boolean = false) => {
+    if (requireAuth && !isLoggedIn) {
+      // Redirect to login page if authentication is required but user is not logged in
+      window.location.href = '/login'
+      return
+    }
+    // Navigate normally
+    window.location.href = href
+  }
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -86,11 +98,12 @@ function Header() {
           <nav className="hidden md:flex items-center gap-8">
             {navigationItems.map((item, index) => {
               const isActive = isActivePath(item.href)
+              const requireAuth = item.href === '/sell'
               return (
-                <a
+                <button
                   key={index}
-                  href={item.href}
-                  className={`text-sm font-medium transition-colors duration-300 ${
+                  onClick={() => handleNavigation(item.href, requireAuth)}
+                  className={`text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
                     isActive 
                       ? 'text-blue-600' 
                       : 'hover:text-blue-600'
@@ -98,7 +111,7 @@ function Header() {
                   style={!isActive ? {color: colors.Text} : {}}
                 >
                   {item.name}
-                </a>
+                </button>
               )
             })}
           </nav>
@@ -189,18 +202,20 @@ function Header() {
                       <div className="py-2">
                         <a
                           href="/profile"
-                          className="block px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
                           style={{color: colors.Text}}
                           onClick={() => setProfileDropdownOpen(false)}
                         >
+                          <User size={16} />
                           {t('header.profileSettings', 'Profile Settings')}
                         </a>
                         <a
                           href="/sell"
-                          className="block px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
                           style={{color: colors.Text}}
                           onClick={() => setProfileDropdownOpen(false)}
                         >
+                          <List size={16} />
                           {t('header.myListings', 'My Listings')}
                         </a>
                         <div className="border-t border-gray-200 my-1"></div>
@@ -210,15 +225,18 @@ function Header() {
                             setProfileDropdownOpen(false)
                           }}
                           disabled={isLoggingOut}
-                          className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           {isLoggingOut ? (
-                            <div className="flex items-center">
-                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin mr-2"></div>
+                            <>
+                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
                               {t('header.loggingOut', 'Logging out...')}
-                            </div>
+                            </>
                           ) : (
-                            t('header.logout', 'Logout')
+                            <>
+                              <LogOut size={16} />
+                              {t('header.logout', 'Logout')}
+                            </>
                           )}
                         </button>
                       </div>
@@ -273,20 +291,23 @@ function Header() {
               <div className="space-y-2">
                 {navigationItems.map((item, index) => {
                   const isActive = isActivePath(item.href)
+                  const requireAuth = item.href === '/sell'
                   return (
-                    <a
+                    <button
                       key={index}
-                      href={item.href}
-                      className={`block py-2 text-sm font-medium transition-colors duration-300 ${
+                      onClick={() => {
+                        handleNavigation(item.href, requireAuth)
+                        setMobileMenuOpen(false)
+                      }}
+                      className={`block w-full text-left py-2 text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
                         isActive 
                           ? 'text-blue-600' 
                           : 'hover:text-blue-600'
                       }`}
                       style={!isActive ? {color: colors.Text} : {}}
-                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
-                    </a>
+                    </button>
                   )
                 })}
               </div>
