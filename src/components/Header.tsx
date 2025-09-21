@@ -1,16 +1,39 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import colors from '../Utils/Color'
 import Image from 'next/image'
+import { User, List, LogOut } from 'lucide-react'
 import { useI18nContext } from '../providers/I18nProvider'
 import { usePathname } from 'next/navigation'
+import { isAuthenticated, logoutUser } from '../services'
 
 function Header() {
   const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false)
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isLoggedIn, setIsLoggedIn] = useState(false) // Track login status
+  const [isLoggingOut, setIsLoggingOut] = useState(false) // Track logout process
   const { locale, changeLocale, t } = useI18nContext()
   const pathname = usePathname()
+
+  // Check login status on component mount and when pathname changes
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated())
+  }, [pathname])
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true)
+    try {
+      await logoutUser()
+      setIsLoggedIn(false)
+    } catch (error) {
+      console.error('Logout failed:', error)
+      // Even if logout fails, we still redirect
+      logoutUser()
+    } finally {
+      setIsLoggingOut(false)
+    }
+  }
   
   const navigationItems = [
     { name: t('navigation.home'), href: '/' },
@@ -39,6 +62,17 @@ function Header() {
   // Get current language info
   const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
 
+  // Handle navigation with authentication check
+  const handleNavigation = (href: string, requireAuth: boolean = false) => {
+    if (requireAuth && !isLoggedIn) {
+      // Redirect to login page if authentication is required but user is not logged in
+      window.location.href = '/login'
+      return
+    }
+    // Navigate normally
+    window.location.href = href
+  }
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -64,11 +98,12 @@ function Header() {
           <nav className="hidden md:flex items-center gap-8">
             {navigationItems.map((item, index) => {
               const isActive = isActivePath(item.href)
+              const requireAuth = item.href === '/sell'
               return (
-                <a
+                <button
                   key={index}
-                  href={item.href}
-                  className={`text-sm font-medium transition-colors duration-300 ${
+                  onClick={() => handleNavigation(item.href, requireAuth)}
+                  className={`text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
                     isActive 
                       ? 'text-blue-600' 
                       : 'hover:text-blue-600'
@@ -76,7 +111,7 @@ function Header() {
                   style={!isActive ? {color: colors.Text} : {}}
                 >
                   {item.name}
-                </a>
+                </button>
               )
             })}
           </nav>
@@ -147,15 +182,75 @@ function Header() {
 
               {/* Profile / Login */}
               {isLoggedIn ? (
-                <button className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300">
-                  <Image
-                    src="/Profile.svg"
-                    alt="Profile"
-                    width={32}
-                    height={32}
-                    className="w-8 h-8"
-                  />
-                </button>
+                <div className="relative">
+                  <button 
+                    className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
+                    onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+                  >
+                    <Image
+                      src="/Profile.svg"
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8"
+                    />
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  {profileDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                      <div className="py-2">
+                        <a
+                          href="/profile"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
+                          style={{color: colors.Text}}
+                          onClick={() => setProfileDropdownOpen(false)}
+                        >
+                          <User size={16} />
+                          {t('header.profileSettings', 'Profile Settings')}
+                        </a>
+                        <a
+                          href="/sell"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
+                          style={{color: colors.Text}}
+                          onClick={() => setProfileDropdownOpen(false)}
+                        >
+                          <List size={16} />
+                          {t('header.myListings', 'My Listings')}
+                        </a>
+                        <div className="border-t border-gray-200 my-1"></div>
+                        <button
+                          onClick={() => {
+                            handleLogout()
+                            setProfileDropdownOpen(false)
+                          }}
+                          disabled={isLoggingOut}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          {isLoggingOut ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                              {t('header.loggingOut', 'Logging out...')}
+                            </>
+                          ) : (
+                            <>
+                              <LogOut size={16} />
+                              {t('header.logout', 'Logout')}
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Overlay to close dropdown */}
+                  {profileDropdownOpen && (
+                    <div 
+                      className="fixed inset-0 z-40"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    />
+                  )}
+                </div>
               ) : (
                 <a
                   href="/login"
@@ -196,20 +291,23 @@ function Header() {
               <div className="space-y-2">
                 {navigationItems.map((item, index) => {
                   const isActive = isActivePath(item.href)
+                  const requireAuth = item.href === '/sell'
                   return (
-                    <a
+                    <button
                       key={index}
-                      href={item.href}
-                      className={`block py-2 text-sm font-medium transition-colors duration-300 ${
+                      onClick={() => {
+                        handleNavigation(item.href, requireAuth)
+                        setMobileMenuOpen(false)
+                      }}
+                      className={`block w-full text-left py-2 text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
                         isActive 
                           ? 'text-blue-600' 
                           : 'hover:text-blue-600'
                       }`}
                       style={!isActive ? {color: colors.Text} : {}}
-                      onClick={() => setMobileMenuOpen(false)}
                     >
                       {item.name}
-                    </a>
+                    </button>
                   )
                 })}
               </div>
@@ -219,7 +317,7 @@ function Header() {
                 {/* Language Selector */}
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium" style={{color: colors.Text}}>
-                    Language
+                    {t('header.language', 'Language')}
                   </span>
                   <div className="flex gap-2">
                     {languages.map((language, index) => (
@@ -254,21 +352,44 @@ function Header() {
                         height={20}
                         className="w-5 h-5"
                       />
-                      <span className="text-xs" style={{color: colors.SubText}}>Notifications</span>
+                      <span className="text-xs" style={{color: colors.SubText}}>{t('header.notifications', 'Notifications')}</span>
                     </button>
                   )}
                   
                   {isLoggedIn ? (
-                    <button className="flex flex-col items-center gap-1 p-2">
-                      <Image
-                        src="/profile.svg"
-                        alt="Profile"
-                        width={20}
-                        height={20}
-                        className="w-5 h-5"
-                      />
-                      <span className="text-xs" style={{color: colors.SubText}}>Profile</span>
-                    </button>
+                    <div className="space-y-2">
+                      <a
+                        href="/profile"
+                        className="flex flex-col items-center gap-1 p-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Image
+                          src="/Profile.svg"
+                          alt="Profile"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        <span className="text-xs" style={{color: colors.SubText}}>{t('header.profile', 'Profile')}</span>
+                      </a>
+                      <button
+                        onClick={() => {
+                          handleLogout()
+                          setMobileMenuOpen(false)
+                        }}
+                        disabled={isLoggingOut}
+                        className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isLoggingOut ? (
+                          <div className="flex items-center justify-center">
+                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                            {t('header.loggingOut', 'Logging out...')}
+                          </div>
+                        ) : (
+                          t('header.logout', 'Logout')
+                        )}
+                      </button>
+                    </div>
                   ) : (
                     <a
                       href="/login"

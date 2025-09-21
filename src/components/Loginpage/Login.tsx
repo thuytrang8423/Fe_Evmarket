@@ -3,17 +3,65 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
+import { loginUser, storeAuthToken } from '../../services'
+
+// Helper function to map server errors to i18n keys
+const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
+  const lowerMessage = serverMessage.toLowerCase()
+  
+  if (lowerMessage.includes('invalid') || lowerMessage.includes('credential')) {
+    return t('auth.login.invalidCredentials', 'Email hoặc mật khẩu không đúng')
+  }
+  if (lowerMessage.includes('network') || lowerMessage.includes('server')) {
+    return t('auth.login.networkError', 'Lỗi mạng hoặc server không khả dụng')
+  }
+  
+  // Default error message
+  return t('auth.login.loginFailed', 'Đăng nhập thất bại')
+}
 
 function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Login attempt:', { email, password, rememberMe })
+    setIsLoading(true)
+    setError(null)
+    setSuccess(null)
+
+    try {
+      const response = await loginUser({ email, password })
+      
+      // Check for token in different possible locations
+      const token = response.data?.token || response.data?.accessToken || response.data?.access_token
+      
+      if (response.success && token) {
+        // Store token
+        storeAuthToken(token)
+        
+        // Always show localized success message
+        setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
+        
+        // Redirect to home page or dashboard after a short delay
+        setTimeout(() => {
+          window.location.href = '/'
+        }, 1500)
+      } else {
+        // Use localized error message based on server response
+        setError(getLocalizedErrorMessage(response.message || '', t))
+      }
+    } catch (error) {
+      setError(t('auth.login.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -63,6 +111,20 @@ function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Success Message */}
+            {success && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-600">{success}</p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600">{error}</p>
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
@@ -135,9 +197,17 @@ function Login() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 transform hover:scale-[1.02]"
+              disabled={isLoading}
+              className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white py-3 px-4 rounded-lg font-medium hover:from-emerald-600 hover:to-teal-700 focus:ring-4 focus:ring-emerald-200 transition-all duration-200 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
-              {t('auth.login.loginButton', 'Đăng nhập ngay')}
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2"></div>
+                  {t('common.loading', 'Đang tải...')}
+                </div>
+              ) : (
+                t('auth.login.loginButton', 'Đăng nhập ngay')
+              )}
             </button>
 
             {/* Or divider */}
