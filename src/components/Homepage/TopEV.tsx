@@ -2,10 +2,16 @@
 import React from 'react'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
 
 function TopEV() {
   const { t } = useI18nContext()
+  const router = useRouter()
+  
+  const handleCarClick = (carId: number) => {
+    router.push(`/car/${carId}`)
+  }
   
   const evDeals = [
     {
@@ -79,6 +85,7 @@ function TopEV() {
             <div 
               key={ev.id} 
               className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
+              onClick={() => handleCarClick(ev.id)}
             >
               {/* Image Container */}
               <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200">

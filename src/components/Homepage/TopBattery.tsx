@@ -2,10 +2,16 @@
 import React from 'react'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
 
 function TopBattery() {
   const { t } = useI18nContext()
+  const router = useRouter()
+  
+  const handleBatteryClick = (batteryId: number) => {
+    router.push(`/pin/${batteryId}`)
+  }
   
   const batteryListings = [
     {
@@ -79,6 +85,7 @@ function TopBattery() {
             <div 
               key={battery.id} 
               className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer border border-gray-200"
+              onClick={() => handleBatteryClick(battery.id)}
             >
               {/* Image Container */}
               <div className="relative h-48 bg-gradient-to-br from-blue-50 to-cyan-50">
