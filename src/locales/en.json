@@ -19,6 +19,15 @@
     "browse": "Explore EVs & Batteries",
     "sell": "Sell Your EV"
   },
+  "header": {
+    "profileSettings": "Profile Settings",
+    "myListings": "My Listings",
+    "logout": "Logout",
+    "loggingOut": "Logging out...",
+    "notifications": "Notifications",
+    "profile": "Profile",
+    "language": "Language"
+  },
   "home": {
     "title": "Home",
     "description": "Welcome to our EV & Battery platform"
@@ -245,10 +254,15 @@
       "passwordPlaceholder": "Enter your password",
       "rememberMe": "Remember me",
       "forgotPassword": "Forgot password?",
-      "loginButton": "Login ",
+      "loginButton": "Login now",
       "orLoginWith": "Or login with",
       "noAccount": "Don't have an account?",
-      "signUpFree": "Sign up now"
+      "signUpFree": "Sign up for free",
+      "loginSuccess": "Login successful!",
+      "loginFailed": "Login failed",
+      "invalidCredentials": "Invalid email or password",
+      "networkError": "Network error or server is unavailable",
+      "unexpectedError": "An unexpected error occurred"
     },
     "register": {
       "title": "Create Account",
@@ -266,11 +280,68 @@
       "agreeTerms": "I agree to the",
       "terms": "Terms",
       "privacy": "Privacy Policy",
-      "registerButton": "Register ",
+      "registerButton": "Register now",
       "orRegisterWith": "Or register with",
       "haveAccount": "Already have an account?",
       "signIn": "Sign in",
-      "passwordMismatch": "Password confirmation does not match!"
+      "passwordMismatch": "Password confirmation does not match!",
+      "registerSuccess": "Registration successful! Redirecting to login page...",
+      "registerFailed": "Registration failed",
+      "emailExists": "This email is already in use",
+      "passwordTooShort": "Password must be at least 8 characters",
+      "invalidEmail": "Invalid email format",
+      "networkError": "Network error or server is unavailable",
+      "unexpectedError": "An unexpected error occurred"
+    }
+  },
+  "profile": {
+    "settings": {
+      "title": "Profile Settings",
+      "subtitle": "Manage your account settings and preferences",
+      "loading": "Loading profile...",
+      "updateSuccess": "Profile updated successfully!",
+      "avatarUpdateSuccess": "Avatar updated successfully!",
+      "updateFailed": "Failed to update profile",
+      "loadFailed": "Failed to load profile",
+      "avatarUploadFailed": "Failed to upload avatar",
+      "invalidImageFile": "Please select a valid image file",
+      "fileSizeError": "File size must be less than 5MB"
+    },
+    "sidebar": {
+      "profile": "Profile",
+      "security": "Security",
+      "logout": "Logout",
+      "uploadAvatar": "Upload new avatar",
+      "uploading": "Uploading..."
+    },
+    "profileTab": {
+      "title": "Profile Information",
+      "subtitle": "Update your personal information",
+      "fullName": "Full Name",
+      "fullNamePlaceholder": "Enter your full name",
+      "email": "Email Address",
+      "emailPlaceholder": "Enter your email address",
+      "accountRole": "Account Role",
+      "memberSince": "Member Since",
+      "saveChanges": "Save Changes",
+      "saving": "Saving..."
+    },
+    "securityTab": {
+      "title": "Security Settings",
+      "subtitle": "Update your password and security preferences",
+      "changePassword": "Change Password",
+      "currentPassword": "Current Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPassword": "New Password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPassword": "Confirm New Password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "updatePassword": "Update Password",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "twoFactorAuth": "Two-Factor Authentication",
+      "twoFactorDesc": "Add an extra layer of security to your account",
+      "enable2FA": "Enable 2FA"
     }
   }
 }

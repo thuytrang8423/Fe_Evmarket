@@ -1,10 +1,10 @@
 {
   "common": {
-    "welcome": "Chào mừng bạn",
+    "welcome": "Chào mừng",
     "home": "Trang chủ",
     "about": "Giới thiệu",
     "loading": "Đang tải...",
-    "error": "Có lỗi xảy ra",
+    "error": "Đã xảy ra lỗi",
     "success": "Thành công",
     "viewAll": "Xem tất cả",
     "rating": "Đánh giá",
@@ -18,6 +18,15 @@
     "about": "Về chúng tôi",
     "browse": "Khám phá EV & Pin",
     "sell": "Đăng tin bán EV"
+  },
+  "header": {
+    "profileSettings": "Cài đặt hồ sơ",
+    "myListings": "Tin đăng của tôi",
+    "logout": "Đăng xuất",
+    "loggingOut": "Đang đăng xuất...",
+    "notifications": "Thông báo",
+    "profile": "Hồ sơ",
+    "language": "Ngôn ngữ"
   },
   "home": {
     "title": "Trang chủ",
@@ -245,10 +254,15 @@
       "passwordPlaceholder": "Nhập mật khẩu của bạn",
       "rememberMe": "Ghi nhớ đăng nhập",
       "forgotPassword": "Quên mật khẩu?",
-      "loginButton": "Đăng nhập ",
+      "loginButton": "Đăng nhập ngay",
       "orLoginWith": "Hoặc đăng nhập với",
       "noAccount": "Chưa có tài khoản?",
-      "signUpFree": "Đăng ký miễn phí"
+      "signUpFree": "Đăng ký miễn phí",
+      "loginSuccess": "Đăng nhập thành công!",
+      "loginFailed": "Đăng nhập thất bại",
+      "invalidCredentials": "Email hoặc mật khẩu không đúng",
+      "networkError": "Lỗi mạng hoặc server không khả dụng",
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
     },
     "register": {
       "title": "Đăng ký tài khoản",
@@ -266,11 +280,68 @@
       "agreeTerms": "Tôi đồng ý với",
       "terms": "Điều khoản",
       "privacy": "Chính sách bảo mật",
-      "registerButton": "Đăng ký ",
+      "registerButton": "Đăng ký ngay",
       "orRegisterWith": "Hoặc đăng ký bằng",
       "haveAccount": "Đã có tài khoản?",
       "signIn": "Đăng nhập",
-      "passwordMismatch": "Mật khẩu xác nhận không khớp!"
+      "passwordMismatch": "Mật khẩu xác nhận không khớp!",
+      "registerSuccess": "Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...",
+      "registerFailed": "Đăng ký thất bại",
+      "emailExists": "Email này đã được sử dụng",
+      "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
+      "invalidEmail": "Định dạng email không hợp lệ",
+      "networkError": "Lỗi mạng hoặc server không khả dụng",
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
+    }
+  },
+  "profile": {
+    "settings": {
+      "title": "Cài đặt hồ sơ",
+      "subtitle": "Quản lý cài đặt tài khoản và tùy chọn của bạn",
+      "loading": "Đang tải hồ sơ...",
+      "updateSuccess": "Cập nhật hồ sơ thành công!",
+      "avatarUpdateSuccess": "Cập nhật ảnh đại diện thành công!",
+      "updateFailed": "Không thể cập nhật hồ sơ",
+      "loadFailed": "Không thể tải hồ sơ",
+      "avatarUploadFailed": "Không thể tải lên ảnh đại diện",
+      "invalidImageFile": "Vui lòng chọn file ảnh hợp lệ",
+      "fileSizeError": "Kích thước file phải nhỏ hơn 5MB"
+    },
+    "sidebar": {
+      "profile": "Hồ sơ",
+      "security": "Bảo mật",
+      "logout": "Đăng xuất",
+      "uploadAvatar": "Tải lên ảnh đại diện mới",
+      "uploading": "Đang tải lên..."
+    },
+    "profileTab": {
+      "title": "Thông tin hồ sơ",
+      "subtitle": "Cập nhật thông tin cá nhân của bạn",
+      "fullName": "Họ và tên",
+      "fullNamePlaceholder": "Nhập họ và tên của bạn",
+      "email": "Địa chỉ Email",
+      "emailPlaceholder": "Nhập địa chỉ email của bạn",
+      "accountRole": "Vai trò tài khoản",
+      "memberSince": "Thành viên từ",
+      "saveChanges": "Lưu thay đổi",
+      "saving": "Đang lưu..."
+    },
+    "securityTab": {
+      "title": "Cài đặt bảo mật",
+      "subtitle": "Cập nhật mật khẩu và tùy chọn bảo mật",
+      "changePassword": "Đổi mật khẩu",
+      "currentPassword": "Mật khẩu hiện tại",
+      "currentPasswordPlaceholder": "Nhập mật khẩu hiện tại",
+      "newPassword": "Mật khẩu mới",
+      "newPasswordPlaceholder": "Nhập mật khẩu mới",
+      "confirmPassword": "Xác nhận mật khẩu mới",
+      "confirmPasswordPlaceholder": "Xác nhận mật khẩu mới",
+      "updatePassword": "Cập nhật mật khẩu",
+      "showPassword": "Hiển thị mật khẩu",
+      "hidePassword": "Ẩn mật khẩu",
+      "twoFactorAuth": "Xác thực hai yếu tố",
+      "twoFactorDesc": "Thêm một lớp bảo mật cho tài khoản của bạn",
+      "enable2FA": "Bật 2FA"
     }
   }
 }
