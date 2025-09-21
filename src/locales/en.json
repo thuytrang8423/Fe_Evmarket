@@ -343,5 +343,51 @@
       "twoFactorDesc": "Add an extra layer of security to your account",
       "enable2FA": "Enable 2FA"
     }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "orderSummary": "Order Summary",
+    "paymentInfo": "Payment Information",
+    "paymentMethod": "Payment Method",
+    "orderDetails": "Order Details",
+    "personalInfo": {
+      "fullName": "Full Name",
+      "email": "Email",
+      "phone": "Phone Number",
+      "billingAddress": "Billing Address"
+    },
+    "paymentMethods": {
+      "creditCard": "Credit / Debit Card",
+      "ewallet": "E-wallet",
+      "bankTransfer": "Bank Transfer",
+      "cardholderName": "Cardholder Name",
+      "cardNumber": "Card Number",
+      "expiryDate": "Expiry Date",
+      "cvv": "CVV"
+    },
+    "orderBreakdown": {
+      "productPrice": "Product Price",
+      "serviceFee": "Service Fee",
+      "vat": "VAT Tax (10%)",
+      "discount": "Discount (VIP Customer)",
+      "total": "Total"
+    },
+    "security": {
+      "securePayment": "Secure Payment",
+      "secureDesc": "Secured by SSL 256-bit",
+      "refundPolicy": "Refund Policy",
+      "refundDesc": "100% refund within 7 days",
+      "support24": "24/7 Support",
+      "supportDesc": "Support team is always ready"
+    },
+    "terms": "I agree with the Terms and Conditions as well as the Privacy Policy of EV Market.",
+    "completePayment": "Complete Payment",
+    "productDetails": {
+      "year": "Year of manufacture",
+      "batteryCapacity": "Battery capacity",
+      "mileage": "Kilometers driven",
+      "condition": "Condition",
+      "used": "Used"
+    }
   }
 }

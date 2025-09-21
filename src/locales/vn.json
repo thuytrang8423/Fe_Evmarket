@@ -343,5 +343,51 @@
       "twoFactorDesc": "Thêm một lớp bảo mật cho tài khoản của bạn",
       "enable2FA": "Bật 2FA"
     }
+  },
+  "checkout": {
+    "title": "Thanh toán",
+    "orderSummary": "Tóm tắt đơn hàng",
+    "paymentInfo": "Thông tin thanh toán",
+    "paymentMethod": "Phương thức thanh toán",
+    "orderDetails": "Chi tiết đơn hàng",
+    "personalInfo": {
+      "fullName": "Họ và tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "billingAddress": "Địa chỉ thanh toán"
+    },
+    "paymentMethods": {
+      "creditCard": "Thẻ tín dụng / Ghi nợ",
+      "ewallet": "Ví điện tử",
+      "bankTransfer": "Chuyển khoản ngân hàng",
+      "cardholderName": "Tên chủ thẻ",
+      "cardNumber": "Số thẻ",
+      "expiryDate": "Ngày hết hạn",
+      "cvv": "CVV"
+    },
+    "orderBreakdown": {
+      "productPrice": "Giá sản phẩm",
+      "serviceFee": "Phí dịch vụ",
+      "vat": "Thuế VAT (10%)",
+      "discount": "Giảm giá (Khách hàng VIP)",
+      "total": "Tổng cộng"
+    },
+    "security": {
+      "securePayment": "Thanh toán an toàn",
+      "secureDesc": "Được bảo mật bởi SSL 256-bit",
+      "refundPolicy": "Chính sách hoàn tiền",
+      "refundDesc": "Hoàn tiền 100% trong 7 ngày",
+      "support24": "Hỗ trợ 24/7",
+      "supportDesc": "Đội ngũ hỗ trợ luôn sẵn sàng"
+    },
+    "terms": "Tôi đồng ý với Điều khoản và Điều kiện cũng như Chính sách Bảo mật của EV Market.",
+    "completePayment": "Hoàn tất thanh toán",
+    "productDetails": {
+      "year": "Năm sản xuất",
+      "batteryCapacity": "Dung lượng pin",
+      "mileage": "Số km đã đi",
+      "condition": "Tình trạng",
+      "used": "Đã qua sử dụng"
+    }
   }
 }
