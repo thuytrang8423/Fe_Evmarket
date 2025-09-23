@@ -21,6 +21,18 @@ export {
   uploadAvatar
 } from './User'
 
+// Export Battery services
+export {
+  getBatteries,
+  getBatteryById
+} from './Battery'
+
+// Export Vehicle services
+export {
+  getVehicles,
+  getVehicleById
+} from './Vehicle'
+
 // Export types
 export type {
   LoginRequest,
@@ -37,3 +49,14 @@ export type {
   UpdateProfileRequest,
   UpdateProfileResponse
 } from './User'
+
+export type {
+  Battery,
+  BatteriesResponse
+} from './Battery'
+
+export type {
+  Vehicle,
+  VehiclesResponse,
+  VehicleResponse
+} from './Vehicle'

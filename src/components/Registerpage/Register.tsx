@@ -27,7 +27,7 @@ const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
 }
 
 function Register() {
-  const [fullName, setFullName] = useState('')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -56,7 +56,7 @@ function Register() {
       const response = await registerUser({
         email,
         password,
-        fullName
+        name
       })
       
       if (response.success) {
@@ -139,21 +139,21 @@ function Register() {
               </div>
             )}
 
-            {/* Full Name Field */}
+            {/* Name Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                {t('auth.register.fullNameLabel', 'Họ và tên')}
+                {t('auth.register.nameLabel', 'Họ và tên')}
               </label>
               <input
                 type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"
                 style={{
                   borderColor: colors.Border,
                   color: colors.Text
                 }}
-                placeholder={t('auth.register.fullNamePlaceholder', 'Nhập họ và tên của bạn')}
+                placeholder={t('auth.register.namePlaceholder', 'Nhập họ và tên của bạn')}
                 required
               />
             </div>
