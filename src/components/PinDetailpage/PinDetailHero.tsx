@@ -1,27 +1,17 @@
 "use client"
 import React, { useState } from 'react'
 import Image from 'next/image'
-import { Heart, Share2, Flag, Battery, Zap } from 'lucide-react'
+import { Heart, Share2, Flag, Battery as BatteryIcon, Zap } from 'lucide-react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 
+import { Battery } from '../../services'
+
 interface PinDetailHeroProps {
-  pin: {
-    id: number
-    name: string
-    year: string
-    price: string
-    images: string[]
-    capacity: string
-    voltage: string
-    batteryHealth: string
-    type: string
-    verified: boolean
-    popular: boolean
-  }
+  battery: Battery
 }
 
-function PinDetailHero({ pin }: PinDetailHeroProps) {
+function PinDetailHero({ battery }: PinDetailHeroProps) {
   const { t } = useI18nContext()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isWishlisted, setIsWishlisted] = useState(false)
@@ -35,15 +25,15 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
             {/* Main Image */}
             <div className="relative bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl overflow-hidden aspect-[4/3]">
               <Image
-                src={pin.images[selectedImageIndex]}
-                alt={pin.name}
+                src={battery.images[selectedImageIndex] || '/Homepage/Pin.png'}
+                alt={battery.title}
                 fill
                 className="object-cover"
               />
               
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2">
-                {pin.verified && (
+                {battery.isVerified && (
                   <Image
                     src="/Homepage/Verified.svg"
                     alt="Verified"
@@ -52,21 +42,12 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
                     className="h-5 w-auto"
                   />
                 )}
-                {pin.popular && (
-                  <Image
-                    src="/Homepage/Popular.svg"
-                    alt="Popular"
-                    width={80}
-                    height={24}
-                    className="h-6 w-auto"
-                  />
-                )}
               </div>
             </div>
 
             {/* Thumbnail Images */}
             <div className="flex gap-3 overflow-x-auto">
-              {pin.images.map((image, index) => (
+              {battery.images && battery.images.length > 0 ? battery.images.map((image: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImageIndex(index)}
@@ -77,13 +58,17 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
                   }`}
                 >
                   <Image
-                    src={image}
-                    alt={`${pin.name} ${index + 1}`}
+                    src={image || '/Homepage/Pin.png'}
+                    alt={`${battery.title} ${index + 1}`}
                     fill
                     className="object-cover"
                   />
                 </button>
-              ))}
+              )) : (
+                <div className="w-20 h-20 rounded-lg bg-gray-100 flex items-center justify-center">
+                  <BatteryIcon size={24} className="text-gray-400" />
+                </div>
+              )}
             </div>
           </div>
 
@@ -92,10 +77,10 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
             {/* Header */}
             <div>
               <h1 className="text-3xl font-bold mb-2" style={{color: colors.Text}}>
-                {pin.name} ({pin.year})
+                {battery.title} ({battery.year})
               </h1>
               <div className="text-4xl font-bold" style={{color: colors.PriceText}}>
-                {pin.price}
+                ${battery.price.toLocaleString()}
               </div>
             </div>
 
@@ -103,45 +88,45 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center justify-center mb-2">
-                  <Battery size={20} className="text-blue-600" />
+                  <BatteryIcon size={20} className="text-blue-600" />
                 </div>
-                <div className="text-sm text-gray-600">Capacity</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.capacity')}</div>
                 <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                  {pin.capacity}
+                  {battery.capacity} kWh
                 </div>
               </div>
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="flex items-center justify-center mb-2">
                   <Zap size={20} className="text-blue-600" />
                 </div>
-                <div className="text-sm text-gray-600">Voltage</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.voltage')}</div>
                 <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                  {pin.voltage}
+                  {battery.specifications?.voltage || t('vehicleDetail.na')}
                 </div>
               </div>
               <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-sm text-gray-600">Health</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.health')}</div>
                 <div className="text-lg font-semibold text-green-600">
-                  {pin.batteryHealth}
+                  {battery.health}% {t('vehicleDetail.soh')}
                 </div>
               </div>
             </div>
 
             {/* Battery Type */}
             <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="text-sm text-gray-600 mb-1">Battery Type</div>
+              <div className="text-sm text-gray-600 mb-1">{t('vehicleDetail.batteryType')}</div>
               <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                {pin.type}
+                {battery.specifications?.chemistry || t('vehicleDetail.na')}
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Contact Seller
+              <button className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">
+                {t('vehicleDetail.buyNow')}
               </button>
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Make Offer
+              <button className="flex-1 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+                {t('vehicleDetail.makeOffer')}
               </button>
             </div>
 
@@ -156,17 +141,17 @@ function PinDetailHero({ pin }: PinDetailHeroProps) {
                 }`}
               >
                 <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
-                {isWishlisted ? 'Saved' : 'Save'}
+                {isWishlisted ? t('vehicleDetail.saved') : t('vehicleDetail.save')}
               </button>
               
               <button className="flex items-center justify-center gap-2 py-2 px-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 rounded-lg transition-all duration-200">
                 <Share2 size={16} />
-                Share
+                {t('vehicleDetail.share')}
               </button>
               
               <button className="flex items-center justify-center gap-2 py-2 px-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 rounded-lg transition-all duration-200">
                 <Flag size={16} />
-                Report
+                {t('vehicleDetail.report')}
               </button>
             </div>
           </div>
