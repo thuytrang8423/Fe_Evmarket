@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { Heart, Share2, Flag } from 'lucide-react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
+import { useRouter } from 'next/navigation'
 
 import { Vehicle } from '../../services'
 
@@ -15,6 +16,7 @@ function CarDetailHero({ vehicle }: CarDetailHeroProps) {
   const { t } = useI18nContext()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const router = useRouter()
 
   // Extract battery capacity from specifications
   const batteryCapacity = vehicle.specifications?.batteryAndCharging?.batteryCapacity || 'N/A'
@@ -137,7 +139,10 @@ function CarDetailHero({ vehicle }: CarDetailHeroProps) {
               <button className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">
                 {t('vehicleDetail.buyNow')}
               </button>
-              <button className="flex-1 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
+              <button
+                onClick={() => router.push('/auction')}
+                className="flex-1 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+              >
                 {t('vehicleDetail.makeOffer')}
               </button>
             </div>
