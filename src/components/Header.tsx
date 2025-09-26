@@ -240,7 +240,7 @@ function Header() {
               ) : (
                 <a
                   href="/login"
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors duration-300 inline-block"
+                  className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-300 inline-block shadow-lg"
                 >
                   {t('common.login')}
                 </a>
@@ -371,7 +371,7 @@ function Header() {
                   ) : (
                     <a
                       href="/login"
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors duration-300 inline-block"
+                      className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-300 inline-block shadow-lg"
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       {t('common.login')}

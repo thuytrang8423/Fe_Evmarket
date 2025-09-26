@@ -4,81 +4,55 @@ import { Calendar, Gauge, Battery, Zap, MapPin, Shield } from 'lucide-react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 
+import { Vehicle } from '../../services'
+
 interface CarSpecificationsProps {
-  car: {
-    specifications: {
-      performance: {
-        topSpeed: string
-        acceleration: string
-        motorType: string
-        horsepower: string
-      }
-      battery: {
-        capacity: string
-        range: string
-        chargingSpeed: string
-        chargeTime: string
-      }
-      dimensions: {
-        length: string
-        width: string
-        height: string
-        curbWeight: string
-      }
-      warranty: {
-        basic: string
-        battery: string
-        drivetrain: string
-      }
-    }
-  }
+  vehicle: Vehicle
 }
 
-function CarSpecifications({ car }: CarSpecificationsProps) {
+function CarSpecifications({ vehicle }: CarSpecificationsProps) {
   const { t } = useI18nContext()
+
+  const specs = vehicle.specifications
 
   const specSections = [
     {
-      title: "Technical Specifications",
+      title: "Performance",
       icon: <Gauge size={20} />,
-      content: "Performance",
       items: [
-        { label: "Top Speed", value: car.specifications.performance.topSpeed },
-        { label: "0-60 mph", value: car.specifications.performance.acceleration },
-        { label: "Motor Type", value: car.specifications.performance.motorType },
-        { label: "Horsepower", value: car.specifications.performance.horsepower }
+        { label: "Top Speed", value: specs?.performance?.topSpeed || 'N/A' },
+        { label: "0-60 mph", value: specs?.performance?.acceleration || 'N/A' },
+        { label: "Motor Type", value: specs?.performance?.motorType || 'N/A' },
+        { label: "Horsepower", value: specs?.performance?.horsepower || 'N/A' }
       ]
     },
     {
       title: "Battery & Charging",
       icon: <Battery size={20} />,
-      content: "Battery & Charging",
       items: [
-        { label: "Battery Capacity", value: car.specifications.battery.capacity },
-        { label: "Range (EPA)", value: car.specifications.battery.range },
-        { label: "Charging Speed", value: car.specifications.battery.chargingSpeed },
-        { label: "Charge Time (0-80%)", value: car.specifications.battery.chargeTime }
+        { label: "Battery Capacity", value: specs?.batteryAndCharging?.batteryCapacity || 'N/A' },
+        { label: "Range", value: specs?.batteryAndCharging?.range || 'N/A' },
+        { label: "Charging Speed", value: specs?.batteryAndCharging?.chargingSpeed || 'N/A' },
+        { label: "Charge Time", value: specs?.batteryAndCharging?.chargeTime || 'N/A' }
       ]
     },
     {
       title: "Dimensions",
       icon: <MapPin size={20} />,
-      content: "Dimensions",
       items: [
-        { label: "Length", value: car.specifications.dimensions.length },
-        { label: "Width", value: car.specifications.dimensions.width },
-        { label: "Height", value: car.specifications.dimensions.height },
-        { label: "Curb Weight", value: car.specifications.dimensions.curbWeight }
+        { label: "Length", value: specs?.dimensions?.length || 'N/A' },
+        { label: "Width", value: specs?.dimensions?.width || 'N/A' },
+        { label: "Height", value: specs?.dimensions?.height || 'N/A' },
+        { label: "Curb Weight", value: specs?.dimensions?.curbWeight || 'N/A' }
       ]
     },
     {
       title: "Warranty",
       icon: <Shield size={20} />,
-      content: "Warranty",
       items: [
-        { label: "Basic Warranty", value: car.specifications.warranty.basic },
-        { label: "Battery Warranty", value: car.specifications.warranty.battery },
-        { label: "Drivetrain Warranty", value: car.specifications.warranty.drivetrain }
+        { label: "Basic Warranty", value: specs?.warranty?.basic || 'N/A' },
+        { label: "Battery Warranty", value: specs?.warranty?.battery || 'N/A' },
+        { label: "Drivetrain Warranty", value: specs?.warranty?.drivetrain || 'N/A' }
       ]
     }
   ]
@@ -96,7 +70,7 @@ function CarSpecifications({ car }: CarSpecificationsProps) {
               <div className="flex items-center gap-2 mb-3">
                 <div className="text-blue-600">{section.icon}</div>
                 <h4 className="font-semibold" style={{color: colors.Text}}>
-                  {section.content}
+                  {section.title}
                 </h4>
               </div>
               

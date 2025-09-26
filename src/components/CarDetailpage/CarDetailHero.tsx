@@ -4,27 +4,24 @@ import Image from 'next/image'
 import { Heart, Share2, Flag } from 'lucide-react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
+import { useRouter } from 'next/navigation'
+
+import { Vehicle } from '../../services'
 
 interface CarDetailHeroProps {
-  car: {
-    id: number
-    name: string
-    year: string
-    price: string
-    images: string[]
-    batteryCapacity: string
-    range: string
-    condition: string
-    year_badge: string
-    verified: boolean
-    fastSale: boolean
-  }
+  vehicle: Vehicle
 }
 
-function CarDetailHero({ car }: CarDetailHeroProps) {
+function CarDetailHero({ vehicle }: CarDetailHeroProps) {
   const { t } = useI18nContext()
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [isWishlisted, setIsWishlisted] = useState(false)
+  const router = useRouter()
+
+  // Extract battery capacity from specifications
+  const batteryCapacity = vehicle.specifications?.batteryAndCharging?.batteryCapacity || 'N/A'
+  const range = vehicle.specifications?.batteryAndCharging?.range || 'N/A'
+  const condition = vehicle.status === 'AVAILABLE' ? 'Available' : vehicle.status
 
   return (
     <div className="bg-white">
@@ -35,30 +32,37 @@ function CarDetailHero({ car }: CarDetailHeroProps) {
             {/* Main Image */}
             <div className="relative bg-gray-100 rounded-2xl overflow-hidden aspect-[4/3]">
               <Image
-                src={car.images[selectedImageIndex]}
-                alt={car.name}
+                src={vehicle.images[selectedImageIndex] || '/Homepage/TopCar.png'}
+                alt={vehicle.title}
                 fill
                 className="object-cover"
+                unoptimized={true}
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.src = '/Homepage/TopCar.png';
+                }}
               />
               
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2">
-                {car.verified && (
+                {vehicle.isVerified && (
                   <Image
-                    src="/Homepage/Verified.svg"
+                    src="/Verified.svg"
                     alt="Verified"
                     width={81}
                     height={20}
                     className="h-5 w-auto"
+                    unoptimized={true}
                   />
                 )}
-                {car.fastSale && (
+                {vehicle.status === 'AVAILABLE' && (
                   <Image
                     src="/Homepage/Sale.svg"
-                    alt="Fast Sale"
+                    alt="Available"
                     width={89}
                     height={20}
                     className="h-5 w-auto"
+                    unoptimized={true}
                   />
                 )}
               </div>
@@ -66,7 +70,7 @@ function CarDetailHero({ car }: CarDetailHeroProps) {
 
             {/* Thumbnail Images */}
             <div className="flex gap-3 overflow-x-auto">
-              {car.images.map((image, index) => (
+              {vehicle.images && vehicle.images.length > 0 ? vehicle.images.map((image: string, index: number) => (
                 <button
                   key={index}
                   onClick={() => setSelectedImageIndex(index)}
@@ -78,12 +82,21 @@ function CarDetailHero({ car }: CarDetailHeroProps) {
                 >
                   <Image
                     src={image}
-                    alt={`${car.name} ${index + 1}`}
+                    alt={`${vehicle.title} ${index + 1}`}
                     fill
                     className="object-cover"
+                    unoptimized={true}
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/Homepage/TopCar.png';
+                    }}
                   />
                 </button>
-              ))}
+              )) : (
+                <div className="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                  <span className="text-gray-400 text-xs">No images</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -92,42 +105,45 @@ function CarDetailHero({ car }: CarDetailHeroProps) {
             {/* Header */}
             <div>
               <h1 className="text-3xl font-bold mb-2" style={{color: colors.Text}}>
-                {car.name} {car.year}
+                {vehicle.title}
               </h1>
               <div className="text-4xl font-bold" style={{color: colors.PriceText}}>
-                {car.price}
+                ${vehicle.price.toLocaleString()}
               </div>
             </div>
 
             {/* Key Stats */}
             <div className="grid grid-cols-3 gap-4">
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600">Battery Capacity</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.batteryCapacity')}</div>
                 <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                  {car.batteryCapacity}
+                  {batteryCapacity}
                 </div>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600">Range</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.range')}</div>
                 <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                  {car.range}
+                  {range}
                 </div>
               </div>
               <div className="text-center p-4 bg-gray-50 rounded-lg">
-                <div className="text-sm text-gray-600">Condition</div>
+                <div className="text-sm text-gray-600">{t('vehicleDetail.mileage')}</div>
                 <div className="text-lg font-semibold" style={{color: colors.Text}}>
-                  {car.condition}
+                  {vehicle.mileage.toLocaleString()} mi
                 </div>
               </div>
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Contact Seller
+              <button className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">
+                {t('vehicleDetail.buyNow')}
               </button>
-              <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-200">
-                Make Offer
+              <button
+                onClick={() => router.push('/auction')}
+                className="flex-1 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
+              >
+                {t('vehicleDetail.makeOffer')}
               </button>
             </div>
 
@@ -142,17 +158,17 @@ function CarDetailHero({ car }: CarDetailHeroProps) {
                 }`}
               >
                 <Heart size={16} fill={isWishlisted ? 'currentColor' : 'none'} />
-                {isWishlisted ? 'Saved' : 'Save'}
+                {isWishlisted ? t('vehicleDetail.saved') : t('vehicleDetail.save')}
               </button>
               
               <button className="flex items-center justify-center gap-2 py-2 px-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 rounded-lg transition-all duration-200">
                 <Share2 size={16} />
-                Share
+                {t('vehicleDetail.share')}
               </button>
               
               <button className="flex items-center justify-center gap-2 py-2 px-4 border-2 border-gray-300 text-gray-700 hover:border-gray-400 rounded-lg transition-all duration-200">
                 <Flag size={16} />
-                Report
+                {t('vehicleDetail.report')}
               </button>
             </div>
           </div>
