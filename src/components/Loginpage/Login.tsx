@@ -1,4 +1,6 @@
+"use client"
 import React, { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
@@ -227,6 +229,7 @@ function Login() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
+                onClick={() => signIn('google', { callbackUrl: '/' })}
                 className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
                 style={{borderColor: colors.Border}}
               >
@@ -241,6 +244,7 @@ function Login() {
               
               <button
                 type="button"
+                onClick={() => signIn('facebook', { callbackUrl: '/' })}
                 className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
                 style={{borderColor: colors.Border}}
               >
