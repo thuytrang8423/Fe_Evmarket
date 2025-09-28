@@ -18,8 +18,42 @@ function Header() {
 
   // Check login status on component mount and when pathname changes
   useEffect(() => {
-    setIsLoggedIn(isAuthenticated())
+    const checkAuthStatus = async () => {
+      try {
+        const isLoggedInResult = await isAuthenticated()
+        console.log('Header auth check result:', isLoggedInResult)
+        setIsLoggedIn(isLoggedInResult)
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        setIsLoggedIn(false)
+      }
+    }
+    checkAuthStatus()
   }, [pathname])
+
+  // Additional check after page visibility changes (user returns to tab)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const checkAuthStatus = async () => {
+          try {
+            const isLoggedInResult = await isAuthenticated()
+            console.log('Header visibility auth check result:', isLoggedInResult)
+            setIsLoggedIn(isLoggedInResult)
+          } catch (error) {
+            console.error('Auth visibility check failed:', error)
+            setIsLoggedIn(false)
+          }
+        }
+        checkAuthStatus()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [])
 
   const handleLogout = async () => {
     setIsLoggingOut(true)

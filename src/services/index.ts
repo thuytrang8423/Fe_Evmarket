@@ -9,8 +9,11 @@ export {
   getAuthToken,
   removeAuthToken,
   isAuthenticated,
+  isAuthenticatedViaCookies,
+  checkAuthentication,
   logoutUser,
   logoutUserLocal,
+  clearAuthCache,
   AuthError
 } from './Auth'
 

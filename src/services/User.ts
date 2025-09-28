@@ -66,18 +66,26 @@ const handleApiResponse = async (response: Response) => {
 // Get user profile
 export const getUserProfile = async (): Promise<UserProfileResponse> => {
   try {
+    // Try to get token from localStorage
     const token = getAuthToken()
     
-    if (!token) {
-      throw new Error('No authentication token found')
+    // Prepare request headers
+    const headers: any = {
+      'Content-Type': 'application/json'
+    }
+    
+    // Add Authorization header if we have a token
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+      console.log('Using localStorage token for getUserProfile')
+    } else {
+      console.log('No localStorage token found for getUserProfile')
     }
 
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+      credentials: 'include', // Also try cookies in case server supports both
+      headers: headers
     })
 
     const data = await handleApiResponse(response)

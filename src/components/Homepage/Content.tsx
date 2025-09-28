@@ -1,5 +1,5 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useI18nContext } from '../../providers/I18nProvider'
@@ -7,10 +7,19 @@ import { isAuthenticated } from '../../services'
 
 function Content() {
   const { t } = useI18nContext()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const authenticated = await isAuthenticated()
+      setIsLoggedIn(authenticated)
+    }
+    checkAuthStatus()
+  }, [])
   
   // Handle navigation with authentication check
   const handleSellNavigation = () => {
-    if (!isAuthenticated()) {
+    if (!isLoggedIn) {
       window.location.href = '/login'
       return
     }
