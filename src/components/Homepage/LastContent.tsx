@@ -1,14 +1,23 @@
 "use client"
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { isAuthenticated } from '../../services'
 
 function LastContent() {
   const { t } = useI18nContext()
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      const authenticated = await isAuthenticated()
+      setIsLoggedIn(authenticated)
+    }
+    checkAuthStatus()
+  }, [])
   
   // Handle navigation with authentication check for browsing
   const handleBrowseNavigation = () => {
-    if (!isAuthenticated()) {
+    if (!isLoggedIn) {
       window.location.href = '/login'
       return
     }

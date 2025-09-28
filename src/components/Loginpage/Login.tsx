@@ -3,7 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { loginUser, storeAuthToken } from '../../services'
+import { loginUser, clearAuthCache } from '../../services'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -40,19 +40,17 @@ function Login() {
     try {
       const response = await loginUser({ email, password })
       
-      // Check for token in different possible locations
-      const token = response.data?.token || response.data?.accessToken || response.data?.access_token
-      
-      if (response.success && token) {
-        // Store token with expiration based on remember me option
-        const expirationDays = rememberMe ? 30 : 7 // 30 days if remember me, otherwise 7 days
-        storeAuthToken(token, expirationDays)
+      if (response.success) {
+        // Clear auth cache to ensure fresh authentication check
+        clearAuthCache()
         
+        // Server will automatically set authentication cookies
         // Always show localized success message
         setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
         
         // Redirect to home page or dashboard after a short delay
         setTimeout(() => {
+          // Force reload để refresh authentication state
           window.location.href = '/'
         }, 1500)
       } else {

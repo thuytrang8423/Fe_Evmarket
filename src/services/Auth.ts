@@ -97,6 +97,7 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
   try {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
       method: 'POST',
+      credentials: 'include', // Include cookies for authentication
       headers: {
         'Content-Type': 'application/json',
       },
@@ -104,6 +105,22 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
     })
 
     const data = await handleApiResponse(response)
+    
+    // Store auth token from server response
+    if (data.data && (data.data.token || data.data.accessToken || data.data.access_token)) {
+      const token = data.data.token || data.data.accessToken || data.data.access_token
+      console.log('Storing auth token from login response')
+      storeAuthToken(token)
+    } else if (data.token || data.accessToken || data.access_token) {
+      const token = data.token || data.accessToken || data.access_token
+      console.log('Storing auth token from login response (root level)')
+      storeAuthToken(token)
+    } else {
+      console.log('No token found in login response:', data)
+    }
+    
+    // Clear auth cache after successful login
+    clearAuthCache()
     
     return {
       success: true,
@@ -132,6 +149,7 @@ export const registerUser = async (userData: RegisterRequest): Promise<RegisterR
   try {
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
+      credentials: 'include', // Include cookies for authentication
       headers: {
         'Content-Type': 'application/json',
       },
@@ -180,13 +198,17 @@ export const logoutUserAPI = async (): Promise<LogoutResponse> => {
     // Always remove token from localStorage regardless of API response
     removeAuthToken()
     
+    // Clear auth cache after logout
+    clearAuthCache()
+    
     return {
       success: true,
       message: data.message || 'Logout successful'
     }
   } catch (error) {
-    // Even if API fails, we still want to clear local token
+    // Even if API fails, we still want to clear local token and cache
     removeAuthToken()
+    clearAuthCache()
     
     if (error instanceof AuthError) {
       return {
@@ -243,10 +265,88 @@ export const removeAuthToken = () => {
   }
 }
 
-// Helper function to check if user is authenticated (with expiration check)
-export const isAuthenticated = (): boolean => {
-  const token = getAuthToken() // This already checks expiration
-  return token !== null
+// Cache for authentication status to avoid excessive API calls
+let authCache: { status: boolean; timestamp: number } | null = null
+const CACHE_DURATION = 30000 // 30 seconds cache
+
+// Helper function to get auth token from localStorage
+const getStoredAuthToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('authToken')
+  }
+  return null
+}
+
+// Helper function to check if user is authenticated - supports both cookies and localStorage token
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    // Check cache first
+    const now = Date.now()
+    if (authCache && (now - authCache.timestamp) < CACHE_DURATION) {
+      console.log('Using cached auth status:', authCache.status)
+      return authCache.status
+    }
+    
+    // Try to get token from localStorage
+    const token = getStoredAuthToken()
+    
+    // Prepare request headers
+    const headers: any = {
+      'Content-Type': 'application/json',
+    }
+    
+    // Add Authorization header if we have a token
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+      console.log('Using localStorage token for auth check')
+    } else {
+      console.log('No localStorage token, trying cookies only')
+    }
+    
+    // Try to call an authenticated endpoint to verify authentication
+    const response = await fetch(`${API_BASE_URL}/users/me`, {
+      method: 'GET',
+      credentials: 'include', // Include cookies for authentication
+      headers: headers
+    })
+    
+    console.log('Auth check response:', response.status, response.ok)
+    
+    const isAuth = response.ok
+    
+    // Cache the result
+    authCache = { status: isAuth, timestamp: now }
+    
+    if (isAuth) {
+      const data = await response.json()
+      console.log('Auth check data:', data)
+    } else {
+      console.log('Auth check failed, response status:', response.status)
+    }
+    
+    return isAuth
+  } catch (error) {
+    console.error('Auth check error:', error)
+    
+    // Cache negative result for shorter duration
+    authCache = { status: false, timestamp: Date.now() }
+    return false
+  }
+}
+
+// Function to clear auth cache (call this after login/logout)
+export const clearAuthCache = () => {
+  authCache = null
+}
+
+// Legacy function - kept for backward compatibility but now just calls the main function
+export const isAuthenticatedViaCookies = async (): Promise<boolean> => {
+  return await isAuthenticated()
+}
+
+// Simplified authentication check - now only uses cookies
+export const checkAuthentication = async (): Promise<boolean> => {
+  return await isAuthenticated()
 }
 
 // Logout function with API call
@@ -259,6 +359,9 @@ export const logoutUser = async () => {
     console.error('Logout API failed:', error)
   }
   
+  // Clear auth cache
+  clearAuthCache()
+  
   // Always redirect to login page after logout
   if (typeof window !== 'undefined') {
     window.location.href = '/login'
@@ -268,6 +371,7 @@ export const logoutUser = async () => {
 // Simple local logout (without API call) - for backwards compatibility
 export const logoutUserLocal = () => {
   removeAuthToken()
+  clearAuthCache()
   if (typeof window !== 'undefined') {
     window.location.href = '/login'
   }
