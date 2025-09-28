@@ -10,73 +10,52 @@ export default function AuthSuccessPage() {
   useEffect(() => {
     const handleAuthSuccess = async () => {
       try {
-        // Method 1: Get token from URL parameters (common pattern for OAuth callbacks)
-        const urlParams = new URLSearchParams(window.location.search)
-        const token = urlParams.get('token') || urlParams.get('access_token') || urlParams.get('accessToken')
+        console.log('Google OAuth callback - processing authentication...')
         
-        if (token) {
-          console.log('Storing token from Google OAuth URL parameters')
-          // Store the token from Google OAuth
-          storeAuthToken(token)
-          
-          // Clear auth cache to ensure fresh authentication check
-          clearAuthCache()
-          
-          console.log('Google OAuth token stored successfully')
-        } else {
-          console.log('No token found in URL parameters')
-          
-          // Method 2: Try to call a "get current user session" endpoint
-          // Some OAuth implementations store session on server and return it via API call
-          try {
-            const response = await fetch('https://evmarket-api-staging.onrender.com/api/v1/auth/session', {
-              method: 'GET',
-              credentials: 'include', // Include cookies that might have been set
-              headers: {
-                'Content-Type': 'application/json',
-              }
-            })
-            
-            if (response.ok) {
-              const data = await response.json()
-              console.log('Session data from server:', data)
-              
-              if (data.token || data.access_token || data.accessToken) {
-                const sessionToken = data.token || data.access_token || data.accessToken
-                console.log('Storing token from session endpoint')
-                storeAuthToken(sessionToken)
-              } else if (data.data && (data.data.token || data.data.access_token || data.data.accessToken)) {
-                const sessionToken = data.data.token || data.data.access_token || data.data.accessToken
-                console.log('Storing token from session endpoint (nested)')
-                storeAuthToken(sessionToken)
-              }
+
+        // Gọi API /refresh-token để lấy accessToken
+        try {
+          const response = await fetch('https://evmarket-api-staging.onrender.com/api/v1/auth/refresh-token', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          if (response.ok) {
+            const data = await response.json()
+            const token = data.accessToken || data.token || data.access_token
+            if (token) {
+              storeAuthToken(token)
+              clearAuthCache()
+              console.log('Google OAuth: accessToken stored from /refresh-token')
             } else {
-              console.log('Session endpoint returned:', response.status)
+              throw new Error('Không nhận được accessToken từ /refresh-token')
             }
-          } catch (sessionError) {
-            console.log('Could not fetch session, might be using cookies only:', sessionError)
+          } else {
+            throw new Error('Lỗi khi gọi /refresh-token: ' + response.status)
           }
+        } catch (refreshError) {
+          console.error('Lỗi khi gọi /refresh-token:', refreshError)
+          throw new Error('Không thể lấy accessToken sau khi đăng nhập Google')
         }
-        
-        // Clear auth cache regardless to force fresh check
+
+        // Clear auth cache to force fresh check
         clearAuthCache()
-        
-        // Wait a moment for token to be stored
+
+        // Wait a moment for authentication to be processed
         setTimeout(() => {
           const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-          
           if (isDevelopment) {
-            // If running locally, redirect to local homepage
             window.location.href = 'http://localhost:3000/'
           } else {
-            // If on production, redirect to production homepage  
             window.location.href = '/'
           }
-        }, 1500) // Increase delay to allow token processing
+        }, 1500)
         
       } catch (error) {
         console.error('Error handling Google OAuth callback:', error)
-        setError('Đã xảy ra lỗi trong quá trình xử lý đăng nhập')
+        setError(error instanceof Error ? error.message : 'Đã xảy ra lỗi trong quá trình xử lý đăng nhập')
         setIsProcessing(false)
       }
     }
