@@ -265,6 +265,17 @@
       "unexpectedError": "Đã xảy ra lỗi không mong muốn",
       "googleLoginError": "Không thể đăng nhập bằng Google. Vui lòng thử lại."
     },
+    "google": {
+      "processing": "Đang xử lý đăng nhập...",
+      "processingDesc": "Vui lòng đợi trong giây lát",
+      "success": "Đăng nhập thành công!",
+      "successDesc": "Đang chuyển hướng về trang chủ...",
+      "error": "Đăng nhập thất bại",
+      "errorDesc": "Có lỗi xảy ra trong quá trình đăng nhập. Đang chuyển về trang đăng nhập...",
+      "backToLogin": "Quay lại đăng nhập",
+      "noTokenError": "Không tìm thấy token xác thực trong URL",
+      "processingError": "Có lỗi xảy ra khi xử lý xác thực"
+    },
     "register": {
       "title": "Đăng ký tài khoản",
       "subtitle": "Hãy nhập tên và địa chỉ email của bạn",

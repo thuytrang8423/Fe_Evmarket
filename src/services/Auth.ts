@@ -67,6 +67,24 @@ export interface RefreshTokenResponse {
   error?: string
 }
 
+// Google Auth Types
+export interface GoogleAuthResponse {
+  success: boolean
+  message: string
+  data?: {
+    accessToken: string
+    user: {
+      id: string
+      email: string
+      fullName?: string
+      name?: string
+      avatar?: string
+      role?: string
+    }
+  }
+  error?: string
+}
+
 // Generic API error interface
 export interface ApiError {
   message: string
@@ -534,4 +552,49 @@ export const logoutUserLocal = () => {
   if (typeof window !== 'undefined') {
     window.location.href = '/login'
   }
+}
+
+// Google OAuth login function
+export const loginWithGoogle = (): void => {
+  if (typeof window !== 'undefined') {
+    const googleAuthUrl = `${API_BASE_URL}/auth/google`
+    console.log('🔄 Google Auth - Redirecting to:', googleAuthUrl)
+    window.location.href = googleAuthUrl
+  }
+}
+
+// Handle Google OAuth success callback
+export const handleGoogleAuthSuccess = (accessToken: string): boolean => {
+  try {
+    if (!accessToken) {
+      console.error('❌ Google Auth - No access token provided')
+      return false
+    }
+
+    console.log('✅ Google Auth - Processing success with token')
+    
+    // Store the access token with default 1 hour expiration
+    storeAuthToken(accessToken, 1)
+    
+    console.log('✅ Google Auth - Token stored successfully')
+    return true
+  } catch (error) {
+    console.error('❌ Google Auth - Error handling success:', error)
+    return false
+  }
+}
+
+// Check if user came from Google OAuth redirect
+export const isGoogleAuthCallback = (): { isCallback: boolean; accessToken?: string } => {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search)
+    const accessToken = urlParams.get('accessToken')
+    
+    return {
+      isCallback: !!accessToken,
+      accessToken: accessToken || undefined
+    }
+  }
+  
+  return { isCallback: false }
 }
