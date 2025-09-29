@@ -262,7 +262,8 @@
       "loginFailed": "Login failed",
       "invalidCredentials": "Invalid email or password",
       "networkError": "Network error or server is unavailable",
-      "unexpectedError": "An unexpected error occurred"
+      "unexpectedError": "An unexpected error occurred",
+      "googleLoginError": "Cannot login with Google. Please try again."
     },
     "register": {
       "title": "Create Account",
@@ -293,7 +294,8 @@
       "passwordTooShort": "Password must be at least 8 characters",
       "invalidEmail": "Invalid email format",
       "networkError": "Network error or server is unavailable",
-      "unexpectedError": "An unexpected error occurred"
+      "unexpectedError": "An unexpected error occurred",
+      "googleLoginError": "Cannot login with Google. Please try again."
     }
   },
   "profile": {
@@ -447,5 +449,25 @@
     "health": "Health",
     "batteryType": "Battery Type",
     "soh": "SoH"
+  },
+  "sellerProfile": {
+    "verifiedSeller": "Verified Seller",
+    "memberSince": "Member since",
+    "reviews": "reviews",
+    "statistics": "Seller Statistics",
+    "basedOnReviews": "Based on {count} reviews",
+    "totalReviews": "Total Reviews",
+    "productTypes": "Product Types",
+    "customerReviews": "Customer Reviews",
+    "reviewsDescription": "See what customers are saying about this seller",
+    "noReviewsYet": "No Reviews Yet",
+    "noReviewsDescription": "This seller hasn't received any reviews yet.",
+    "edited": "Edited",
+    "product": "Product",
+    "type": "Type",
+    "loadingProfile": "Loading seller profile...",
+    "profileNotFound": "Seller profile not found",
+    "goBack": "Go Back",
+    "greatExperience": "Great experience with this seller!"
   }
 }

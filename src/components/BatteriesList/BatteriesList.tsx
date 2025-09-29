@@ -3,8 +3,9 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { getBatteries, type Battery } from '../../services/Battery'
+import { getBatteries, type Battery } from '../../services'
 import colors from '../../Utils/Color'
+import VerifiedBadge from '../common/VerifiedBadge'
 
 export default function BatteriesList() {
   const { t } = useI18nContext()
@@ -223,14 +224,7 @@ export default function BatteriesList() {
                 <div className="absolute top-3 right-3 flex flex-col gap-2 items-end z-10">
                   {battery.isVerified && (
                     <div className="flex items-center">
-                      <Image
-                        src="/Verified.svg"
-                        alt="Verified"
-                        width={81}
-                        height={20}
-                        className="h-5 w-auto"
-                        unoptimized={true}
-                      />
+                      <VerifiedBadge width={81} height={20} />
                     </div>
                   )}
                   {battery.status === 'AVAILABLE' && (

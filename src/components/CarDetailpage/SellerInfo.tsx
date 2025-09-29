@@ -1,11 +1,13 @@
 "use client"
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { Star, Shield, MessageCircle, MapPin, Calendar, Car, Zap } from 'lucide-react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
+import VerifiedBadge from '../common/VerifiedBadge'
 
-import { Vehicle } from '../../services'
+import { Vehicle, getSellerProfile, type SellerProfile, type Review } from '../../services'
 
 interface SellerInfoProps {
   vehicle: Vehicle
@@ -13,19 +15,66 @@ interface SellerInfoProps {
 
 function SellerInfo({ vehicle }: SellerInfoProps) {
   const { t } = useI18nContext()
+  const router = useRouter()
+  const [sellerData, setSellerData] = useState<{seller: SellerProfile, reviews: Review[]} | null>(null)
+  const [loading, setLoading] = useState(false)
 
-  // Extract seller info from vehicle or use fallback
+  // Fetch real seller data from API
+  useEffect(() => {
+    const fetchSellerData = async () => {
+      if (!vehicle.sellerId) return
+      
+      setLoading(true)
+      try {
+        const response = await getSellerProfile(vehicle.sellerId)
+        if (response.success && response.data) {
+          setSellerData(response.data)
+        }
+      } catch (error) {
+        console.error('Failed to fetch seller data:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchSellerData()
+  }, [vehicle.sellerId])
+
+  // Calculate real rating data or use fallback
+  const getRatingData = () => {
+    if (sellerData?.reviews && sellerData.reviews.length > 0) {
+      const averageRating = sellerData.reviews.reduce((sum, review) => sum + review.rating, 0) / sellerData.reviews.length
+      return {
+        rating: Number(averageRating.toFixed(1)),
+        reviewCount: sellerData.reviews.length
+      }
+    }
+    return {
+      rating: 4.5, // Default fallback
+      reviewCount: 12 // Default fallback
+    }
+  }
+
+  const ratingData = getRatingData()
+
+  // Extract seller info with real data or fallbacks
   const seller = {
-    name: vehicle.seller?.name || 'EVMarket Seller',
-    avatar: vehicle.seller?.avatar || '',
-    rating: 4.5, // Default rating since not in API
-    reviewCount: 12, // Default count since not in API
-    verified: vehicle.isVerified || false,
-    joinDate: new Date(vehicle.createdAt).getFullYear().toString(),
+    name: sellerData?.seller?.name || vehicle.seller?.name || 'EVMarket Seller',
+    avatar: sellerData?.seller?.avatar || vehicle.seller?.avatar || '',
+    rating: ratingData.rating,
+    reviewCount: ratingData.reviewCount,
+    verified: sellerData?.seller?.isVerified ?? vehicle.isVerified ?? false,
+    joinDate: sellerData?.seller?.createdAt 
+      ? new Date(sellerData.seller.createdAt).getFullYear().toString()
+      : new Date(vehicle.createdAt).getFullYear().toString(),
     location: 'Vietnam', // Default location since not in API
     activeListings: 1, // Default since not in API
     responseTime: '1 hour', // Default since not in API
     description: 'Professional electric vehicle seller with expertise in EVs and sustainable transportation solutions.'
+  }
+
+  const handleViewProfile = () => {
+    router.push(`/seller/${vehicle.sellerId}`)
   }
 
   return (
@@ -70,22 +119,36 @@ function SellerInfo({ vehicle }: SellerInfoProps) {
                 {seller.name}
               </h4>
               {seller.verified && (
-                <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                  {t('vehicleDetail.verified')}
-                </span>
+                <VerifiedBadge width={60} height={16} />
               )}
             </div>
             
             <div className="flex items-center gap-1 mb-2">
               <div className="flex items-center gap-1">
-                <Star size={16} className="text-yellow-400 fill-current" />
-                <span className="font-medium" style={{color: colors.Text}}>
-                  {seller.rating}
-                </span>
+                {loading ? (
+                  <div className="flex items-center gap-1">
+                    <div className="animate-pulse bg-gray-300 h-4 w-20 rounded"></div>
+                  </div>
+                ) : (
+                  <>
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Star 
+                        key={index}
+                        size={16} 
+                        className={index < Math.round(seller.rating) ? "text-yellow-400 fill-current" : "text-gray-300"}
+                      />
+                    ))}
+                    <span className="font-medium ml-1" style={{color: colors.Text}}>
+                      {seller.rating}
+                    </span>
+                  </>
+                )}
               </div>
-              <span className="text-sm" style={{color: colors.SubText}}>
-                ({seller.reviewCount} reviews)
-              </span>
+              {!loading && (
+                <span className="text-sm" style={{color: colors.SubText}}>
+                  ({seller.reviewCount} reviews)
+                </span>
+              )}
             </div>
 
             <div className="space-y-1 text-sm" style={{color: colors.SubText}}>
@@ -118,7 +181,10 @@ function SellerInfo({ vehicle }: SellerInfoProps) {
 
         {/* Action Buttons */}
         <div className="space-y-3">
-          <button className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg">
+          <button 
+            onClick={handleViewProfile}
+            className="w-full bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center gap-2 shadow-lg"
+          >
             {t('vehicleDetail.viewProfile')}
           </button>
           

@@ -46,7 +46,21 @@ function Header() {
     if (href === '/') {
       return pathname === '/' || pathname === '/home'
     }
-    return pathname.startsWith(href)
+    
+    // Exact match for /sell to avoid matching /seller/[id]
+    if (href === '/sell') {
+      return pathname === '/sell'
+    }
+    
+    // For other paths, use startsWith but ensure it's not a longer path
+    // that just happens to start with the same characters
+    if (pathname.startsWith(href)) {
+      // Check if it's an exact match or the next character is '/'
+      const nextChar = pathname[href.length]
+      return nextChar === undefined || nextChar === '/'
+    }
+    
+    return false
   }
 
   const languages = [

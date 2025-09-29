@@ -41,6 +41,8 @@ function ProfileSettings({}: ProfileSettingsProps) {
 
   const loadUserProfile = async () => {
     setLoading(true)
+    
+    
     try {
       const response = await getUserProfile()
       if (response.success && response.data?.user) {
