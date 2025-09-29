@@ -3,7 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { loginUser, storeAuthToken } from '../../services'
+import { loginUser, storeAuthToken, handleGoogleLogin } from '../../services'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -30,6 +30,15 @@ function Login() {
   const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
 
+  const handleGoogleLoginClick = async () => {
+    try {
+      setError(null)
+      await handleGoogleLogin()
+    } catch (error) {
+      setError(t('auth.login.googleLoginError', 'Không thể đăng nhập bằng Google. Vui lòng thử lại.'))
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -44,8 +53,9 @@ function Login() {
       
       if (response.success && token) {
         // Store token with expiration based on remember me option
-        const expirationDays = rememberMe ? 30 : 7 // 30 days if remember me, otherwise 7 days
-        storeAuthToken(token, expirationDays)
+        // Use 60 minutes (1 hour) for regular, 24 hours for remember me
+        const expirationHours = rememberMe ? 24 : 1 // 24 hours if remember me, otherwise 1 hour
+        storeAuthToken(token, expirationHours)
         
         // Always show localized success message
         setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
@@ -227,6 +237,7 @@ function Login() {
             <div className="grid grid-cols-2 gap-4">
               <button
                 type="button"
+                onClick={handleGoogleLoginClick}
                 className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
                 style={{borderColor: colors.Border}}
               >
