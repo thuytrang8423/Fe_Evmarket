@@ -3,7 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { registerUser, handleGoogleLogin } from '../../services'
+import { registerUser, storeAuthToken } from '../../services'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -39,14 +39,12 @@ function Register() {
   const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
 
-  const handleGoogleLoginClick = async () => {
-    try {
-      setError(null)
-      await handleGoogleLogin()
-    } catch (error) {
-      setError(t('auth.register.googleLoginError', 'Không thể đăng nhập bằng Google. Vui lòng thử lại.'))
-    }
+  const handleGoogleLoginClick = () => {
+    // TODO: Implement Google login later
+    console.log('Google login will be implemented later')
   }
+
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -69,12 +67,28 @@ function Register() {
       })
       
       if (response.success) {
-        // Always use localized success message
-        setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'))
-        // Redirect to login page after 2 seconds
-        setTimeout(() => {
-          window.location.href = '/login'
-        }, 2000)
+        // Check if we got accessToken for auto-login
+        const accessToken = response.data?.accessToken
+        
+        if (accessToken) {
+          // Auto-login: Store the token and redirect to home
+          console.log('✅ Register - AccessToken received, auto-login...')
+          storeAuthToken(accessToken, 24) // Store for 24 hours
+          
+          // Note: refreshToken is now managed via HTTP-only cookies by backend
+          console.log('✅ Register - RefreshToken managed via cookies')
+          
+          setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang chủ...'))
+          setTimeout(() => {
+            window.location.href = '/'
+          }, 1500)
+        } else {
+          // No token, redirect to login page
+          setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'))
+          setTimeout(() => {
+            window.location.href = '/login'
+          }, 2000)
+        }
       } else {
         // Use localized error message based on server response
         setError(getLocalizedErrorMessage(response.message || '', t))
@@ -294,11 +308,11 @@ function Register() {
             </div>
 
             {/* Social Register */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center">
               <button
                 type="button"
                 onClick={handleGoogleLoginClick}
-                className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                className="flex items-center justify-center px-6 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200 w-full max-w-xs"
                 style={{borderColor: colors.Border}}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -308,17 +322,6 @@ function Register() {
                   <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
                 </svg>
                 <span className="text-sm font-medium" style={{color: colors.Text}}>Google</span>
-              </button>
-              
-              <button
-                type="button"
-                className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                style={{borderColor: colors.Border}}
-              >
-                <svg className="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                <span className="text-sm font-medium" style={{color: colors.Text}}>Facebook</span>
               </button>
             </div>
 
