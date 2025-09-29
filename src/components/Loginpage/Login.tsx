@@ -3,7 +3,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { loginUser, storeAuthToken } from '../../services'
+import { loginUser, storeAuthToken, loginWithGoogle } from '../../services'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -31,8 +31,7 @@ function Login() {
   const { t } = useI18nContext()
 
   const handleGoogleLoginClick = () => {
-    // TODO: Implement Google login later
-    console.log('Google login will be implemented later')
+    loginWithGoogle()
   }
   
 

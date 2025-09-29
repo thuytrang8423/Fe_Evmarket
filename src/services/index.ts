@@ -16,7 +16,12 @@ export {
   AuthError,
 
   refreshAccessToken,
-  ensureValidToken
+  ensureValidToken,
+  
+  // Google Auth functions
+  loginWithGoogle,
+  handleGoogleAuthSuccess,
+  isGoogleAuthCallback
 } from './Auth'
 
 // Export User services
@@ -46,7 +51,10 @@ export type {
   LoginResponse,
   RegisterResponse,
   LogoutResponse,
-  ApiError
+  ApiError,
+  
+  // Google Auth types
+  GoogleAuthResponse
 } from './Auth'
 
 export type {
