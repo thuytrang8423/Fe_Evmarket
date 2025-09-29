@@ -20,6 +20,8 @@ export interface LoginResponse {
     token?: string
     accessToken?: string
     access_token?: string
+    refreshToken?: string
+    refresh_token?: string
     user: {
       id: string
       email: string
@@ -40,6 +42,8 @@ export interface RegisterResponse {
       email: string
       fullName?: string
     }
+    accessToken?: string
+    refreshToken?: string
   }
   error?: string
 }
@@ -47,16 +51,6 @@ export interface RegisterResponse {
 export interface LogoutResponse {
   success: boolean
   message: string
-  error?: string
-}
-
-export interface GoogleLoginResponse {
-  success: boolean
-  message: string
-  data?: {
-    redirectUrl?: string
-    authUrl?: string
-  }
   error?: string
 }
 
@@ -123,6 +117,7 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies for refresh token
       body: JSON.stringify(credentials),
     })
 
@@ -158,6 +153,7 @@ export const registerUser = async (userData: RegisterRequest): Promise<RegisterR
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies for refresh token
       body: JSON.stringify(userData),
     })
 
@@ -185,75 +181,89 @@ export const registerUser = async (userData: RegisterRequest): Promise<RegisterR
   }
 }
 
-// Google Login API call - redirects to Google OAuth
-export const initiateGoogleLogin = async (): Promise<GoogleLoginResponse> => {
-  try {
-    const response = await fetch(`${API_BASE_URL}/auth/google`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
-    const data = await handleApiResponse(response)
-    
-    return {
-      success: true,
-      message: data.message || 'Google login initiated',
-      data: data.data || data
-    }
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return {
-        success: false,
-        message: error.message,
-        error: error.message
-      }
-    }
-    
-    return {
-      success: false,
-      message: 'Network error or server is unavailable',
-      error: error instanceof Error ? error.message : 'Unknown error'
-    }
-  }
-}
-
-// Handle Google Login - opens popup or redirects to Google OAuth
-export const handleGoogleLogin = async (): Promise<void> => {
-  try {
-    // Redirect to Google OAuth URL
-    window.location.href = `${API_BASE_URL}/auth/google`
-  } catch (error) {
-    console.error('Error initiating Google login:', error)
-    throw new Error('Failed to initiate Google login')
-  }
-}
-
 // Refresh Token API call
 export const refreshAccessToken = async (refreshToken?: string): Promise<RefreshTokenResponse> => {
   try {
-    const storedRefreshToken = refreshToken || getRefreshToken()
+    console.log('🔄 Refresh Token - Starting refresh process...')
+    console.log('🔄 Refresh Token - Using cookie-based refresh token')
     
-    if (!storedRefreshToken) {
-      throw new AuthError('No refresh token available', 401)
+    // Check if we're in browser and have cookies
+    if (typeof document !== 'undefined') {
+      console.log('🔄 Refresh Token - All cookies:', document.cookie)
+      
+      // Check if refreshToken cookie exists
+      const refreshTokenExists = document.cookie.includes('refreshToken')
+      console.log('🔄 Refresh Token - RefreshToken cookie exists:', refreshTokenExists)
+      
+      if (!refreshTokenExists) {
+        console.error('❌ Refresh Token - No refreshToken cookie found!')
+        return {
+          success: false,
+          message: 'No refresh token cookie found',
+          error: 'No refresh token cookie found - user needs to login again'
+        }
+      }
+      
+      // Extract refresh token value for debugging
+      const cookies = document.cookie.split(';')
+      const refreshCookie = cookies.find(c => c.trim().startsWith('refreshToken='))
+      if (refreshCookie) {
+        const tokenValue = refreshCookie.split('=')[1]
+        console.log('🔄 Refresh Token - Token preview:', tokenValue ? `${tokenValue.substring(0, 20)}...` : 'Empty')
+      }
     }
-
+    
+    console.log('🔄 Refresh Token - Making API call to:', `${API_BASE_URL}/auth/refresh-token`)
+    
     const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        refreshToken: storedRefreshToken
-      }),
+      credentials: 'include', // Important: Include cookies in the request
+      // No body needed since refreshToken is in cookie
     })
 
-    const data = await handleApiResponse(response)
+    console.log('🔄 Refresh Token - API response status:', response.status)
+    console.log('🔄 Refresh Token - API response headers:', Object.fromEntries(response.headers.entries()))
+    
+    let data
+    let responseText = ''
+    
+    // Read response text first if not ok
+    if (!response.ok) {
+      try {
+        responseText = await response.clone().text()
+        console.error('🔄 Refresh Token - Error response text:', responseText)
+      } catch (textError) {
+        console.error('🔄 Refresh Token - Could not read response text:', textError)
+      }
+    }
+    
+    try {
+      data = await handleApiResponse(response)
+    } catch (apiError) {
+      console.error('🔄 Refresh Token - API Error:', apiError)
+      console.error('🔄 Refresh Token - Response status:', response.status)
+      if (responseText) {
+        console.error('🔄 Refresh Token - Response text:', responseText)
+      }
+      throw apiError
+    }
+    
+    console.log('🔄 Refresh Token - API response data:', {
+      success: data.success,
+      message: data.message,
+      hasAccessToken: !!data.data?.accessToken,
+      accessTokenPreview: data.data?.accessToken ? `${data.data.accessToken.substring(0, 20)}...` : null
+    })
     
     // Store the new access token
     if (data.data?.accessToken) {
+      console.log('✅ Refresh Token - Storing new access token')
       storeAuthToken(data.data.accessToken)
+    } else {
+      console.error('❌ Refresh Token - No access token in response')
     }
     
     return {
@@ -262,6 +272,8 @@ export const refreshAccessToken = async (refreshToken?: string): Promise<Refresh
       data: data.data || data
     }
   } catch (error) {
+    console.error('❌ Refresh Token - Error occurred:', error)
+    
     if (error instanceof AuthError) {
       return {
         success: false,
@@ -288,7 +300,8 @@ export const logoutUserAPI = async (): Promise<LogoutResponse> => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-      }
+      },
+      credentials: 'include' // Include cookies to clear refresh token
     })
 
     const data = await handleApiResponse(response)
@@ -446,30 +459,49 @@ export const removeAuthToken = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('authToken')
     localStorage.removeItem('tokenExpiration')
-    removeRefreshToken() // Also remove refresh token when removing auth token
+    // Note: refreshToken is managed via HTTP-only cookies, not localStorage
   }
 }
 
 // Helper function to automatically refresh token if needed
 export const ensureValidToken = async (): Promise<string | null> => {
+  console.log('🔍 Ensure Valid Token - Starting validation...')
+  
   const token = getAuthToken()
+  
+  console.log('🔍 Ensure Valid Token - Current token info:', {
+    hasToken: !!token,
+    tokenPreview: token ? `${token.substring(0, 20)}...` : null,
+    isExpired: isTokenExpired()
+  })
   
   // If we have a valid token, return it
   if (token && !isTokenExpired()) {
+    console.log('✅ Ensure Valid Token - Current token is valid')
     return token
   }
+  
+  console.log('🔄 Ensure Valid Token - Token expired or missing, attempting refresh...')
   
   // If token is expired or doesn't exist, try to refresh it
   try {
     const refreshResponse = await refreshAccessToken()
+    console.log('🔄 Ensure Valid Token - Refresh response:', {
+      success: refreshResponse.success,
+      message: refreshResponse.message,
+      hasNewToken: !!refreshResponse.data?.accessToken
+    })
+    
     if (refreshResponse.success && refreshResponse.data?.accessToken) {
+      console.log('✅ Ensure Valid Token - Successfully refreshed token')
       return refreshResponse.data.accessToken
     }
   } catch (error) {
-    console.error('Failed to refresh token:', error)
+    console.error('❌ Ensure Valid Token - Failed to refresh token:', error)
   }
   
   // If refresh failed, remove all tokens and return null
+  console.log('❌ Ensure Valid Token - Refresh failed, clearing tokens')
   removeAuthToken()
   return null
 }

@@ -14,12 +14,8 @@ export {
   extendSession,
   getRemainingSessionTime,
   AuthError,
-  initiateGoogleLogin,
-  handleGoogleLogin,
+
   refreshAccessToken,
-  storeRefreshToken,
-  getRefreshToken,
-  removeRefreshToken,
   ensureValidToken
 } from './Auth'
 
