@@ -265,6 +265,17 @@
       "unexpectedError": "An unexpected error occurred",
       "googleLoginError": "Cannot login with Google. Please try again."
     },
+    "google": {
+      "processing": "Processing login...",
+      "processingDesc": "Please wait a moment",
+      "success": "Login successful!",
+      "successDesc": "Redirecting to home page...",
+      "error": "Login failed",
+      "errorDesc": "An error occurred during login. Redirecting to login page...",
+      "backToLogin": "Back to login",
+      "noTokenError": "No authentication token found in URL",
+      "processingError": "An error occurred while processing authentication"
+    },
     "register": {
       "title": "Create Account",
       "subtitle": "Please enter your name and email address",
