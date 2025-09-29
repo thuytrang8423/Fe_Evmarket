@@ -1,4 +1,7 @@
 // User service for profile and user-related API calls
+// Import auth functions from Auth service
+import { getAuthToken, isAuthenticated, logoutUser } from './Auth'
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'https://evmarket-api-staging.onrender.com/api/v1'
 
 // Types for User API
@@ -37,12 +40,65 @@ export interface UpdateProfileResponse {
   error?: string
 }
 
-// Helper function to get auth token
-const getAuthToken = (): string | null => {
-  if (typeof window !== 'undefined') {
-    return localStorage.getItem('authToken')
+export interface Review {
+  id: string
+  rating: number
+  comment: string
+  mediaUrls: string[]
+  hasBeenEdited: boolean
+  createdAt: string
+  updatedAt: string
+  type: string
+  productId: string
+  productTitle: string
+  buyer: {
+    id: string
+    name: string
+    avatar: string
   }
-  return null
+}
+
+export interface SellerProfile {
+  id: string
+  name: string
+  avatar: string
+  email: string
+  isVerified: boolean
+  createdAt: string
+}
+
+export interface SellerProfileResponse {
+  success: boolean
+  message: string
+  data?: {
+    seller: SellerProfile
+    reviews: Review[]
+  }
+  error?: string
+}
+
+export interface VerifiedSeller {
+  id: string
+  name: string
+  avatar: string
+  isVerified: boolean
+  averageRating: number
+  reviewCount: number
+}
+
+export interface VerifiedSellersResponse {
+  success: boolean
+  message: string
+  data?: {
+    sellers: VerifiedSeller[]
+  }
+  error?: string
+}
+
+// Helper function to handle expired tokens
+const handleExpiredToken = () => {
+  console.warn('Token expired, logging out user')
+  logoutUser() // Use the logout function from Auth.ts
 }
 
 // Helper function to handle API responses
@@ -57,6 +113,13 @@ const handleApiResponse = async (response: Response) => {
   }
 
   if (!response.ok) {
+    // Handle 401 Unauthorized specifically
+    if (response.status === 401) {
+      console.warn('Received 401 Unauthorized, handling expired token')
+      handleExpiredToken()
+      throw new Error('Authentication failed. Please login again.')
+    }
+    
     throw new Error(data.message || data.error || 'Something went wrong')
   }
 
@@ -71,7 +134,7 @@ export const getUserProfile = async (): Promise<UserProfileResponse> => {
     if (!token) {
       throw new Error('No authentication token found')
     }
-
+    
     const response = await fetch(`${API_BASE_URL}/users/me`, {
       method: 'GET',
       headers: {
@@ -165,3 +228,31 @@ export const uploadAvatar = async (file: File): Promise<UpdateProfileResponse> =
     }
   }
 }
+
+// Get seller profile by ID
+export const getSellerProfile = async (sellerId: string): Promise<SellerProfileResponse> => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/users/${sellerId}/profile`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      }
+    })
+
+    const data = await handleApiResponse(response)
+    
+    return {
+      success: true,
+      message: data.message || 'Seller profile fetched successfully',
+      data: data.data || data
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : 'Failed to fetch seller profile',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
+// Get verified sellers list

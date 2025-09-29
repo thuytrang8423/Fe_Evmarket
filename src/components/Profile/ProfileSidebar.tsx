@@ -2,6 +2,7 @@ import React, { useRef } from 'react'
 import { User, Camera, Shield, LogOut, Check } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
+import VerifiedBadge from '../common/VerifiedBadge'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { type User as UserType } from '../../services'
 
@@ -78,9 +79,8 @@ function ProfileSidebar({
           {user?.email}
         </p>
         {user?.isVerified && (
-          <div className="inline-flex items-center gap-1 mt-2 px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-            <Check size={12} />
-            {t('common.verified', 'Verified')}
+          <div className="mt-2">
+            <VerifiedBadge width={70} height={18} />
           </div>
         )}
       </div>

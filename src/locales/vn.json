@@ -262,7 +262,8 @@
       "loginFailed": "Đăng nhập thất bại",
       "invalidCredentials": "Email hoặc mật khẩu không đúng",
       "networkError": "Lỗi mạng hoặc server không khả dụng",
-      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "googleLoginError": "Không thể đăng nhập bằng Google. Vui lòng thử lại."
     },
     "register": {
       "title": "Đăng ký tài khoản",
@@ -293,7 +294,8 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
       "invalidEmail": "Định dạng email không hợp lệ",
       "networkError": "Lỗi mạng hoặc server không khả dụng",
-      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "googleLoginError": "Không thể đăng nhập bằng Google. Vui lòng thử lại."
     }
   },
   "profile": {
@@ -448,5 +450,25 @@
     "health": "Tình trạng pin",
     "batteryType": "Loại pin",
     "soh": "SoH"
+  },
+  "sellerProfile": {
+    "verifiedSeller": "Người bán đã xác minh",
+    "memberSince": "Thành viên từ",
+    "reviews": "đánh giá",
+    "statistics": "Thống kê người bán",
+    "basedOnReviews": "Dựa trên {count} đánh giá",
+    "totalReviews": "Tổng đánh giá",
+    "productTypes": "Loại sản phẩm",
+    "customerReviews": "Đánh giá khách hàng",
+    "reviewsDescription": "Xem khách hàng nói gì về người bán này",
+    "noReviewsYet": "Chưa có đánh giá",
+    "noReviewsDescription": "Người bán này chưa nhận được đánh giá nào.",
+    "edited": "Đã chỉnh sửa",
+    "product": "Sản phẩm",
+    "type": "Loại",
+    "loadingProfile": "Đang tải hồ sơ người bán...",
+    "profileNotFound": "Không tìm thấy hồ sơ người bán",
+    "goBack": "Quay lại",
+    "greatExperience": "Trải nghiệm tuyệt vời với người bán này!"
   }
 }

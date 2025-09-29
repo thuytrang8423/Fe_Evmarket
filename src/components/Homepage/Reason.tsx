@@ -32,7 +32,7 @@ function Reason() {
   ]
 
   return (
-    <div className="py-20 px-6 bg-white">
+    <div className="py-20 px-6 bg-gray-50">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-16">
