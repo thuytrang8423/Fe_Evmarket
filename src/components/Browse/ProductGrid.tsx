@@ -1,47 +1,53 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useI18nContext } from '../../providers/I18nProvider'
-
-interface Product {
-  id: number
-  name: string
-  year: string
-  mileage?: string
-  price: string
-  image: string
-  verified: boolean
-  fastSale: boolean
-  popular?: boolean
-  rating: number
-  sellPercentage?: string
-  type: 'vehicle' | 'battery'
-  batteryHealth?: number
-  capacity?: string
-  brand: string
-}
+import { Product } from '../../types/product'
 
 interface ProductGridProps {
   products?: Product[]
   isLoading?: boolean
+  error?: string | null
   className?: string
 }
 
 function ProductGrid({ 
   products = [], 
   isLoading = false,
+  error = null,
   className = '' 
 }: ProductGridProps) {
   const { t } = useI18nContext()
+  const router = useRouter()
   const [sortBy, setSortBy] = useState('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const ITEMS_PER_PAGE = 9
 
+  // Reset to page 1 when products change (due to filtering)
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [products])
+
+  // Reset to page 1 when sort changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [sortBy])
+
+  // Handle product click navigation
+  const handleProductClick = (product: Product) => {
+    if (product.type === 'vehicle') {
+      router.push(`/vehicle/${product.id}`)
+    } else {
+      router.push(`/pin/${product.id}`)
+    }
+  }
+
   // Mock data for demonstration - similar to TopEV.tsx but expanded
   const mockProducts: Product[] = [
     {
-      id: 1,
+      id: '1',
       name: 'Tesla Model 3',
       year: '2020',
       mileage: '30,455 miles',
@@ -55,7 +61,7 @@ function ProductGrid({
       brand: 'Tesla'
     },
     {
-      id: 2,
+      id: '2',
       name: 'Nissan Leaf',
       year: '2019',
       mileage: '42,120 miles',
@@ -69,7 +75,7 @@ function ProductGrid({
       brand: 'Nissan'
     },
     {
-      id: 3,
+      id: '3',
       name: 'Chevrolet Bolt',
       year: '2021',
       mileage: '18,670 miles',
@@ -83,7 +89,7 @@ function ProductGrid({
       brand: 'Chevrolet'
     },
     {
-      id: 4,
+      id: '4',
       name: 'BMW i3',
       year: '2019',
       mileage: '35,210 miles',
@@ -97,7 +103,7 @@ function ProductGrid({
       brand: 'BMW'
     },
     {
-      id: 5,
+      id: '5',
       name: 'Tesla PowerWall',
       year: '2021',
       price: '$5,800',
@@ -112,7 +118,7 @@ function ProductGrid({
       brand: 'Tesla'
     },
     {
-      id: 6,
+      id: '6',
       name: 'Leaf Battery Pack',
       year: '2019',
       price: '$3,200',
@@ -126,7 +132,7 @@ function ProductGrid({
       brand: 'Nissan'
     },
     {
-      id: 7,
+      id: '7',
       name: 'LG Chem RESU',
       year: '2020',
       price: '$4,900',
@@ -140,7 +146,7 @@ function ProductGrid({
       brand: 'LG'
     },
     {
-      id: 8,
+      id: '8',
       name: '18650 Cells (x100)',
       year: '2022',
       price: '$450',
@@ -155,7 +161,7 @@ function ProductGrid({
       brand: 'Generic'
     },
     {
-      id: 9,
+      id: '9',
       name: 'Audi e-tron',
       year: '2020',
       mileage: '25,890 miles',
@@ -169,7 +175,7 @@ function ProductGrid({
       brand: 'Audi'
     },
     {
-      id: 10,
+      id: '10',
       name: 'Hyundai Kona Electric',
       year: '2021',
       mileage: '15,230 miles',
@@ -184,7 +190,7 @@ function ProductGrid({
       brand: 'Hyundai'
     },
     {
-      id: 11,
+      id: '11',
       name: 'Tesla Model Y',
       year: '2022',
       mileage: '12,450 miles',
@@ -198,7 +204,7 @@ function ProductGrid({
       brand: 'Tesla'
     },
     {
-      id: 12,
+      id: '12',
       name: 'BYD Blade Battery',
       year: '2021',
       price: '$6,200',
@@ -212,7 +218,7 @@ function ProductGrid({
       brand: 'BYD'
     },
     {
-      id: 13,
+      id: '13',
       name: 'Volkswagen ID.4',
       year: '2021',
       mileage: '18,760 miles',
@@ -227,13 +233,44 @@ function ProductGrid({
     }
   ]
 
-  const displayProducts = products.length > 0 ? products : mockProducts
+  // Always use products from props if available, never fallback to mock when filtering
+  const displayProducts = products || []
+
+  // Use mock data only if no products prop is passed at all (for demo purposes)
+  const shouldUseMockData = products === undefined && !isLoading && !error
+  const finalProducts = shouldUseMockData ? mockProducts : displayProducts
+  
+  // Sort products based on sortBy
+  const sortedProducts = [...finalProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'priceLow':
+        const priceA = parseFloat(a.price.replace(/[$,]/g, '')) || 0
+        const priceB = parseFloat(b.price.replace(/[$,]/g, '')) || 0
+        return priceA - priceB
+      case 'priceHigh':
+        const priceHighA = parseFloat(a.price.replace(/[$,]/g, '')) || 0
+        const priceHighB = parseFloat(b.price.replace(/[$,]/g, '')) || 0
+        return priceHighB - priceHighA
+      case 'rating':
+        return (b.rating || 0) - (a.rating || 0)
+      case 'newest':
+      default:
+        // Sort by year (newest first), then by created date if available
+        const yearA = typeof a.year === 'string' ? parseInt(a.year) || 0 : a.year || 0
+        const yearB = typeof b.year === 'string' ? parseInt(b.year) || 0 : b.year || 0
+        if (yearA !== yearB) {
+          return yearB - yearA
+        }
+        // If years are same, sort by name as secondary
+        return a.name.localeCompare(b.name)
+    }
+  })
   
   // Pagination logic
-  const totalPages = Math.ceil(displayProducts.length / ITEMS_PER_PAGE)
+  const totalPages = Math.ceil(sortedProducts.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
   const endIndex = startIndex + ITEMS_PER_PAGE
-  const currentProducts = displayProducts.slice(startIndex, endIndex)
+  const currentProducts = sortedProducts.slice(startIndex, endIndex)
 
   const sortOptions = [
     { value: 'newest', label: t('browse.sortOptions.newest') },
@@ -253,6 +290,26 @@ function ProductGrid({
     )
   }
 
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-96">
+        <div className="text-center">
+          <div className="mb-4">
+            <svg className="w-16 h-16 mx-auto" style={{ color: colors.SubText }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-medium mb-2" style={{ color: colors.Text }}>
+            Error Loading Products
+          </h3>
+          <p className="text-sm" style={{ color: colors.SubText }}>
+            {error}
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={`bg-white ${className}`}>
       {/* Results Header */}
@@ -260,9 +317,9 @@ function ProductGrid({
         <div>
           <p className="text-sm" style={{ color: colors.SubText }}>
             Showing <span className="font-medium" style={{ color: colors.Text }}>
-              {startIndex + 1}-{Math.min(endIndex, displayProducts.length)}
+              {sortedProducts.length > 0 ? startIndex + 1 : 0}-{Math.min(endIndex, sortedProducts.length)}
             </span> of <span className="font-medium" style={{ color: colors.Text }}>
-              {displayProducts.length}
+              {sortedProducts.length}
             </span> {t('browse.results')}
           </p>
         </div>
@@ -300,10 +357,10 @@ function ProductGrid({
               </svg>
             </div>
             <h3 className="text-lg font-medium mb-2" style={{ color: colors.Text }}>
-              {t('browse.noResults')}
+              {shouldUseMockData ? t('browse.noResults') : 'Không tìm thấy sản phẩm nào'}
             </h3>
             <p className="text-sm" style={{ color: colors.SubText }}>
-              {t('browse.noResultsDesc')}
+              {shouldUseMockData ? t('browse.noResultsDesc') : 'Thử điều chỉnh bộ lọc để tìm thấy kết quả phù hợp'}
             </p>
           </div>
         </div>
@@ -312,6 +369,7 @@ function ProductGrid({
           {currentProducts.map((product) => (
             <div 
               key={product.id} 
+              onClick={() => handleProductClick(product)}
               className="bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden group cursor-pointer"
             >
               {/* Image Container */}
