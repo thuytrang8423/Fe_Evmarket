@@ -11,7 +11,9 @@
     "verified": "Verified",
     "fastSale": "Fast Sale",
     "popular": "Popular",
-    "login": "Login"
+    "login": "Login",
+    "authRequired": "Please login to access this page",
+    "redirecting": "Redirecting to login..."
   },
   "navigation": {
     "home": "Home",
@@ -26,7 +28,10 @@
     "loggingOut": "Logging out...",
     "notifications": "Notifications",
     "profile": "Profile",
-    "language": "Language"
+    "language": "Language",
+    "walletManagement": "Wallet Management",
+    "currentBalance": "Current Balance",
+    "wallet": "Wallet"
   },
   "home": {
     "title": "Home",
@@ -416,7 +421,7 @@
     "save": "Save",
     "share": "Share",
     "report": "Report",
-    "viewAllListings": "View All Listings",
+    "reportSeller": "Report Seller",
     "description": "Description",
     "specifications": "Specifications",
     "vehicleDescription": "Vehicle Description",
@@ -480,5 +485,33 @@
     "profileNotFound": "Seller profile not found",
     "goBack": "Go Back",
     "greatExperience": "Great experience with this seller!"
+  },
+  "wallet": {
+    "management": "Wallet Management",
+    "manageDescription": "Manage your funds for auctions and purchases on EcoTrade EV",
+    "currentBalance": "Current Balance",
+    "depositFunds": "Deposit Funds",
+    "withdraw": "Withdraw",
+    "transactionHistory": "Transaction History",
+    "date": "DATE",
+    "type": "TYPE",
+    "description": "DESCRIPTION",
+    "amount": "AMOUNT",
+    "status": "STATUS",
+    "showingTransactions": "Showing 1 to 5 of 5 transactions",
+    "previous": "Previous",
+    "next": "Next",
+    "paymentMethods": "Payment Methods",
+    "paymentMethodsDescription": "Manage your payment methods for deposits and withdrawals",
+    "addMethod": "Add Method",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "managePaymentMethods": "Manage Payment Methods",
+    "auctionFundsHold": "Auction Funds Hold",
+    "auctionFundsDescription": "Funds held for your active auction bids",
+    "temporarilyLocked": "Temporarily Locked",
+    "lockedDescription": "These funds are held for your active auction bids and will be released when auctions end.",
+    "importantNote": "Important Note",
+    "warningMessage": "Funds will be automatically released when auction ends if you don't win the auction, or when you complete the payment if you win."
   }
 }
