@@ -2,22 +2,14 @@
 import React, { useState } from 'react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-
-interface FilterState {
-  search: string
-  productType: string
-  minPrice: string
-  maxPrice: string
-  brands: string[]
-  batteryHealth: number
-  verifiedOnly: boolean
-}
+import { FilterState } from '../../types/product'
 
 interface BrowseFiltersProps {
   filters: FilterState
   onFilterChange: (filters: FilterState) => void
   onClearFilters: () => void
   isOpen?: boolean
+  availableBrands?: string[]
   className?: string
 }
 
@@ -26,16 +18,22 @@ function BrowseFilters({
   onFilterChange, 
   onClearFilters, 
   isOpen = true,
+  availableBrands = [],
   className = '' 
 }: BrowseFiltersProps) {
   const { t } = useI18nContext()
 
-  const brands = [
+  // Use availableBrands from props or fallback to default
+  const brands = availableBrands.length > 0 ? availableBrands : [
     'Tesla',
     'Nissan', 
     'Chevrolet',
     'BMW',
+    'Audi',
+    'Hyundai',
+    'Volkswagen',
     'LG',
+    'BYD',
     'Generic'
   ]
 
@@ -188,28 +186,30 @@ function BrowseFilters({
         </div>
 
         {/* Battery Health */}
-        <div className="space-y-3">
-          <label className="block text-sm font-medium" style={{ color: colors.Text }}>
-            {t('browse.batteryHealth')}
-          </label>
-          <div className="space-y-2">
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={filters.batteryHealth}
-              onChange={(e) => handleInputChange('batteryHealth', parseInt(e.target.value))}
-              className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
-            />
-            <div className="flex justify-between text-xs" style={{ color: colors.SubText }}>
-              <span>0%</span>
-              <span className="font-medium" style={{ color: colors.Text }}>
-                {filters.batteryHealth}%+
-              </span>
-              <span>100%</span>
+        {(filters.productType === 'all' || filters.productType === 'batteries') && (
+          <div className="space-y-3">
+            <label className="block text-sm font-medium" style={{ color: colors.Text }}>
+              {t('browse.batteryHealth')}
+            </label>
+            <div className="space-y-2">
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={filters.batteryHealth}
+                onChange={(e) => handleInputChange('batteryHealth', parseInt(e.target.value))}
+                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              />
+              <div className="flex justify-between text-xs" style={{ color: colors.SubText }}>
+                <span>0%</span>
+                <span className="font-medium" style={{ color: colors.Text }}>
+                  {filters.batteryHealth}%+
+                </span>
+                <span>100%</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Seller Verification */}
         <div className="space-y-3">
