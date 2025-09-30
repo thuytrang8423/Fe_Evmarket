@@ -50,8 +50,8 @@ function SellerInfo({ vehicle }: SellerInfoProps) {
       }
     }
     return {
-      rating: 4.5, // Default fallback
-      reviewCount: 12 // Default fallback
+      rating: 0, // Show 0 when no reviews
+      reviewCount: 0// Show 0 when no reviews
     }
   }
 
