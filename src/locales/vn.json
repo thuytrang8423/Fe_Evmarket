@@ -1,9 +1,8 @@
-{
-  "common": {
+{  "common": {
     "welcome": "Chào mừng",
     "home": "Trang chủ",
     "about": "Giới thiệu",
-    "loading": "Đang tải...",
+    "loading": "Đang tải..",
     "error": "Đã xảy ra lỗi",
     "success": "Thành công",
     "viewAll": "Xem tất cả",
@@ -11,7 +10,9 @@
     "verified": "Đã xác minh",
     "fastSale": "Bán nhanh",
     "popular": "Phổ biến",
-    "login": "Đăng nhập"
+    "login": "Đăng nhập",
+    "authRequired": "Vui lòng đăng nhập để truy cập trang này",
+    "redirecting": "Đang chuyển hướng đến trang đăng nhập..."
   },
   "navigation": {
     "home": "Trang chủ",
@@ -26,7 +27,10 @@
     "loggingOut": "Đang đăng xuất...",
     "notifications": "Thông báo",
     "profile": "Hồ sơ",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "walletManagement": "Quản lý ví",
+    "currentBalance": "Số dư hiện tại",
+    "wallet": "Ví"
   },
   "home": {
     "title": "Trang chủ",
@@ -417,7 +421,7 @@
     "save": "Lưu",
     "share": "Chia sẻ",
     "report": "Báo cáo",
-    "viewAllListings": "Xem tất cả tin đăng",
+    "reportSeller": "Báo cáo người bán",
     "description": "Mô tả",
     "specifications": "Thông số kỹ thuật",
     "vehicleDescription": "Mô tả chi tiết",
@@ -481,5 +485,33 @@
     "profileNotFound": "Không tìm thấy hồ sơ người bán",
     "goBack": "Quay lại",
     "greatExperience": "Trải nghiệm tuyệt vời với người bán này!"
+  },
+  "wallet": {
+    "management": "Quản lý ví",
+    "manageDescription": "Quản lý số tiền của bạn cho đấu giá và mua hàng trên EcoTrade EV",
+    "currentBalance": "Số dư hiện tại",
+    "depositFunds": "Nạp tiền",
+    "withdraw": "Rút tiền",
+    "transactionHistory": "Lịch sử giao dịch",
+    "date": "NGÀY",
+    "type": "LOẠI",
+    "description": "MÔ TẢ",
+    "amount": "SỐ TIỀN",
+    "status": "TRẠNG THÁI",
+    "showingTransactions": "Hiển thị 1 đến 5 trong tổng số 5 giao dịch",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "paymentMethods": "Phương thức thanh toán",
+    "paymentMethodsDescription": "Quản lý phương thức thanh toán cho nạp tiền và rút tiền",
+    "addMethod": "Thêm phương thức",
+    "verified": "Đã xác minh",
+    "unverified": "Chưa xác minh",
+    "managePaymentMethods": "Quản lý phương thức thanh toán",
+    "auctionFundsHold": "Tiền giữ đấu giá",
+    "auctionFundsDescription": "Tiền được giữ cho các lượt đấu giá đang hoạt động của bạn",
+    "temporarilyLocked": "Tạm thời bị khóa",
+    "lockedDescription": "Số tiền này được giữ cho các lượt đấu giá đang hoạt động và sẽ được giải phóng khi đấu giá kết thúc.",
+    "importantNote": "Lưu ý quan trọng",
+    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng."
   }
 }
