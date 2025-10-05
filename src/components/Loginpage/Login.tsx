@@ -1,6 +1,4 @@
-"use client"
 import React, { useState } from 'react'
-import { signIn } from 'next-auth/react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
@@ -239,13 +237,8 @@ function Login() {
             <div className="flex justify-center">
               <button
                 type="button"
-<<<<<<< HEAD
-                onClick={() => signIn('google', { callbackUrl: '/' })}
-                className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
-=======
                 onClick={handleGoogleLoginClick}
                 className="flex items-center justify-center px-6 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200 w-full max-w-xs"
->>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                 style={{borderColor: colors.Border}}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -256,21 +249,6 @@ function Login() {
                 </svg>
                 <span className="text-sm font-medium" style={{color: colors.Text}}>Google</span>
               </button>
-<<<<<<< HEAD
-              
-              <button
-                type="button"
-                onClick={() => signIn('facebook', { callbackUrl: '/' })}
-                className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
-                style={{borderColor: colors.Border}}
-              >
-                <svg className="w-5 h-5 mr-2" fill="#1877F2" viewBox="0 0 24 24">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                </svg>
-                <span className="text-sm font-medium" style={{color: colors.Text}}>Facebook</span>
-              </button>
-=======
->>>>>>> d62850b48e349b6787e781faab1037083fe709b1
             </div>
 
             {/* Sign Up Link */}

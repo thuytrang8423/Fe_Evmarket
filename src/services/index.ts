@@ -35,13 +35,23 @@ export {
 // Export Battery services
 export {
   getBatteries,
-  getBatteryById
+  getBatteryById,
+  getMyBatteries,
+  getMyBatteryById,
+  createBattery,
+  updateBattery,
+  deleteBattery
 } from './Battery'
 
 // Export Vehicle services
 export {
   getVehicles,
-  getVehicleById
+  getVehicleById,
+  getMyVehicles,
+  getMyVehicleById,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle
 } from './Vehicle'
 
 // Export types

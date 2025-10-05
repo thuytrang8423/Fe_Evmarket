@@ -1,28 +1,3 @@
-<<<<<<< HEAD
-"use client"
-import React, { useState } from 'react'
-import colors from '../Utils/Color'
-import Image from 'next/image'
-import { User, List, LogOut } from 'lucide-react'
-import { useI18nContext } from '../providers/I18nProvider'
-import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
-
-function Header() {
-  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false)
-  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const { locale, changeLocale, t } = useI18nContext()
-  const pathname = usePathname()
-  const { data: session, status } = useSession()
-  const isLoggedIn = !!session?.user
-  const imageUrl = typeof session?.user?.image === 'string' && session.user.image ? session.user.image : undefined
-
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' })
-  }
-  
-=======
 "use client";
 import React, { useState, useEffect } from "react";
 import colors from "../Utils/Color";
@@ -60,7 +35,6 @@ function Header() {
     }
   };
 
->>>>>>> d62850b48e349b6787e781faab1037083fe709b1
   const navigationItems = [
     { name: t("navigation.home"), href: "/" },
     { name: t("navigation.browse"), href: "/browse" },
@@ -233,23 +207,13 @@ function Header() {
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   >
-                    {imageUrl ? (
-                      <Image
-                        src={imageUrl}
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 rounded-full"
-                      />
-                    ) : (
-                      <Image
-                        src="/Profile.svg"
-                        alt="Profile"
-                        width={32}
-                        height={32}
-                        className="w-8 h-8"
-                      />
-                    )}
+                    <Image
+                      src="/Profile.svg"
+                      alt="Profile"
+                      width={32}
+                      height={32}
+                      className="w-8 h-8"
+                    />
                   </button>
 
                   {/* Profile Dropdown */}
@@ -289,12 +253,9 @@ function Header() {
                             handleLogout();
                             setProfileDropdownOpen(false);
                           }}
-                          className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300"
+                          disabled={isLoggingOut}
+                          className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-<<<<<<< HEAD
-                          <LogOut size={16} />
-                          {t('header.logout', 'Logout')}
-=======
                           {isLoggingOut ? (
                             <>
                               <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
@@ -306,7 +267,6 @@ function Header() {
                               {t("header.logout", "Logout")}
                             </>
                           )}
->>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                         </button>
                       </div>
                     </div>
@@ -473,11 +433,9 @@ function Header() {
                           handleLogout();
                           setMobileMenuOpen(false);
                         }}
-                        className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors duration-300"
+                        disabled={isLoggingOut}
+                        className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-<<<<<<< HEAD
-                        {t('header.logout', 'Logout')}
-=======
                         {isLoggingOut ? (
                           <div className="flex items-center justify-center">
                             <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
@@ -486,7 +444,6 @@ function Header() {
                         ) : (
                           t("header.logout", "Logout")
                         )}
->>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                       </button>
                     </div>
                   ) : (
