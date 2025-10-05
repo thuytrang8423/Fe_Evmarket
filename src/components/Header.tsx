@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client"
 import React, { useState } from 'react'
 import colors from '../Utils/Color'
@@ -21,43 +22,97 @@ function Header() {
     await signOut({ callbackUrl: '/' })
   }
   
+=======
+"use client";
+import React, { useState, useEffect } from "react";
+import colors from "../Utils/Color";
+import Image from "next/image";
+import { User, List, LogOut, Wallet } from "lucide-react";
+import { useI18nContext } from "../providers/I18nProvider";
+import { usePathname } from "next/navigation";
+import { isAuthenticated, logoutUser } from "../services";
+
+function Header() {
+  const [languageDropdownOpen, setLanguageDropdownOpen] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
+  const [isLoggingOut, setIsLoggingOut] = useState(false); // Track logout process
+  const { locale, changeLocale, t } = useI18nContext();
+  const pathname = usePathname();
+
+  // Check login status on component mount and when pathname changes
+  useEffect(() => {
+    setIsLoggedIn(isAuthenticated());
+  }, [pathname]);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      await logoutUser();
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Even if logout fails, we still redirect
+      logoutUser();
+    } finally {
+      setIsLoggingOut(false);
+    }
+  };
+
+>>>>>>> d62850b48e349b6787e781faab1037083fe709b1
   const navigationItems = [
-    { name: t('navigation.home'), href: '/' },
-    { name: t('navigation.browse'), href: '/browse' },
-    { name: t('navigation.sell'), href: '/sell' }
-  ]
+    { name: t("navigation.home"), href: "/" },
+    { name: t("navigation.browse"), href: "/browse" },
+    { name: t("navigation.sell"), href: "/sell" },
+  ];
 
   // Function to check if a path is active
   const isActivePath = (href: string) => {
-    if (href === '/') {
-      return pathname === '/' || pathname === '/home'
+    if (href === "/") {
+      return pathname === "/" || pathname === "/home";
     }
-    return pathname.startsWith(href)
-  }
+
+    // Exact match for /sell to avoid matching /seller/[id]
+    if (href === "/sell") {
+      return pathname === "/sell";
+    }
+
+    // For other paths, use startsWith but ensure it's not a longer path
+    // that just happens to start with the same characters
+    if (pathname.startsWith(href)) {
+      // Check if it's an exact match or the next character is '/'
+      const nextChar = pathname[href.length];
+      return nextChar === undefined || nextChar === "/";
+    }
+
+    return false;
+  };
 
   const languages = [
-    { name: 'English', code: 'en', flag: '🇺🇸' },
-    { name: 'Việt Nam', code: 'vn', flag: '🇻🇳' }
-  ]
+    { name: "English", code: "en", flag: "🇺🇸" },
+    { name: "Việt Nam", code: "vn", flag: "🇻🇳" },
+  ];
 
-  const handleLanguageChange = (languageCode: 'en' | 'vn') => {
-    changeLocale(languageCode)
-    setLanguageDropdownOpen(false)
-  }
+  const handleLanguageChange = (languageCode: "en" | "vn") => {
+    changeLocale(languageCode);
+    setLanguageDropdownOpen(false);
+  };
 
   // Get current language info
-  const currentLanguage = languages.find(lang => lang.code === locale) || languages[0]
+  const currentLanguage =
+    languages.find((lang) => lang.code === locale) || languages[0];
 
   // Handle navigation with authentication check
   const handleNavigation = (href: string, requireAuth: boolean = false) => {
     if (requireAuth && !isLoggedIn) {
       // Redirect to login page if authentication is required but user is not logged in
-      window.location.href = '/login'
-      return
+      window.location.href = "/login";
+      return;
     }
     // Navigate normally
-    window.location.href = href
-  }
+    window.location.href = href;
+  };
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -66,7 +121,10 @@ function Header() {
           {/* Left Side - Logo */}
           <div className="flex items-center">
             {/* Logo - Always visible */}
-            <a href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300">
+            <a
+              href="/"
+              className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-300"
+            >
               <Image
                 src="/logo.svg"
                 alt="EcoTrade EV"
@@ -83,22 +141,20 @@ function Header() {
           {/* Center - Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             {navigationItems.map((item, index) => {
-              const isActive = isActivePath(item.href)
-              const requireAuth = item.href === '/sell'
+              const isActive = isActivePath(item.href);
+              const requireAuth = item.href === "/sell";
               return (
                 <button
                   key={index}
                   onClick={() => handleNavigation(item.href, requireAuth)}
                   className={`text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
-                    isActive 
-                      ? 'text-blue-600' 
-                      : 'hover:text-blue-600'
+                    isActive ? "text-blue-600" : "hover:text-blue-600"
                   }`}
-                  style={!isActive ? {color: colors.Text} : {}}
+                  style={!isActive ? { color: colors.Text } : {}}
                 >
                   {item.name}
                 </button>
-              )
+              );
             })}
           </nav>
 
@@ -108,7 +164,7 @@ function Header() {
             <div className="hidden md:flex items-center gap-4">
               {/* Language */}
               <div className="relative">
-                <button 
+                <button
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
                   onClick={() => setLanguageDropdownOpen(!languageDropdownOpen)}
                 >
@@ -119,9 +175,11 @@ function Header() {
                     height={32}
                     className="w-8 h-8"
                   />
-                  <span className="text-lg">{currentLanguage.flag}</span>
+                  <span className="text-lg text-black">
+                    {currentLanguage.flag}
+                  </span>
                 </button>
-                
+
                 {/* Language Dropdown */}
                 {languageDropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
@@ -129,8 +187,10 @@ function Header() {
                       <button
                         key={index}
                         className="w-full flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 transition-colors duration-300 first:rounded-t-lg last:rounded-b-lg"
-                        onClick={() => handleLanguageChange(language.code as 'en' | 'vn')}
-                        style={{color: colors.Text}}
+                        onClick={() =>
+                          handleLanguageChange(language.code as "en" | "vn")
+                        }
+                        style={{ color: colors.Text }}
                       >
                         <span className="text-lg">{language.flag}</span>
                         <span>{language.name}</span>
@@ -141,10 +201,10 @@ function Header() {
                     ))}
                   </div>
                 )}
-                
+
                 {/* Overlay to close dropdown */}
                 {languageDropdownOpen && (
-                  <div 
+                  <div
                     className="fixed inset-0 z-40"
                     onClick={() => setLanguageDropdownOpen(false)}
                   />
@@ -169,7 +229,7 @@ function Header() {
               {/* Profile / Login */}
               {isLoggedIn ? (
                 <div className="relative">
-                  <button 
+                  <button
                     className="p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
                     onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   >
@@ -199,31 +259,54 @@ function Header() {
                         <a
                           href="/profile"
                           className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
-                          style={{color: colors.Text}}
+                          style={{ color: colors.Text }}
                           onClick={() => setProfileDropdownOpen(false)}
                         >
                           <User size={16} />
-                          {t('header.profileSettings', 'Profile Settings')}
+                          {t("header.profileSettings", "Profile Settings")}
+                        </a>
+                        <a
+                          href="/wallet"
+                          className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
+                          style={{ color: colors.Text }}
+                          onClick={() => setProfileDropdownOpen(false)}
+                        >
+                          <Wallet size={16} />
+                          {t("header.walletManagement", "Wallet Management")}
                         </a>
                         <a
                           href="/sell"
                           className="flex items-center gap-3 px-4 py-2 text-sm hover:bg-gray-50 transition-colors duration-300"
-                          style={{color: colors.Text}}
+                          style={{ color: colors.Text }}
                           onClick={() => setProfileDropdownOpen(false)}
                         >
                           <List size={16} />
-                          {t('header.myListings', 'My Listings')}
+                          {t("header.myListings", "My Listings")}
                         </a>
                         <div className="border-t border-gray-200 my-1"></div>
                         <button
                           onClick={() => {
-                            handleLogout()
-                            setProfileDropdownOpen(false)
+                            handleLogout();
+                            setProfileDropdownOpen(false);
                           }}
                           className="flex items-center gap-3 w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-300"
                         >
+<<<<<<< HEAD
                           <LogOut size={16} />
                           {t('header.logout', 'Logout')}
+=======
+                          {isLoggingOut ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin"></div>
+                              {t("header.loggingOut", "Logging out...")}
+                            </>
+                          ) : (
+                            <>
+                              <LogOut size={16} />
+                              {t("header.logout", "Logout")}
+                            </>
+                          )}
+>>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                         </button>
                       </div>
                     </div>
@@ -231,7 +314,7 @@ function Header() {
 
                   {/* Overlay to close dropdown */}
                   {profileDropdownOpen && (
-                    <div 
+                    <div
                       className="fixed inset-0 z-40"
                       onClick={() => setProfileDropdownOpen(false)}
                     />
@@ -242,27 +325,37 @@ function Header() {
                   href="/login"
                   className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white text-sm font-medium rounded-lg transition-all duration-300 inline-block shadow-lg"
                 >
-                  {t('common.login')}
+                  {t("common.login")}
                 </a>
               )}
             </div>
 
             {/* Mobile Menu Button */}
-            <button 
+            <button
               className="md:hidden p-2 hover:bg-gray-100 rounded-full transition-colors duration-300"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
-              <svg 
-                className="w-6 h-6" 
-                fill="none" 
-                stroke="currentColor" 
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{color: colors.Text}}
+                style={{ color: colors.Text }}
               >
                 {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 )}
               </svg>
             </button>
@@ -276,25 +369,23 @@ function Header() {
               {/* Navigation Links */}
               <div className="space-y-2">
                 {navigationItems.map((item, index) => {
-                  const isActive = isActivePath(item.href)
-                  const requireAuth = item.href === '/sell'
+                  const isActive = isActivePath(item.href);
+                  const requireAuth = item.href === "/sell";
                   return (
                     <button
                       key={index}
                       onClick={() => {
-                        handleNavigation(item.href, requireAuth)
-                        setMobileMenuOpen(false)
+                        handleNavigation(item.href, requireAuth);
+                        setMobileMenuOpen(false);
                       }}
                       className={`block w-full text-left py-2 text-sm font-medium transition-colors duration-300 cursor-pointer hover:cursor-pointer ${
-                        isActive 
-                          ? 'text-blue-600' 
-                          : 'hover:text-blue-600'
+                        isActive ? "text-blue-600" : "hover:text-blue-600"
                       }`}
-                      style={!isActive ? {color: colors.Text} : {}}
+                      style={!isActive ? { color: colors.Text } : {}}
                     >
                       {item.name}
                     </button>
-                  )
+                  );
                 })}
               </div>
 
@@ -302,23 +393,32 @@ function Header() {
               <div className="pt-3 border-t border-gray-200 space-y-3">
                 {/* Language Selector */}
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium" style={{color: colors.Text}}>
-                    {t('header.language', 'Language')}
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: colors.Text }}
+                  >
+                    {t("header.language", "Language")}
                   </span>
                   <div className="flex gap-2">
                     {languages.map((language, index) => (
                       <button
                         key={index}
                         className={`px-3 py-1 text-xs rounded-full border transition-colors duration-300 ${
-                          locale === language.code 
-                            ? 'bg-blue-600 text-white border-blue-600' 
-                            : 'hover:bg-gray-50'
+                          locale === language.code
+                            ? "bg-blue-600 text-white border-blue-600"
+                            : "hover:bg-gray-50"
                         }`}
-                        style={locale !== language.code ? {
-                          borderColor: colors.Border,
-                          color: colors.Text
-                        } : {}}
-                        onClick={() => handleLanguageChange(language.code as 'en' | 'vn')}
+                        style={
+                          locale !== language.code
+                            ? {
+                                borderColor: colors.Border,
+                                color: colors.Text,
+                              }
+                            : {}
+                        }
+                        onClick={() =>
+                          handleLanguageChange(language.code as "en" | "vn")
+                        }
                       >
                         {language.flag} {language.name}
                       </button>
@@ -338,10 +438,15 @@ function Header() {
                         height={20}
                         className="w-5 h-5"
                       />
-                      <span className="text-xs" style={{color: colors.SubText}}>{t('header.notifications', 'Notifications')}</span>
+                      <span
+                        className="text-xs"
+                        style={{ color: colors.SubText }}
+                      >
+                        {t("header.notifications", "Notifications")}
+                      </span>
                     </button>
                   )}
-                  
+
                   {isLoggedIn ? (
                     <div className="space-y-2">
                       <a
@@ -356,16 +461,32 @@ function Header() {
                           height={20}
                           className="w-5 h-5"
                         />
-                        <span className="text-xs" style={{color: colors.SubText}}>{t('header.profile', 'Profile')}</span>
+                        <span
+                          className="text-xs"
+                          style={{ color: colors.SubText }}
+                        >
+                          {t("header.profile", "Profile")}
+                        </span>
                       </a>
                       <button
                         onClick={() => {
-                          handleLogout()
-                          setMobileMenuOpen(false)
+                          handleLogout();
+                          setMobileMenuOpen(false);
                         }}
                         className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded-lg transition-colors duration-300"
                       >
+<<<<<<< HEAD
                         {t('header.logout', 'Logout')}
+=======
+                        {isLoggingOut ? (
+                          <div className="flex items-center justify-center">
+                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin mr-1"></div>
+                            {t("header.loggingOut", "Logging out...")}
+                          </div>
+                        ) : (
+                          t("header.logout", "Logout")
+                        )}
+>>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                       </button>
                     </div>
                   ) : (
@@ -374,7 +495,7 @@ function Header() {
                       className="px-4 py-2 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white text-xs font-medium rounded-lg transition-all duration-300 inline-block shadow-lg"
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      {t('common.login')}
+                      {t("common.login")}
                     </a>
                   )}
                 </div>
@@ -384,7 +505,7 @@ function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

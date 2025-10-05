@@ -20,6 +20,8 @@ export interface LoginResponse {
     token?: string
     accessToken?: string
     access_token?: string
+    refreshToken?: string
+    refresh_token?: string
     user: {
       id: string
       email: string
@@ -40,6 +42,8 @@ export interface RegisterResponse {
       email: string
       fullName?: string
     }
+    accessToken?: string
+    refreshToken?: string
   }
   error?: string
 }
@@ -47,6 +51,37 @@ export interface RegisterResponse {
 export interface LogoutResponse {
   success: boolean
   message: string
+  error?: string
+}
+
+export interface RefreshTokenRequest {
+  refreshToken?: string
+}
+
+export interface RefreshTokenResponse {
+  success: boolean
+  message: string
+  data?: {
+    accessToken: string
+  }
+  error?: string
+}
+
+// Google Auth Types
+export interface GoogleAuthResponse {
+  success: boolean
+  message: string
+  data?: {
+    accessToken: string
+    user: {
+      id: string
+      email: string
+      fullName?: string
+      name?: string
+      avatar?: string
+      role?: string
+    }
+  }
   error?: string
 }
 
@@ -100,6 +135,7 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies for refresh token
       body: JSON.stringify(credentials),
     })
 
@@ -135,6 +171,7 @@ export const registerUser = async (userData: RegisterRequest): Promise<RegisterR
       headers: {
         'Content-Type': 'application/json',
       },
+      credentials: 'include', // Include cookies for refresh token
       body: JSON.stringify(userData),
     })
 
@@ -162,6 +199,115 @@ export const registerUser = async (userData: RegisterRequest): Promise<RegisterR
   }
 }
 
+// Refresh Token API call
+export const refreshAccessToken = async (refreshToken?: string): Promise<RefreshTokenResponse> => {
+  try {
+    console.log('🔄 Refresh Token - Starting refresh process...')
+    console.log('🔄 Refresh Token - Using cookie-based refresh token')
+    
+    // Check if we're in browser and have cookies
+    if (typeof document !== 'undefined') {
+      console.log('🔄 Refresh Token - All cookies:', document.cookie)
+      
+      // Check if refreshToken cookie exists
+      const refreshTokenExists = document.cookie.includes('refreshToken')
+      console.log('🔄 Refresh Token - RefreshToken cookie exists:', refreshTokenExists)
+      
+      if (!refreshTokenExists) {
+        console.error('❌ Refresh Token - No refreshToken cookie found!')
+        return {
+          success: false,
+          message: 'No refresh token cookie found',
+          error: 'No refresh token cookie found - user needs to login again'
+        }
+      }
+      
+      // Extract refresh token value for debugging
+      const cookies = document.cookie.split(';')
+      const refreshCookie = cookies.find(c => c.trim().startsWith('refreshToken='))
+      if (refreshCookie) {
+        const tokenValue = refreshCookie.split('=')[1]
+        console.log('🔄 Refresh Token - Token preview:', tokenValue ? `${tokenValue.substring(0, 20)}...` : 'Empty')
+      }
+    }
+    
+    console.log('🔄 Refresh Token - Making API call to:', `${API_BASE_URL}/auth/refresh-token`)
+    
+    const response = await fetch(`${API_BASE_URL}/auth/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include', // Important: Include cookies in the request
+      // No body needed since refreshToken is in cookie
+    })
+
+    console.log('🔄 Refresh Token - API response status:', response.status)
+    console.log('🔄 Refresh Token - API response headers:', Object.fromEntries(response.headers.entries()))
+    
+    let data
+    let responseText = ''
+    
+    // Read response text first if not ok
+    if (!response.ok) {
+      try {
+        responseText = await response.clone().text()
+        console.error('🔄 Refresh Token - Error response text:', responseText)
+      } catch (textError) {
+        console.error('🔄 Refresh Token - Could not read response text:', textError)
+      }
+    }
+    
+    try {
+      data = await handleApiResponse(response)
+    } catch (apiError) {
+      console.error('🔄 Refresh Token - API Error:', apiError)
+      console.error('🔄 Refresh Token - Response status:', response.status)
+      if (responseText) {
+        console.error('🔄 Refresh Token - Response text:', responseText)
+      }
+      throw apiError
+    }
+    
+    console.log('🔄 Refresh Token - API response data:', {
+      success: data.success,
+      message: data.message,
+      hasAccessToken: !!data.data?.accessToken,
+      accessTokenPreview: data.data?.accessToken ? `${data.data.accessToken.substring(0, 20)}...` : null
+    })
+    
+    // Store the new access token
+    if (data.data?.accessToken) {
+      console.log('✅ Refresh Token - Storing new access token')
+      storeAuthToken(data.data.accessToken)
+    } else {
+      console.error('❌ Refresh Token - No access token in response')
+    }
+    
+    return {
+      success: true,
+      message: data.message || 'Token refreshed successfully',
+      data: data.data || data
+    }
+  } catch (error) {
+    console.error('❌ Refresh Token - Error occurred:', error)
+    
+    if (error instanceof AuthError) {
+      return {
+        success: false,
+        message: error.message,
+        error: error.message
+      }
+    }
+    
+    return {
+      success: false,
+      message: 'Network error or server is unavailable',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    }
+  }
+}
+
 // Logout API call
 export const logoutUserAPI = async (): Promise<LogoutResponse> => {
   try {
@@ -172,7 +318,8 @@ export const logoutUserAPI = async (): Promise<LogoutResponse> => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
-      }
+      },
+      credentials: 'include' // Include cookies to clear refresh token
     })
 
     const data = await handleApiResponse(response)
@@ -205,17 +352,107 @@ export const logoutUserAPI = async (): Promise<LogoutResponse> => {
 }
 
 // Helper function to store auth token with expiration
-export const storeAuthToken = (token: string, expirationDays: number = 7) => {
+// Default to 1 hour (60 minutes) instead of 7 days for better security
+export const storeAuthToken = (token: string, expirationHours: number = 1) => {
   if (typeof window !== 'undefined') {
-    const expirationTime = Date.now() + (expirationDays * 24 * 60 * 60 * 1000) // Default 7 days
+    const expirationTime = Date.now() + (expirationHours * 60 * 60 * 1000) // Convert hours to milliseconds
     localStorage.setItem('authToken', token)
     localStorage.setItem('tokenExpiration', expirationTime.toString())
   }
 }
 
-// Helper function to check if token is expired
+// Helper function to store refresh token
+export const storeRefreshToken = (refreshToken: string) => {
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('refreshToken', refreshToken)
+  }
+}
+
+// Helper function to get refresh token
+export const getRefreshToken = (): string | null => {
+  if (typeof window !== 'undefined') {
+    return localStorage.getItem('refreshToken')
+  }
+  return null
+}
+
+// Helper function to remove refresh token
+export const removeRefreshToken = () => {
+  if (typeof window !== 'undefined') {
+    localStorage.removeItem('refreshToken')
+  }
+}
+
+// Helper function to check if JWT token itself is expired
+const isJWTTokenExpired = (token: string): boolean => {
+  try {
+    // Decode JWT token (base64 decode the payload part)
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    const currentTime = Date.now() / 1000 // Convert to seconds
+    return payload.exp < currentTime
+  } catch (error) {
+    console.error('Error parsing JWT token:', error)
+    return true // Treat invalid tokens as expired
+  }
+}
+
+// Helper function to extend current session (if token is still valid)
+export const extendSession = (additionalHours: number = 1): boolean => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken')
+    
+    if (token && !isJWTTokenExpired(token)) {
+      // Only extend if JWT token itself is still valid
+      const currentExpiration = localStorage.getItem('tokenExpiration')
+      const newExpiration = (currentExpiration ? parseInt(currentExpiration) : Date.now()) + (additionalHours * 60 * 60 * 1000)
+      localStorage.setItem('tokenExpiration', newExpiration.toString())
+      return true
+    }
+  }
+  return false
+}
+
+// Helper function to get remaining session time in minutes
+export const getRemainingSessionTime = (): number => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken')
+    
+    if (token) {
+      try {
+        // Check JWT token expiry
+        const payload = JSON.parse(atob(token.split('.')[1]))
+        const jwtExpiry = payload.exp * 1000 // Convert to milliseconds
+        const jwtRemaining = Math.max(0, (jwtExpiry - Date.now()) / (60 * 1000)) // Convert to minutes
+        
+        // Check localStorage expiry
+        const localExpiration = localStorage.getItem('tokenExpiration')
+        const localRemaining = localExpiration 
+          ? Math.max(0, (parseInt(localExpiration) - Date.now()) / (60 * 1000))
+          : 0
+        
+        // Return the shorter of the two (more restrictive)
+        return Math.min(jwtRemaining, localRemaining)
+      } catch (error) {
+        console.error('Error calculating remaining time:', error)
+      }
+    }
+  }
+  return 0
+}
+
+// Helper function to check if token is expired (checks both localStorage and JWT expiry)
 export const isTokenExpired = (): boolean => {
   if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('authToken')
+    
+    if (!token) return true
+    
+    // Check JWT token expiry first (more accurate)
+    if (isJWTTokenExpired(token)) {
+      return true
+    }
+    
+    // Then check localStorage expiration as backup
     const expiration = localStorage.getItem('tokenExpiration')
     if (!expiration) return true
     return Date.now() > parseInt(expiration)
@@ -240,7 +477,51 @@ export const removeAuthToken = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem('authToken')
     localStorage.removeItem('tokenExpiration')
+    // Note: refreshToken is managed via HTTP-only cookies, not localStorage
   }
+}
+
+// Helper function to automatically refresh token if needed
+export const ensureValidToken = async (): Promise<string | null> => {
+  console.log('🔍 Ensure Valid Token - Starting validation...')
+  
+  const token = getAuthToken()
+  
+  console.log('🔍 Ensure Valid Token - Current token info:', {
+    hasToken: !!token,
+    tokenPreview: token ? `${token.substring(0, 20)}...` : null,
+    isExpired: isTokenExpired()
+  })
+  
+  // If we have a valid token, return it
+  if (token && !isTokenExpired()) {
+    console.log('✅ Ensure Valid Token - Current token is valid')
+    return token
+  }
+  
+  console.log('🔄 Ensure Valid Token - Token expired or missing, attempting refresh...')
+  
+  // If token is expired or doesn't exist, try to refresh it
+  try {
+    const refreshResponse = await refreshAccessToken()
+    console.log('🔄 Ensure Valid Token - Refresh response:', {
+      success: refreshResponse.success,
+      message: refreshResponse.message,
+      hasNewToken: !!refreshResponse.data?.accessToken
+    })
+    
+    if (refreshResponse.success && refreshResponse.data?.accessToken) {
+      console.log('✅ Ensure Valid Token - Successfully refreshed token')
+      return refreshResponse.data.accessToken
+    }
+  } catch (error) {
+    console.error('❌ Ensure Valid Token - Failed to refresh token:', error)
+  }
+  
+  // If refresh failed, remove all tokens and return null
+  console.log('❌ Ensure Valid Token - Refresh failed, clearing tokens')
+  removeAuthToken()
+  return null
 }
 
 // Helper function to check if user is authenticated (with expiration check)
@@ -271,4 +552,49 @@ export const logoutUserLocal = () => {
   if (typeof window !== 'undefined') {
     window.location.href = '/login'
   }
+}
+
+// Google OAuth login function
+export const loginWithGoogle = (): void => {
+  if (typeof window !== 'undefined') {
+    const googleAuthUrl = `${API_BASE_URL}/auth/google`
+    console.log('🔄 Google Auth - Redirecting to:', googleAuthUrl)
+    window.location.href = googleAuthUrl
+  }
+}
+
+// Handle Google OAuth success callback
+export const handleGoogleAuthSuccess = (accessToken: string): boolean => {
+  try {
+    if (!accessToken) {
+      console.error('❌ Google Auth - No access token provided')
+      return false
+    }
+
+    console.log('✅ Google Auth - Processing success with token')
+    
+    // Store the access token with default 1 hour expiration
+    storeAuthToken(accessToken, 1)
+    
+    console.log('✅ Google Auth - Token stored successfully')
+    return true
+  } catch (error) {
+    console.error('❌ Google Auth - Error handling success:', error)
+    return false
+  }
+}
+
+// Check if user came from Google OAuth redirect
+export const isGoogleAuthCallback = (): { isCallback: boolean; accessToken?: string } => {
+  if (typeof window !== 'undefined') {
+    const urlParams = new URLSearchParams(window.location.search)
+    const accessToken = urlParams.get('accessToken')
+    
+    return {
+      isCallback: !!accessToken,
+      accessToken: accessToken || undefined
+    }
+  }
+  
+  return { isCallback: false }
 }

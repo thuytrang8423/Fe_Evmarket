@@ -9,6 +9,7 @@ import RecentActivity from "@/components/Sellerpage/RecentActivity";
 import TipsForSellers from "@/components/Sellerpage/TipsForSellers";
 import MyListings from "@/components/Sellerpage/MyListings";
 import AddListing from "@/components/Sellerpage/AddListing";
+import AuthWrapper from "../../components/common/AuthWrapper";
 
 export default function SellPage() {
   const [activeTab, setActiveTab] = useState('dashboard')
@@ -42,15 +43,17 @@ export default function SellPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <SellerTitle />
-      <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      {/* Tab Content */}
-      {renderTabContent()}
-      
-      <Footer />
-    </div>
+    <AuthWrapper loadingMessage="Loading seller dashboard...">
+      <div className="min-h-screen bg-white">
+        <Header />
+        <SellerTitle />
+        <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        
+        {/* Tab Content */}
+        {renderTabContent()}
+        
+        <Footer />
+      </div>
+    </AuthWrapper>
   );
 }

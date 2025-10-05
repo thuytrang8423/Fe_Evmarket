@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Image from 'next/image'
 import { Heart, Share2, Flag, Battery as BatteryIcon, Zap } from 'lucide-react'
 import colors from '../../Utils/Color'
+import VerifiedBadge from '../common/VerifiedBadge'
 import { useI18nContext } from '../../providers/I18nProvider'
 
 import { Battery } from '../../services'
@@ -34,13 +35,7 @@ function PinDetailHero({ battery }: PinDetailHeroProps) {
               {/* Badges */}
               <div className="absolute top-4 right-4 flex flex-col gap-2">
                 {battery.isVerified && (
-                  <Image
-                    src="/Homepage/Verified.svg"
-                    alt="Verified"
-                    width={81}
-                    height={20}
-                    className="h-5 w-auto"
-                  />
+                  <VerifiedBadge width={81} height={20} />
                 )}
               </div>
             </div>

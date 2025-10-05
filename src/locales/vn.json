@@ -1,9 +1,8 @@
-{
-  "common": {
+{  "common": {
     "welcome": "Chào mừng",
     "home": "Trang chủ",
     "about": "Giới thiệu",
-    "loading": "Đang tải...",
+    "loading": "Đang tải..",
     "error": "Đã xảy ra lỗi",
     "success": "Thành công",
     "viewAll": "Xem tất cả",
@@ -11,7 +10,9 @@
     "verified": "Đã xác minh",
     "fastSale": "Bán nhanh",
     "popular": "Phổ biến",
-    "login": "Đăng nhập"
+    "login": "Đăng nhập",
+    "authRequired": "Vui lòng đăng nhập để truy cập trang này",
+    "redirecting": "Đang chuyển hướng đến trang đăng nhập..."
   },
   "navigation": {
     "home": "Trang chủ",
@@ -26,7 +27,10 @@
     "loggingOut": "Đang đăng xuất...",
     "notifications": "Thông báo",
     "profile": "Hồ sơ",
-    "language": "Ngôn ngữ"
+    "language": "Ngôn ngữ",
+    "walletManagement": "Quản lý ví",
+    "currentBalance": "Số dư hiện tại",
+    "wallet": "Ví"
   },
   "home": {
     "title": "Trang chủ",
@@ -262,7 +266,19 @@
       "loginFailed": "Đăng nhập thất bại",
       "invalidCredentials": "Email hoặc mật khẩu không đúng",
       "networkError": "Lỗi mạng hoặc server không khả dụng",
-      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "googleLoginError": "Không thể đăng nhập bằng Google. Vui lòng thử lại."
+    },
+    "google": {
+      "processing": "Đang xử lý đăng nhập...",
+      "processingDesc": "Vui lòng đợi trong giây lát",
+      "success": "Đăng nhập thành công!",
+      "successDesc": "Đang chuyển hướng về trang chủ...",
+      "error": "Đăng nhập thất bại",
+      "errorDesc": "Có lỗi xảy ra trong quá trình đăng nhập. Đang chuyển về trang đăng nhập...",
+      "backToLogin": "Quay lại đăng nhập",
+      "noTokenError": "Không tìm thấy token xác thực trong URL",
+      "processingError": "Có lỗi xảy ra khi xử lý xác thực"
     },
     "register": {
       "title": "Đăng ký tài khoản",
@@ -293,7 +309,8 @@
       "passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
       "invalidEmail": "Định dạng email không hợp lệ",
       "networkError": "Lỗi mạng hoặc server không khả dụng",
-      "unexpectedError": "Đã xảy ra lỗi không mong muốn"
+      "unexpectedError": "Đã xảy ra lỗi không mong muốn",
+      "googleLoginError": "Không thể đăng nhập bằng Google. Vui lòng thử lại."
     }
   },
   "profile": {
@@ -404,7 +421,7 @@
     "save": "Lưu",
     "share": "Chia sẻ",
     "report": "Báo cáo",
-    "viewAllListings": "Xem tất cả tin đăng",
+    "reportSeller": "Báo cáo người bán",
     "description": "Mô tả",
     "specifications": "Thông số kỹ thuật",
     "vehicleDescription": "Mô tả chi tiết",
@@ -448,5 +465,53 @@
     "health": "Tình trạng pin",
     "batteryType": "Loại pin",
     "soh": "SoH"
+  },
+  "sellerProfile": {
+    "verifiedSeller": "Người bán đã xác minh",
+    "memberSince": "Thành viên từ",
+    "reviews": "đánh giá",
+    "statistics": "Thống kê người bán",
+    "basedOnReviews": "Dựa trên {count} đánh giá",
+    "totalReviews": "Tổng đánh giá",
+    "productTypes": "Loại sản phẩm",
+    "customerReviews": "Đánh giá khách hàng",
+    "reviewsDescription": "Xem khách hàng nói gì về người bán này",
+    "noReviewsYet": "Chưa có đánh giá",
+    "noReviewsDescription": "Người bán này chưa nhận được đánh giá nào.",
+    "edited": "Đã chỉnh sửa",
+    "product": "Sản phẩm",
+    "type": "Loại",
+    "loadingProfile": "Đang tải hồ sơ người bán...",
+    "profileNotFound": "Không tìm thấy hồ sơ người bán",
+    "goBack": "Quay lại",
+    "greatExperience": "Trải nghiệm tuyệt vời với người bán này!"
+  },
+  "wallet": {
+    "management": "Quản lý ví",
+    "manageDescription": "Quản lý số tiền của bạn cho đấu giá và mua hàng trên EcoTrade EV",
+    "currentBalance": "Số dư hiện tại",
+    "depositFunds": "Nạp tiền",
+    "withdraw": "Rút tiền",
+    "transactionHistory": "Lịch sử giao dịch",
+    "date": "NGÀY",
+    "type": "LOẠI",
+    "description": "MÔ TẢ",
+    "amount": "SỐ TIỀN",
+    "status": "TRẠNG THÁI",
+    "showingTransactions": "Hiển thị 1 đến 5 trong tổng số 5 giao dịch",
+    "previous": "Trước",
+    "next": "Tiếp",
+    "paymentMethods": "Phương thức thanh toán",
+    "paymentMethodsDescription": "Quản lý phương thức thanh toán cho nạp tiền và rút tiền",
+    "addMethod": "Thêm phương thức",
+    "verified": "Đã xác minh",
+    "unverified": "Chưa xác minh",
+    "managePaymentMethods": "Quản lý phương thức thanh toán",
+    "auctionFundsHold": "Tiền giữ đấu giá",
+    "auctionFundsDescription": "Tiền được giữ cho các lượt đấu giá đang hoạt động của bạn",
+    "temporarilyLocked": "Tạm thời bị khóa",
+    "lockedDescription": "Số tiền này được giữ cho các lượt đấu giá đang hoạt động và sẽ được giải phóng khi đấu giá kết thúc.",
+    "importantNote": "Lưu ý quan trọng",
+    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng."
   }
 }

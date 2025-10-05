@@ -11,14 +11,25 @@ export {
   isAuthenticated,
   logoutUser,
   logoutUserLocal,
-  AuthError
+  extendSession,
+  getRemainingSessionTime,
+  AuthError,
+
+  refreshAccessToken,
+  ensureValidToken,
+  
+  // Google Auth functions
+  loginWithGoogle,
+  handleGoogleAuthSuccess,
+  isGoogleAuthCallback
 } from './Auth'
 
 // Export User services
 export {
   getUserProfile,
   updateUserProfile,
-  uploadAvatar
+  uploadAvatar,
+  getSellerProfile,
 } from './User'
 
 // Export Battery services
@@ -40,14 +51,22 @@ export type {
   LoginResponse,
   RegisterResponse,
   LogoutResponse,
-  ApiError
+  ApiError,
+  
+  // Google Auth types
+  GoogleAuthResponse
 } from './Auth'
 
 export type {
   User,
   UserProfileResponse,
   UpdateProfileRequest,
-  UpdateProfileResponse
+  UpdateProfileResponse,
+  SellerProfile,
+  SellerProfileResponse,
+  Review,
+  VerifiedSeller,
+  VerifiedSellersResponse
 } from './User'
 
 export type {

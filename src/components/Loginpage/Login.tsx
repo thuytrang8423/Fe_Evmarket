@@ -5,7 +5,7 @@ import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { loginUser, storeAuthToken } from '../../services'
+import { loginUser, storeAuthToken, loginWithGoogle } from '../../services'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -32,6 +32,12 @@ function Login() {
   const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
 
+  const handleGoogleLoginClick = () => {
+    loginWithGoogle()
+  }
+  
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
@@ -46,8 +52,12 @@ function Login() {
       
       if (response.success && token) {
         // Store token with expiration based on remember me option
-        const expirationDays = rememberMe ? 30 : 7 // 30 days if remember me, otherwise 7 days
-        storeAuthToken(token, expirationDays)
+        // Use 60 minutes (1 hour) for regular, 24 hours for remember me
+        const expirationHours = rememberMe ? 24 : 1 // 24 hours if remember me, otherwise 1 hour
+        storeAuthToken(token, expirationHours)
+        
+        // Note: refreshToken is now managed via HTTP-only cookies by backend
+        console.log('✅ Login - Token stored, refreshToken managed via cookies')
         
         // Always show localized success message
         setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
@@ -226,11 +236,16 @@ function Login() {
             </div>
 
             {/* Social Login */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center">
               <button
                 type="button"
+<<<<<<< HEAD
                 onClick={() => signIn('google', { callbackUrl: '/' })}
                 className="flex items-center justify-center px-4 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200"
+=======
+                onClick={handleGoogleLoginClick}
+                className="flex items-center justify-center px-6 py-3 border rounded-lg hover:bg-gray-50 transition-colors duration-200 w-full max-w-xs"
+>>>>>>> d62850b48e349b6787e781faab1037083fe709b1
                 style={{borderColor: colors.Border}}
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -241,6 +256,7 @@ function Login() {
                 </svg>
                 <span className="text-sm font-medium" style={{color: colors.Text}}>Google</span>
               </button>
+<<<<<<< HEAD
               
               <button
                 type="button"
@@ -253,6 +269,8 @@ function Login() {
                 </svg>
                 <span className="text-sm font-medium" style={{color: colors.Text}}>Facebook</span>
               </button>
+=======
+>>>>>>> d62850b48e349b6787e781faab1037083fe709b1
             </div>
 
             {/* Sign Up Link */}
