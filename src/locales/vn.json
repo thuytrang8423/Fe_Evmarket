@@ -182,11 +182,15 @@
         "details": "Chi tiết",
         "battery": "Pin",
         "description": "Mô tả",
-        "photos": "Hình ảnh"
+        "photos": "Hình ảnh",
+        "batteryDetails": "Chi tiết pin",
+        "specifications": "Thông số kỹ thuật",
+        "reviewSubmit": "Xem lại & Gửi"
       },
       "fields": {
         "listingTitle": "Tiêu đề tin đăng",
         "price": "Giá",
+        "brand": "Thương hiệu",
         "make": "Hãng xe",
         "model": "Mẫu xe",
         "year": "Năm sản xuất",
@@ -196,19 +200,32 @@
         "exteriorColor": "Màu ngoại thất",
         "interiorColor": "Màu nội thất",
         "batteryHealth": "Tình trạng pin",
+        "batteryCapacity": "Dung lượng pin (kWh)",
         "range": "Phạm vi hoạt động",
         "chargingType": "Loại sạc",
         "description": "Mô tả",
         "features": "Tính năng",
         "uploadPhotos": "Tải lên hình ảnh",
         "photosTip": "Thêm tối đa 30 ảnh để giới thiệu xe của bạn",
-        "selectPhotos": "Chọn ảnh"
+        "selectPhotos": "Chọn ảnh",
+        "clickOrDrag": "Bấm hoặc kéo thả ảnh vào đây"
+      },
+      "batterySpecs": {
+        "weight": "Trọng lượng",
+        "voltage": "Điện áp",
+        "chemistry": "Hóa học",
+        "degradation": "Mức suy giảm",
+        "chargingTime": "Thời gian sạc",
+        "installation": "Lắp đặt",
+        "warrantyPeriod": "Thời hạn bảo hành",
+        "temperatureRange": "Dải nhiệt độ"
       },
       "buttons": {
         "previous": "Trước",
         "next": "Tiếp",
         "saveDraft": "Lưu nháp",
-        "publish": "Đăng tin"
+        "publish": "Đăng tin",
+        "submit": "Gửi"
       }
     }
   },

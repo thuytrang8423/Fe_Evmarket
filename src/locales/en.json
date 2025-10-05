@@ -183,11 +183,15 @@
         "details": "Details",
         "battery": "Battery",
         "description": "Description",
-        "photos": "Photos"
+        "photos": "Photos",
+        "batteryDetails": "Battery Details",
+        "specifications": "Specifications",
+        "reviewSubmit": "Review & Submit"
       },
       "fields": {
         "listingTitle": "Listing Title",
         "price": "Price",
+        "brand": "Brand",
         "make": "Make",
         "model": "Model",
         "year": "Year",
@@ -197,19 +201,32 @@
         "exteriorColor": "Exterior Color",
         "interiorColor": "Interior Color",
         "batteryHealth": "Battery Health",
+        "batteryCapacity": "Battery Capacity (kWh)",
         "range": "Range",
         "chargingType": "Charging Types",
         "description": "Description",
         "features": "Features",
         "uploadPhotos": "Upload Photos",
         "photosTip": "Add up to 30 photos to showcase your vehicle",
-        "selectPhotos": "Select Photos"
+        "selectPhotos": "Select Photos",
+        "clickOrDrag": "Click or drag images here"
+      },
+      "batterySpecs": {
+        "weight": "Weight",
+        "voltage": "Voltage",
+        "chemistry": "Chemistry",
+        "degradation": "Degradation",
+        "chargingTime": "Charging Time",
+        "installation": "Installation",
+        "warrantyPeriod": "Warranty Period",
+        "temperatureRange": "Temperature Range"
       },
       "buttons": {
         "previous": "Previous",
         "next": "Next",
         "saveDraft": "Save Draft",
-        "publish": "Publish Listing"
+        "publish": "Publish Listing",
+        "submit": "Submit"
       }
     }
   },
