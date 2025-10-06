@@ -1,11 +1,146 @@
 "use client"
-import React, { useState } from 'react'
-import colors from '../../Utils/Color'
+import React, { useState, useCallback } from 'react'
+import { validateField, validateForm, getFieldError, hasFieldError,  ValidationError } from '../../Utils/validation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { createBattery, type CreateBatteryRequest } from '../../services/Battery'
-import { createVehicle, type CreateVehicleRequest } from '../../services/Vehicle'
 import { useToast } from '../../hooks/useToast'
 import { ToastContainer } from '../common/Toast'
+import { createVehicle } from '../../services/Vehicle'
+import { createBattery } from '../../services/Battery'
+
+interface FormData {
+  title: string;
+  make: string;
+  model: string;
+  year: string;
+  price: string;
+  mileage: string;
+  location: string;
+  bodyType: string;
+  exteriorColor: string;
+  interiorColor: string;
+  batteryHealth: string;
+  range: string;
+  batteryCapacity: string;
+  description: string;
+  spec_weight: string;
+  spec_voltage: string;
+  spec_chemistry: string;
+  spec_degradation: string;
+  spec_chargingTime: string;
+  spec_installation: string;
+  spec_warrantyPeriod: string;
+  spec_temperatureRange: string;
+}
+
+interface SelectOption {
+  value: string;
+  label: string;
+}
+
+interface InputProps {
+  field: keyof FormData;
+  label: string;
+  placeholder: string;
+  type?: string;
+  required?: boolean;
+  form: FormData;
+  errors: ValidationError[];
+  handleChange: (field: keyof FormData, value: string) => void;
+  handleBlur: (field: keyof FormData) => void;
+}
+
+interface SelectProps {
+  field: keyof FormData;
+  label: string;
+  options: SelectOption[];
+  required?: boolean;
+  form: FormData;
+  errors: ValidationError[];
+  handleChange: (field: keyof FormData, value: string) => void;
+  handleBlur: (field: keyof FormData) => void;
+}
+
+// Input component - moved outside to prevent re-creation
+const Input = ({ field, label, placeholder, type = "text", required = false, form, errors, handleChange, handleBlur }: InputProps) => {
+  // Handle input for number fields - only allow numbers
+  const handleNumberInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (type === "number") {
+      const value = e.target.value
+      // Allow empty string, numbers, and decimal point
+      if (value === "" || /^\d*\.?\d*$/.test(value)) {
+        handleChange(field, value)
+      }
+    } else {
+      handleChange(field, e.target.value)
+    }
+  }
+
+  // Handle key press for number fields - prevent non-numeric characters
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (type === "number") {
+      // Allow: backspace, delete, tab, escape, enter, decimal point
+      if ([8, 9, 27, 13, 46, 110, 190].indexOf(e.keyCode) !== -1 ||
+          // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+          (e.keyCode === 65 && e.ctrlKey === true) ||
+          (e.keyCode === 67 && e.ctrlKey === true) ||
+          (e.keyCode === 86 && e.ctrlKey === true) ||
+          (e.keyCode === 88 && e.ctrlKey === true)) {
+        return
+      }
+      // Ensure that it is a number and stop the keypress
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault()
+      }
+    }
+  }
+
+  return (
+    <div>
+      <label className="block text-sm font-medium mb-2 text-gray-700">
+        {label} {required && <span className="text-red-500">*</span>}
+      </label>
+      <input
+        type={type}
+        value={form[field]}
+        onChange={handleNumberInput}
+        onKeyDown={handleKeyPress}
+        onBlur={() => handleBlur(field)}
+        placeholder={placeholder}
+        className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 placeholder-gray-600 text-base font-medium ${
+          hasFieldError(errors, field) ? 'border-red-500' : 'border-gray-300'
+        }`}
+      />
+      {getFieldError(errors, field) && (
+        <p className="mt-1 text-sm text-red-600">{getFieldError(errors, field)}</p>
+      )}
+    </div>
+  )
+}
+
+// Select component - moved outside to prevent re-creation
+const Select = ({ field, label, options, required = false, form, errors, handleChange, handleBlur }: SelectProps) => (
+  <div>
+    <label className="block text-sm font-medium mb-2 text-gray-700">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      value={form[field]}
+      onChange={e => handleChange(field, e.target.value)}
+      onBlur={() => handleBlur(field)}
+      className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 text-base font-medium ${
+        hasFieldError(errors, field) ? 'border-red-500' : 'border-gray-300'
+      }`}
+    >
+      <option value="" className="text-gray-600">Select {label}</option>
+      {options.map((opt: SelectOption) => (
+        <option key={opt.value} value={opt.value} className="text-gray-900">{opt.label}</option>
+      ))}
+    </select>
+    {getFieldError(errors, field) && (
+      <p className="mt-1 text-sm text-red-600">{getFieldError(errors, field)}</p>
+    )}
+  </div>
+)
 
 function AddListing() {
   const { t } = useI18nContext()
@@ -13,748 +148,507 @@ function AddListing() {
   const [currentStep, setCurrentStep] = useState(1)
   const [listingType, setListingType] = useState<'vehicle' | 'battery'>('vehicle')
   const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [errors, setErrors] = useState<ValidationError[]>([])
   const [uploadedImages, setUploadedImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [uploadSuccess, setUploadSuccess] = useState<string | null>(null)
-  const inputClass = "w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-  const selectClass = "w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
-  const textareaClass = "w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-  const [formData, setFormData] = useState({
-    // Basic Info
-    title: '',
-    make: '',
-    model: '',
-    year: '',
-    price: '',
-    mileage: '',
-    
-    // Location
-    location: '',
-    zipCode: '',
-    
-    // Vehicle Details
-    bodyType: '',
-    drivetrain: '',
-    exteriorColor: '',
-    interiorColor: '',
-    
-    // Battery & Performance
-    batteryHealth: '',
-    range: '',
-    batteryCapacity: '',
-    chargingType: '',
-    
-    // Description
-    description: '',
-    features: [],
-    
-    // Images
-    images: [],
-
-    // Battery-only specifications
-    spec_weight: '',
-    spec_voltage: '',
-    spec_chemistry: '',
-    spec_degradation: '',
-    spec_chargingTime: '',
-    spec_installation: '',
-    spec_warrantyPeriod: '',
-    spec_temperatureRange: ''
+  
+  const [form, setForm] = useState<FormData>({
+    title: '', make: '', model: '', year: '', price: '', mileage: '',
+    location: '', bodyType: '', exteriorColor: '', interiorColor: '',
+    batteryHealth: '', range: '', batteryCapacity: '', description: '',
+    spec_weight: '', spec_voltage: '', spec_chemistry: '', spec_degradation: '',
+    spec_chargingTime: '', spec_installation: '', spec_warrantyPeriod: '', spec_temperatureRange: ''
   })
 
-  const steps = listingType === 'vehicle'
-    ? [
-        { id: 1, title: t('seller.addListing.steps.basicInfo') },
-        { id: 2, title: t('seller.addListing.steps.details') },
-        { id: 3, title: t('seller.addListing.steps.battery') },
-        { id: 4, title: t('seller.addListing.fields.uploadPhotos') },
-        { id: 5, title: t('seller.addListing.steps.reviewSubmit') }
-      ]
-    : [
-        { id: 1, title: t('seller.addListing.steps.basicInfo') },
-        { id: 2, title: t('seller.addListing.steps.batteryDetails') },
-        { id: 3, title: t('seller.addListing.steps.specifications') },
-        { id: 4, title: t('seller.addListing.fields.uploadPhotos') },
-        { id: 5, title: t('seller.addListing.steps.reviewSubmit') }
-      ]
+  // Handle input change (no validation on change)
+  const handleChange = useCallback((field: keyof FormData, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }))
+  }, [])
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }))
-  }
-
-  const openFilePicker = () => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.multiple = true
-    input.onchange = () => {
-      const files = Array.from(input.files || [])
-      handleNewFiles(files)
+  // Handle validation on blur (when user leaves the field)
+  const handleBlur = useCallback((field: keyof FormData) => {
+    const value = form[field]
+    const error = validateField(field, value, listingType)
+    
+    if (error) {
+      setErrors(prev => [...prev.filter(e => e.field !== field), { field, message: error }])
+    } else {
+      setErrors(prev => prev.filter(e => e.field !== field))
     }
-    input.click()
+  }, [form, listingType])
+
+  const handleImageUpload = (files: FileList | null) => {
+    if (!files) return;
+    const newFiles = Array.from(files)
+    const previews = newFiles.map(f => URL.createObjectURL(f))
+    setUploadedImages(prev => [...prev, ...newFiles])
+    setImagePreviews(prev => [...prev, ...previews])
+    success(t('toast.imageUploadSuccess', `Uploaded ${newFiles.length} image${newFiles.length > 1 ? 's' : ''} successfully!`))
   }
 
-  const handleNewFiles = (files: File[]) => {
-    if (!files.length) return
-    const newPreviews = files.map(file => URL.createObjectURL(file))
-    setUploadedImages(prev => [...prev, ...files])
-    setImagePreviews(prev => [...prev, ...newPreviews])
-    setError(null)
-    // Remove old success message and show toast instead
-    setUploadSuccess(null)
-    success(t('toast.imageUploadSuccess', `Uploaded ${files.length} image${files.length > 1 ? 's' : ''} successfully!`))
-  }
-
-  const handleDrop: React.DragEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const files = Array.from(e.dataTransfer.files || []).filter(f => f.type.startsWith('image/'))
-    handleNewFiles(files)
-  }
-
-  const handleDragOver: React.DragEventHandler<HTMLDivElement> = (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
-
-  const removeImage = (index: number) => {
-    setUploadedImages(prev => prev.filter((_, i) => i !== index))
-    setImagePreviews(prev => prev.filter((_, i) => i !== index))
+  const removeImage = (idx: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== idx))
+    setImagePreviews(prev => prev.filter((_, i) => i !== idx))
     success(t('toast.imageRemoveSuccess', 'Image removed successfully!'))
   }
+
+  const handleSubmit = async () => {
+    if (!uploadedImages.length) {
+      showError(t('seller.addListing.validation.uploadImageRequired'))
+      return
+    }
+
+    const validation = validateForm(form, listingType)
+    if (!validation.isValid) {
+      setErrors(validation.errors)
+      setCurrentStep(1) // Go back to first step with errors
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      // API call
+      let result
+      if (listingType === 'vehicle') {
+        const vehiclePayload = {
+          title: form.title,
+          description: form.description,
+          price: Number(form.price),
+          brand: form.make, // API expects 'brand', form uses 'make'
+          model: form.model,
+          year: Number(form.year),
+          mileage: Number(form.mileage),
+          images: uploadedImages,
+          specifications: { batteryAndCharging: { range: form.range } }
+        }
+        result = await createVehicle(vehiclePayload)
+      } else {
+        const batteryPayload = {
+          title: form.title,
+          description: form.description,
+          price: Number(form.price),
+          brand: form.make, // API expects 'brand', form uses 'make'
+          capacity: Number(form.batteryCapacity),
+          year: Number(form.year),
+          health: Number(form.batteryHealth),
+          images: uploadedImages,
+          specifications: {
+            weight: form.spec_weight || undefined,
+            voltage: form.spec_voltage || undefined,
+            chemistry: form.spec_chemistry || undefined,
+            degradation: form.spec_degradation || undefined,
+            chargingTime: form.spec_chargingTime || undefined,
+            installation: form.spec_installation || undefined,
+            warrantyPeriod: form.spec_warrantyPeriod || undefined,
+            temperatureRange: form.spec_temperatureRange || undefined
+          }
+        }
+        result = await createBattery(batteryPayload)
+      }
+
+      console.log('API result:', result)
+      
+      if (!result.success) {
+        showError(result.message || t('toast.createFailed', 'Failed to create listing'))
+        return
+      }
+
+      success(t('seller.addListing.validation.listingCreatedSuccess'))
+      
+      // Reset form
+      setForm({
+        title: '', make: '', model: '', year: '', price: '', mileage: '',
+        location: '', bodyType: '', exteriorColor: '', interiorColor: '',
+        batteryHealth: '', range: '', batteryCapacity: '', description: '',
+        spec_weight: '', spec_voltage: '', spec_chemistry: '', spec_degradation: '',
+        spec_chargingTime: '', spec_installation: '', spec_warrantyPeriod: '', spec_temperatureRange: ''
+      })
+      setUploadedImages([])
+      setImagePreviews([])
+      setCurrentStep(1)
+      setErrors([])
+      
+    } catch (e) {
+      console.error('Error in handleSubmit:', e)
+      const errorMessage = e instanceof Error ? e.message : t('toast.createFailed', 'Failed to create listing')
+      showError(errorMessage)
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const steps = listingType === 'vehicle'
+    ? [t('seller.addListing.steps.basicInfo'), t('seller.addListing.steps.details'), t('seller.addListing.steps.battery'), t('seller.addListing.steps.photos'), t('seller.addListing.steps.reviewSubmit')]
+    : [t('seller.addListing.steps.basicInfo'), t('seller.addListing.steps.batteryDetails'), t('seller.addListing.steps.specifications'), t('seller.addListing.steps.photos'), t('seller.addListing.steps.reviewSubmit')]
 
   const renderStep = () => {
     switch (currentStep) {
       case 1:
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.listingTitle')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="e.g., 2020 Tesla Model 3 Long Range"
-                  value={formData.title}
-                  onChange={(e) => handleInputChange('title', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.price')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="$25,000"
-                  value={formData.price}
-                  onChange={(e) => handleInputChange('price', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {listingType === 'vehicle' ? t('seller.addListing.fields.make') : 'Brand'}
-                </label>
-                {listingType === 'vehicle' ? (
-                  <select
-                    className={selectClass}
-                    value={formData.make}
-                    onChange={(e) => handleInputChange('make', e.target.value)}
-                    style={{ borderColor: colors.Border }}
-                  >
-                    <option value="">Select Make</option>
-                    <option value="tesla">Tesla</option>
-                    <option value="nissan">Nissan</option>
-                    <option value="bmw">BMW</option>
-                    <option value="audi">Audi</option>
-                    <option value="volkswagen">Volkswagen</option>
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    className={inputClass}
-                    placeholder="e.g., CATL, BYD, LG"
-                    value={formData.make}
-                    onChange={(e) => handleInputChange('make', e.target.value)}
-                    style={{ borderColor: colors.Border }}
-                  />
-                )}
-              </div>
-
-              {listingType === 'vehicle' && (
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.model')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Model 3"
-                  value={formData.model}
-                  onChange={(e) => handleInputChange('model', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.year')}
-                </label>
-                <select
-                  className={selectClass}
-                  value={formData.year}
-                  onChange={(e) => handleInputChange('year', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                >
-                  <option value="">Select Year</option>
-                  {Array.from({ length: 10 }, (_, i) => 2025 - i).map(year => (
-                    <option key={year} value={year}>{year}</option>
-                  ))}
-                </select>
-              </div>
-
-              {listingType === 'vehicle' && (
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.mileage')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="45,000"
-                  value={formData.mileage}
-                  onChange={(e) => handleInputChange('mileage', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-              )}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input field="title" label={t('seller.addListing.fields.listingTitle')} placeholder={t('seller.addListing.placeholders.listingTitle')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="price" label={t('seller.addListing.fields.price')} placeholder={t('seller.addListing.placeholders.price')} type="number" required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            {listingType === 'vehicle' ? (
+              <Select field="make" label={t('seller.addListing.fields.make')} required options={[
+                { value: 'tesla', label: 'Tesla' },
+                { value: 'nissan', label: 'Nissan' },
+                { value: 'bmw', label: 'BMW' }
+              ]} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            ) : (
+              <Input field="make" label={t('seller.addListing.fields.brand')} placeholder={t('seller.addListing.placeholders.brand')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            )}
+            {listingType === 'vehicle' && (
+              <Input field="model" label={t('seller.addListing.fields.model')} placeholder={t('seller.addListing.placeholders.model')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            )}
+            <Select field="year" label={t('seller.addListing.fields.year')} required options={
+              Array.from({ length: 10 }, (_, i) => 2025 - i).map(y => ({ value: y.toString(), label: y.toString() }))
+            } form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            {listingType === 'vehicle' && (
+              <Input field="mileage" label={t('seller.addListing.fields.mileage')} placeholder={t('seller.addListing.placeholders.mileage')} type="number" required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            )}
           </div>
         )
 
       case 2:
         if (listingType === 'vehicle') return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.location')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="San Francisco, CA"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.bodyType')}
-                </label>
-                <select
-                  className={selectClass}
-                  value={formData.bodyType}
-                  onChange={(e) => handleInputChange('bodyType', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                >
-                  <option value="">Select Body Type</option>
-                  <option value="sedan">Sedan</option>
-                  <option value="suv">SUV</option>
-                  <option value="hatchback">Hatchback</option>
-                  <option value="coupe">Coupe</option>
-                  <option value="wagon">Wagon</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.exteriorColor')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Pearl White"
-                  value={formData.exteriorColor}
-                  onChange={(e) => handleInputChange('exteriorColor', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.interiorColor')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="Black"
-                  value={formData.interiorColor}
-                  onChange={(e) => handleInputChange('interiorColor', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input field="location" label="Location" placeholder="San Francisco, CA" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Select field="bodyType" label="Body Type" options={[
+              { value: 'sedan', label: 'Sedan' },
+              { value: 'suv', label: 'SUV' },
+              { value: 'hatchback', label: 'Hatchback' }
+            ]} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="exteriorColor" label="Exterior Color" placeholder="Pearl White" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="interiorColor" label="Interior Color" placeholder="Black" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
           </div>
         )
-        // Battery step 2: Battery Details
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  Capacity (kWh)
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="75"
-                  value={formData.batteryCapacity}
-                  onChange={(e) => handleInputChange('batteryCapacity', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.batteryHealth')}
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black placeholder-gray-500"
-                  placeholder="90"
-                  value={formData.batteryHealth}
-                  onChange={(e) => handleInputChange('batteryHealth', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input field="batteryCapacity" label={t('seller.addListing.fields.batteryCapacity')} placeholder="75" type="number" required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="batteryHealth" label={t('seller.addListing.fields.batteryHealth')} placeholder={t('seller.addListing.placeholders.batteryHealth')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
           </div>
         )
 
       case 3:
         if (listingType === 'vehicle') return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.batteryHealth')}
-                </label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  placeholder="85%"
-                  value={formData.batteryHealth}
-                  onChange={(e) => handleInputChange('batteryHealth', e.target.value)}
-                  style={{ borderColor: colors.Border }}
-                />
-              </div>
-
-              {listingType === 'vehicle' ? (
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                    {t('seller.addListing.fields.range')}
-                  </label>
-                  <input
-                    type="text"
-                    className={inputClass}
-                    placeholder="310 miles"
-                    value={formData.range}
-                    onChange={(e) => handleInputChange('range', e.target.value)}
-                    style={{ borderColor: colors.Border }}
-                  />
-                </div>
-              ) : (
-                <div>
-                  <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                    Battery Capacity (kWh)
-                  </label>
-                  <input
-                    type="number"
-                    className={inputClass}
-                    placeholder="75"
-                    value={formData.batteryCapacity}
-                    onChange={(e) => handleInputChange('batteryCapacity', e.target.value)}
-                    style={{ borderColor: colors.Border }}
-                  />
-                </div>
-              )}
-
-              {listingType === 'vehicle' && (
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>
-                  {t('seller.addListing.fields.chargingType')}
-                </label>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {['Level 1', 'Level 2', 'DC Fast Charging', 'Tesla Supercharger'].map((type) => (
-                    <label key={type} className="flex items-center">
-                      <input
-                        type="checkbox"
-                        className="mr-2 text-blue-600 focus:ring-blue-500"
-                      />
-                      <span className="text-sm" style={{ color: colors.Text }}>{type}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              )}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input field="batteryHealth" label={t('seller.addListing.fields.batteryHealth')} placeholder={t('seller.addListing.placeholders.batteryHealth')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="range" label={t('seller.addListing.fields.range')} placeholder={t('seller.addListing.placeholders.range')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
           </div>
         )
-        // Battery step 3: Specifications
         return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.weight')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., 528kg" value={formData.spec_weight} onChange={(e) => handleInputChange('spec_weight', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.voltage')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., 408V" value={formData.spec_voltage} onChange={(e) => handleInputChange('spec_voltage', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.chemistry')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., NMC" value={formData.spec_chemistry} onChange={(e) => handleInputChange('spec_chemistry', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.degradation')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., 27%" value={formData.spec_degradation} onChange={(e) => handleInputChange('spec_degradation', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.chargingTime')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., 30-80% in 35 min" value={formData.spec_chargingTime} onChange={(e) => handleInputChange('spec_chargingTime', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.installation')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., Professional required" value={formData.spec_installation} onChange={(e) => handleInputChange('spec_installation', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.warrantyPeriod')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., 4 years" value={formData.spec_warrantyPeriod} onChange={(e) => handleInputChange('spec_warrantyPeriod', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>{t('seller.addListing.batterySpecs.temperatureRange')}</label>
-                <input type="text" className={inputClass} placeholder="e.g., -20°C to 60°C" value={formData.spec_temperatureRange} onChange={(e) => handleInputChange('spec_temperatureRange', e.target.value)} style={{ borderColor: colors.Border }} />
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <Input field="spec_weight" label={t('seller.addListing.batterySpecs.weight')} placeholder={t('seller.addListing.placeholders.weight')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_voltage" label={t('seller.addListing.batterySpecs.voltage')} placeholder={t('seller.addListing.placeholders.voltage')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_chemistry" label={t('seller.addListing.batterySpecs.chemistry')} placeholder={t('seller.addListing.placeholders.chemistry')} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_degradation" label={t('seller.addListing.batterySpecs.degradation')} placeholder={t('seller.addListing.placeholders.degradation')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_chargingTime" label={t('seller.addListing.batterySpecs.chargingTime')} placeholder={t('seller.addListing.placeholders.chargingTime')} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_installation" label={t('seller.addListing.batterySpecs.installation')} placeholder={t('seller.addListing.placeholders.installation')} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_warrantyPeriod" label={t('seller.addListing.batterySpecs.warrantyPeriod')} placeholder={t('seller.addListing.placeholders.warrantyPeriod')} type="number" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="spec_temperatureRange" label={t('seller.addListing.batterySpecs.temperatureRange')} placeholder={t('seller.addListing.placeholders.temperatureRange')} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
           </div>
         )
 
       case 4:
-        // Upload Photos & Review Images
         return (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-center" style={{ color: colors.Text }}>{t('seller.addListing.fields.uploadPhotos')}</h3>
-            {/* If no images yet, show a single centered add tile */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-semibold text-center text-gray-800">{t('seller.addListing.fields.uploadPhotos')}</h3>
             {imagePreviews.length === 0 ? (
+              // Centered layout when no photos
               <div className="flex justify-center">
-                <div
-                  onClick={openFilePicker}
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                  className="w-44 h-44 flex flex-col items-center justify-center rounded-lg border-2 border-dashed cursor-pointer hover:border-blue-400 hover:bg-blue-50/40 transition-colors"
-                  style={{ borderColor: colors.Border }}
-                >
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="mb-1 text-blue-600">
-                    <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                  </svg>
-                  <span className="text-xs" style={{ color: colors.SubText }}>{t('seller.addListing.fields.clickOrDrag')}</span>
-                </div>
+                <label className="w-64 h-48 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                  <span className="text-4xl text-blue-600 mb-2">+</span>
+                  <span className="text-sm text-gray-600 font-medium">{t('seller.addListing.fields.selectPhotos')}</span>
+                  <span className="text-xs text-gray-500 mt-1">{t('seller.addListing.fields.clickOrDrag')}</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => handleImageUpload(e.target.files)}
+                  />
+                </label>
               </div>
             ) : (
-              <div className="flex justify-center">
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 justify-center">
-                  {imagePreviews.map((src, idx) => (
-                    <div key={idx} className="relative rounded-lg overflow-hidden border group w-44 h-44" style={{ borderColor: colors.Border }}>
-                      <img
-                        src={src}
-                        alt={`upload-${idx}`}
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
-                      />
+              // Grid layout when photos are present
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {imagePreviews.map((src, i) => (
+                  <div key={i} className="relative group">
+                    <img src={src} alt="" className="w-full h-32 object-cover rounded-lg" />
+                    <button
+                      onClick={() => removeImage(i)}
+                      className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+                <label className="w-full h-32 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
+                  <span className="text-3xl text-blue-600">+</span>
+                  <span className="text-xs text-gray-600">{t('seller.addListing.fields.selectPhotos')}</span>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    onChange={e => handleImageUpload(e.target.files)}
+                  />
+                </label>
+              </div>
+            )}
+          </div>
+        )
+
+      case 5:
+        return (
+          <div className="space-y-5">
+            <h3 className="text-xl font-bold text-gray-900">{t('seller.addListing.steps.reviewSubmit')}</h3>
+            
+            {/* Basic Information */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">{t('seller.addListing.steps.basicInfo')}</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex items-start gap-2">
+                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.listingTitle')}:</span>
+                  <span className="text-base font-semibold text-gray-900">{form.title || '-'}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.price')}:</span>
+                  <span className="text-base font-bold text-gray-900">{form.price ? `$${Number(form.price).toLocaleString()}` : '-'}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.year')}:</span>
+                  <span className="text-base font-semibold text-gray-900">{form.year || '-'}</span>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.brand')}:</span>
+                  <span className="text-base font-semibold text-gray-900">{form.make || '-'}</span>
+                </div>
+                {listingType === 'vehicle' && (
+                  <>
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.model')}:</span>
+                      <span className="text-base font-semibold text-gray-900">{form.model || '-'}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.mileage')}:</span>
+                      <span className="text-base font-semibold text-gray-900">{form.mileage ? `${Number(form.mileage).toLocaleString()} km` : '-'}</span>
+                    </div>
+                  </>
+                )}
+                {listingType === 'battery' && (
+                  <>
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.batteryCapacity')}:</span>
+                      <span className="text-base font-semibold text-gray-900">{form.batteryCapacity ? `${form.batteryCapacity} kWh` : '-'}</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.batteryHealth')}:</span>
+                      <span className="text-base font-semibold text-gray-900">{form.batteryHealth ? `${form.batteryHealth}%` : '-'}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Vehicle Specific Details */}
+            {listingType === 'vehicle' && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">{t('seller.addListing.steps.details')}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.location')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.location || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.bodyType')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.bodyType || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.exteriorColor')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.exteriorColor || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.interiorColor')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.interiorColor || '-'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Battery Specific Details */}
+            {listingType === 'vehicle' && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">{t('seller.addListing.steps.battery')}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.batteryHealth')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.batteryHealth ? `${form.batteryHealth}%` : '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.range')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.range ? `${form.range} km` : '-'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Battery Specifications */}
+            {listingType === 'battery' && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">{t('seller.addListing.steps.specifications')}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.weight')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_weight ? `${form.spec_weight} kg` : '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.voltage')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_voltage ? `${form.spec_voltage} V` : '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.chemistry')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_chemistry || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.degradation')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_degradation ? `${form.spec_degradation}%` : '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.chargingTime')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_chargingTime || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.installation')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_installation || '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.warrantyPeriod')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_warrantyPeriod ? `${form.spec_warrantyPeriod} years` : '-'}</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.batterySpecs.temperatureRange')}:</span>
+                    <span className="text-base font-semibold text-gray-900">{form.spec_temperatureRange || '-'}</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Images */}
+            {imagePreviews.length > 0 && (
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-5">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">{t('seller.addListing.fields.uploadPhotos')}</h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {imagePreviews.map((src, i) => (
+                    <div key={i} className="relative group">
+                      <img src={src} alt="" className="w-full h-32 object-cover rounded-lg" />
                       <button
-                        onClick={() => removeImage(idx)}
-                        className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition"
+                        onClick={() => removeImage(i)}
+                        className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         Remove
                       </button>
                     </div>
                   ))}
-                  {/* Add tile appended after existing images */}
-                  <div
-                    onClick={openFilePicker}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    className="w-44 h-44 flex flex-col items-center justify-center rounded-lg border-2 border-dashed cursor-pointer hover:border-blue-400 hover:bg-blue-50/40 transition-colors"
-                    style={{ borderColor: colors.Border }}
-                  >
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" className="mb-1 text-blue-600">
-                      <path d="M12 5v14m7-7H5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-                    </svg>
-                    <span className="text-xs" style={{ color: colors.SubText }}>{t('seller.addListing.fields.clickOrDrag')}</span>
-                  </div>
                 </div>
               </div>
             )}
-          </div>
-        )
-      case 5:
-        // Final Review & Submit (no uploader here)
-        return (
-          <div className="space-y-6">
-            <h3 className="text-lg font-semibold" style={{ color: colors.Text }}>Review</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm md:text-base text-black">
-              <div>
-                <p><span className="font-semibold">Title:</span> {formData.title || '-'}</p>
-                <p><span className="font-semibold">Price:</span> {formData.price || '-'}</p>
-                <p><span className="font-semibold">Year:</span> {formData.year || '-'}</p>
-                <p><span className="font-semibold">Type:</span> {listingType}</p>
-              </div>
-              <div>
-                {listingType === 'vehicle' ? (
-                  <>
-                    <p><span className="font-semibold">Make:</span> {formData.make || '-'}</p>
-                    <p><span className="font-semibold">Model:</span> {formData.model || '-'}</p>
-                    <p><span className="font-semibold">Mileage:</span> {formData.mileage || '-'}</p>
-                    <p><span className="font-semibold">Range:</span> {formData.range || '-'}</p>
-                  </>
-                ) : (
-                  <>
-                    <p><span className="font-semibold">Brand:</span> {formData.make || '-'}</p>
-                    <p><span className="font-semibold">Capacity:</span> {formData.batteryCapacity || '-'} kWh</p>
-                    <p><span className="font-semibold">Health:</span> {formData.batteryHealth || '-'}%</p>
-                    <p><span className="font-semibold">Chemistry:</span> {formData.spec_chemistry || '-'}</p>
-                  </>
-                )}
-              </div>
-            </div>
+
+            {/* Description */}
             <div>
-              <label className="block text-sm font-medium mb-2" style={{ color: colors.Text }}>Description</label>
+              <label className="block text-sm font-semibold text-gray-800 mb-2">{t('seller.addListing.fields.description')} *</label>
               <textarea
-                rows={4}
-                className={textareaClass}
-                placeholder="Add final notes before submitting"
-                value={formData.description}
-                onChange={(e) => handleInputChange('description', e.target.value)}
-                style={{ borderColor: colors.Border }}
+                value={form.description}
+                onChange={e => handleChange('description', e.target.value)}
+                rows={5}
+                placeholder={t('seller.addListing.placeholders.description')}
+                className={`w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none text-gray-900 placeholder-gray-600 text-base font-medium ${
+                  hasFieldError(errors, 'description') ? 'border-red-500' : 'border-gray-300'
+                }`}
               />
+              {getFieldError(errors, 'description') && (
+                <p className="mt-1 text-sm text-red-600">{getFieldError(errors, 'description')}</p>
+              )}
             </div>
           </div>
         )
-
-      case 5:
-        return (
-          <div className="space-y-6">
-            <div className="border-2 border-dashed rounded-lg p-8 text-center" style={{ borderColor: colors.Border }}>
-              <svg className="w-12 h-12 mx-auto mb-4" style={{ color: colors.SubText }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-              <h3 className="text-lg font-medium mb-2" style={{ color: colors.Text }}>
-                {t('seller.addListing.fields.uploadPhotos')}
-              </h3>
-              <p className="text-sm mb-4" style={{ color: colors.SubText }}>
-                {t('seller.addListing.fields.photosTip')}
-              </p>
-              <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-200">
-                {t('seller.addListing.fields.selectPhotos')}
-              </button>
-            </div>
-          </div>
-        )
-
-      default:
-        return null
     }
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-8">
+    <div className="max-w-4xl mx-auto p-6">
       {/* Toast Container */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
-      {/* Header */}
+
       <div className="mb-8">
-        <h2 className="text-2xl font-bold" style={{ color: colors.Text }}>
-          {t('seller.addListing.title')}
-        </h2>
-        <p className="text-sm mt-1" style={{ color: colors.SubText }}>
-          {t('seller.addListing.subtitle')}
-        </p>
+        <h2 className="text-2xl font-bold text-gray-900">{t('seller.addListing.title')}</h2>
+        <p className="text-sm text-gray-600 mt-1">{t('seller.addListing.subtitle')}</p>
       </div>
 
-      {/* Type Toggle */}
-      <div className="mb-6 flex items-center gap-3">
+      <div className="flex gap-3 mb-6">
         <button
           onClick={() => setListingType('vehicle')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            listingType === 'vehicle' 
-              ? 'bg-blue-600 text-white shadow-md' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+            listingType === 'vehicle' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300'
           }`}
         >
-          Vehicle
+          {t('seller.listings.vehicle')}
         </button>
         <button
           onClick={() => setListingType('battery')}
           className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-            listingType === 'battery' 
-              ? 'bg-blue-600 text-white shadow-md' 
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
+            listingType === 'battery' ? 'bg-blue-600 text-white shadow-md' : 'bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-300'
           }`}
         >
-          Battery
+          {t('seller.listings.battery')}
         </button>
       </div>
 
-      {/* Progress Steps */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between whitespace-nowrap gap-2">
-          {steps.map((step, index) => (
-            <div key={step.id} className="flex items-center">
-              <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-                step.id <= currentStep
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-600'
-              }`}>
-                {step.id}
-              </div>
-              <span className={`ml-2 text-xs md:text-sm font-medium ${
-                step.id <= currentStep ? 'text-blue-600' : 'text-gray-500'
-              }`}>
-                {step.title}
-              </span>
-              {index < steps.length - 1 && (
-                <div className={`ml-2 w-8 h-0.5 ${
-                  step.id < currentStep ? 'bg-blue-600' : 'bg-gray-200'
-                }`} />
-              )}
+      <div className="flex items-center justify-between mb-8">
+        {steps.map((step, i) => (
+          <div key={i} className="flex items-center">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+              i + 1 <= currentStep ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
+            }`}>
+              {i + 1}
             </div>
-          ))}
-        </div>
+            <span className={`ml-2 text-xs font-medium ${
+              i + 1 <= currentStep ? 'text-gray-800' : 'text-gray-600'
+            }`}>{step}</span>
+            {i < steps.length - 1 && <div className="w-8 h-0.5 bg-gray-400 ml-2" />}
+          </div>
+        ))}
       </div>
 
-      {/* Form Content */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-8" style={{ borderColor: colors.Border }}>
+      <div className="bg-white rounded-lg shadow p-6 mb-6">
         {renderStep()}
-        {error && (
-          <p className="mt-4 text-sm text-red-600">{error}</p>
-        )}
       </div>
 
-      {/* Navigation Buttons */}
-      <div className="flex items-center justify-between">
+      <div className="flex justify-between">
         <button
           onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
           disabled={currentStep === 1}
-          className="px-6 py-2 border border-gray-300 rounded-lg font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-gray-100 text-gray-700 hover:bg-gray-200"
+          className="px-6 py-2 border border-gray-400 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
         >
           {t('seller.addListing.buttons.previous')}
         </button>
-
-        <div className="flex items-center gap-3">
+        
+        {currentStep < steps.length ? (
           <button
-            className="px-6 py-2 border border-gray-300 rounded-lg font-medium transition-colors duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200"
+            onClick={() => setCurrentStep(currentStep + 1)}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium shadow-md"
           >
-            {t('seller.addListing.buttons.saveDraft')}
+            {t('seller.addListing.buttons.next')}
           </button>
-          
-          {currentStep < steps.length ? (
-            <button
-              onClick={() => setCurrentStep(Math.min(steps.length, currentStep + 1))}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200 shadow-md"
-            >
-              {t('seller.addListing.buttons.next')}
-            </button>
-          ) : (
-            <button
-              onClick={async () => {
-                setError(null)
-                setSubmitting(true)
-                try {
-                  // Require at least one image before submit
-                  if (!uploadedImages || uploadedImages.length === 0) {
-                    setError('Please upload at least one image in Step 4 before submitting.')
-                    setSubmitting(false)
-                    return
-                  }
-                  if (listingType === 'vehicle') {
-                    const payload: CreateVehicleRequest = {
-                      title: formData.title,
-                      description: formData.description,
-                      price: Number(formData.price) || 0,
-                      brand: formData.make,
-                      model: formData.model,
-                      year: Number(formData.year) || new Date().getFullYear(),
-                      mileage: Number(formData.mileage) || 0,
-                      images: uploadedImages,
-                      specifications: {
-                        batteryAndCharging: { range: formData.range },
-                      }
-                    }
-                    const res = await createVehicle(payload)
-                    if (!res.success) throw new Error(res.message)
-                  } else {
-                    const payload: CreateBatteryRequest = {
-                      title: formData.title,
-                      description: formData.description,
-                      price: Number(formData.price) || 0,
-                      brand: formData.make,
-                      capacity: Number(formData.batteryCapacity) || 0,
-                      year: Number(formData.year) || new Date().getFullYear(),
-                      health: Number(formData.batteryHealth) || 0,
-                      images: uploadedImages,
-                      specifications: {
-                        weight: formData.spec_weight,
-                        voltage: formData.spec_voltage,
-                        chemistry: formData.spec_chemistry,
-                        degradation: formData.spec_degradation,
-                        chargingTime: formData.spec_chargingTime,
-                        installation: formData.spec_installation,
-                        warrantyPeriod: formData.spec_warrantyPeriod,
-                        temperatureRange: formData.spec_temperatureRange
-                      }
-                    }
-                    const res = await createBattery(payload)
-                    if (!res.success) throw new Error(res.message)
-                  }
-                  success(t('toast.listingCreateSuccess', 'Listing created successfully!'))
-                  // Reset form after successful submission
-                  setFormData({
-                    title: '', make: '', model: '', year: '', price: '', mileage: '',
-                    location: '', zipCode: '', bodyType: '', drivetrain: '', exteriorColor: '', interiorColor: '',
-                    batteryHealth: '', range: '', batteryCapacity: '', chargingType: '',
-                    description: '', features: [], images: [],
-                    spec_weight: '', spec_voltage: '', spec_chemistry: '', spec_degradation: '',
-                    spec_chargingTime: '', spec_installation: '', spec_warrantyPeriod: '', spec_temperatureRange: ''
-                  })
-                  setUploadedImages([])
-                  setImagePreviews([])
-                  setCurrentStep(1)
-                } catch (e) {
-                  showError(e instanceof Error ? e.message : t('toast.listingCreateFailed', 'Failed to create listing'))
-                } finally {
-                  setSubmitting(false)
-                }
-              }}
-              disabled={submitting}
-              className="px-6 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors duration-200 disabled:opacity-60 shadow-md"
-            >
-              {submitting ? 'Publishing...' : 'Submit'}
-            </button>
-          )}
-        </div>
+        ) : (
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-60 font-medium shadow-md"
+          >
+            {submitting ? t('seller.addListing.buttons.creating') : t('seller.addListing.buttons.createListing')}
+          </button>
+        )}
       </div>
     </div>
   )

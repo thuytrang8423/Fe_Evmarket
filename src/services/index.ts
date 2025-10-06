@@ -34,11 +34,10 @@ export {
 
 // Export Battery services
 export {
+  createBattery,
   getBatteries,
   getBatteryById,
   getMyBatteries,
-  getMyBatteryById,
-  createBattery,
   updateBattery,
   deleteBattery
 } from './Battery'
@@ -48,7 +47,6 @@ export {
   getVehicles,
   getVehicleById,
   getMyVehicles,
-  getMyVehicleById,
   createVehicle,
   updateVehicle,
   deleteVehicle
