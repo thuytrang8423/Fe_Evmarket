@@ -174,7 +174,41 @@
       "edit": "Edit",
       "view": "View",
       "noListings": "No listings found",
-      "noListingsDesc": "You haven't created any listings yet. Start by adding your first vehicle."
+      "noListingsDesc": "You haven't created any listings yet. Start by adding your first vehicle.",
+      "vehicle": "Vehicle",
+      "battery": "Battery",
+      "available": "Available",
+      "soldStatus": "Sold",
+      "electricVehicle": "Electric Vehicle",
+      "editVehicle": "Edit Vehicle",
+      "editBattery": "Edit Battery",
+      "deleteConfirm": "Delete this listing?",
+      "updateError": "An error occurred while updating",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "addNewImages": "Add New Images",
+      "currentImages": "Current Images",
+      "newImages": "New Images",
+      "form": {
+        "title": "Title",
+        "titlePlaceholder": "Enter vehicle/battery title",
+        "price": "Price (VND)",
+        "pricePlaceholder": "Enter price",
+        "year": "Year",
+        "yearPlaceholder": "Enter year",
+        "mileage": "Mileage",
+        "mileagePlaceholder": "Enter mileage",
+        "brand": "Brand",
+        "brandPlaceholder": "Enter brand",
+        "model": "Model",
+        "modelPlaceholder": "Enter model",
+        "capacity": "Capacity (kWh)",
+        "capacityPlaceholder": "Enter capacity",
+        "health": "Health (%)",
+        "healthPlaceholder": "Enter health status",
+        "description": "Description",
+        "descriptionPlaceholder": "Enter detailed description..."
+      }
     },
     "addListing": {
       "title": "Add New Listing",
@@ -227,7 +261,32 @@
         "next": "Next",
         "saveDraft": "Save Draft",
         "publish": "Publish Listing",
-        "submit": "Submit"
+        "submit": "Submit",
+        "createListing": "Create Listing",
+        "creating": "Creating..."
+      },
+      "validation": {
+        "uploadImageRequired": "Please upload at least one image",
+        "listingCreatedSuccess": "Listing created successfully!"
+      },
+      "placeholders": {
+        "listingTitle": "e.g., 2020 Tesla Model 3",
+        "price": "25000",
+        "brand": "e.g., CATL, BYD",
+        "model": "Model 3",
+        "year": "2020",
+        "mileage": "45000",
+        "batteryHealth": "85",
+        "range": "310",
+        "weight": "528",
+        "voltage": "408",
+        "chemistry": "NMC",
+        "degradation": "27",
+        "chargingTime": "30-80% in 35 min",
+        "installation": "Professional required",
+        "warrantyPeriod": "4",
+        "temperatureRange": "-20°C to 60°C",
+        "description": "Describe your listing..."
       }
     }
   },

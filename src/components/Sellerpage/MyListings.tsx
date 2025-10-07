@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState, useCallback } from 'react'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 import Image from 'next/image'
@@ -13,10 +13,19 @@ import {
   getMyBatteries,
   updateBattery,
   deleteBattery,
-  type Battery
+  type Battery,
+  // getBatteries
 } from '../../services/Battery'
 import { useToast } from '../../hooks/useToast'
 import { ToastContainer } from '../common/Toast'
+import { 
+  validateField,
+  validateForm,
+  getFieldError,
+  hasFieldError,
+  parseApiValidationErrors,
+  ValidationError
+} from '../../Utils/validation'
 
 type ListingType = 'vehicle' | 'battery'
 
@@ -34,22 +43,100 @@ function MyListings() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editType, setEditType] = useState<ListingType>('vehicle')
   const [editId, setEditId] = useState<string | null>(null)
-  const [form, setForm] = useState<any>({ 
-    title: '', 
-    price: '', 
-    year: '', 
-    mileage: '', 
-    description: '', 
-    brand: '',
-    model: '',
-    status: 'AVAILABLE',
-    capacity: '', 
-    health: '' 
-  })
   const [editImages, setEditImages] = useState<string[]>([])
   const [newImages, setNewImages] = useState<File[]>([])
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const inputClass = "w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all font-medium"
+  const [validationErrors, setValidationErrors] = useState<ValidationError[]>([])
+  
+  // Form data state
+  const [formData, setFormData] = useState({
+    title: '',
+    price: '',
+    year: '',
+    mileage: '',
+    description: '',
+    brand: '',
+    model: '',
+    status: 'AVAILABLE',
+    capacity: '',
+    health: ''
+  })
+
+  const setApiErrors = (errors: Record<string, string>) => {
+    const validationErrors = Object.entries(errors).map(([field, message]) => ({ field, message }))
+    setValidationErrors(validationErrors)
+  }
+
+  // Helper functions for styling
+  const getInputClass = (fieldName: string) => {
+    const baseClass = "w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-900 placeholder-gray-400 transition-all font-medium"
+    const errorClass = "border-red-500 focus:ring-red-500"
+    return hasFieldError(validationErrors, fieldName) ? `${baseClass} ${errorClass}` : baseClass
+  }
+
+  const ErrorMessage = ({ fieldName }: { fieldName: string }) => {
+    const error = getFieldError(validationErrors, fieldName)
+    return error ? (
+      <p className="mt-1 text-sm text-red-600">{error}</p>
+    ) : null
+  }
+
+  // Handle input change (no validation on change)
+  const handleInputChange = useCallback((field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }))
+  }, [])
+
+  // Handle number input - only allow numbers for specific fields
+  const handleNumberInput = useCallback((field: string, e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    // Check if field should only accept numbers
+    const numberFields = ['price', 'year', 'mileage', 'capacity', 'health']
+    
+    if (numberFields.includes(field)) {
+      // Allow empty string, numbers, and decimal point
+      if (value === "" || /^\d*\.?\d*$/.test(value)) {
+        handleInputChange(field, value)
+      }
+    } else {
+      handleInputChange(field, value)
+    }
+  }, [handleInputChange])
+
+  // Handle key press for number fields - prevent non-numeric characters
+  const handleNumberKeyPress = useCallback((field: string, e: React.KeyboardEvent<HTMLInputElement>) => {
+    const numberFields = ['price', 'year', 'mileage', 'capacity', 'health']
+    
+    if (numberFields.includes(field)) {
+      // Allow: backspace, delete, tab, escape, enter, decimal point
+      if ([8, 9, 27, 13, 46, 110, 190].indexOf(e.keyCode) !== -1 ||
+          // Allow: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+          (e.keyCode === 65 && e.ctrlKey === true) ||
+          (e.keyCode === 67 && e.ctrlKey === true) ||
+          (e.keyCode === 86 && e.ctrlKey === true) ||
+          (e.keyCode === 88 && e.ctrlKey === true)) {
+        return
+      }
+      // Ensure that it is a number and stop the keypress
+      if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        e.preventDefault()
+      }
+    }
+  }, [])
+
+  // Handle validation on blur (when user leaves the field)
+  const handleInputBlur = useCallback((field: string) => {
+    const value = formData[field as keyof typeof formData]
+    const error = validateField(field, value, editType)
+    
+    if (error) {
+      setValidationErrors(prev => [...prev.filter(err => err.field !== field), { field, message: error }])
+    } else {
+      setValidationErrors(prev => prev.filter(err => err.field !== field))
+    }
+  }, [formData, editType])
 
   // Image handling functions
   const openFilePicker = () => {
@@ -138,6 +225,7 @@ function MyListings() {
   const openEdit = (item: { id: string, type: ListingType }) => {
     setEditType(item.type)
     setEditId(item.id)
+    
     if (item.type === 'vehicle') {
       const v = vehicles.find(v => v.id === item.id)
       const formData = {
@@ -148,34 +236,38 @@ function MyListings() {
         description: v?.description || '',
         brand: v?.brand || '',
         model: v?.model || '',
-        status: v?.status || 'AVAILABLE'
+        status: v?.status || 'AVAILABLE',
+        capacity: '',
+        health: ''
       }
-      setForm(formData)
-      // Set existing images
+      setFormData(formData)
       setEditImages(v?.images || [])
-      setNewImages([])
-      setImagePreviews([])
     } else {
       const b = batteries.find(b => b.id === item.id)
       const formData = {
         title: b?.title || '',
         price: String(b?.price ?? ''),
         year: String(b?.year ?? ''),
+        mileage: '',
+        description: b?.description || '',
+        brand: b?.brand || '',
+        model: '',
+        status: 'AVAILABLE',
         capacity: String(b?.capacity ?? ''),
-        health: String(b?.health ?? ''),
-        description: b?.description || ''
+        health: String(b?.health ?? '')
       }
-      setForm(formData)
-      // Set existing images
+      setFormData(formData)
       setEditImages(b?.images || [])
-      setNewImages([])
-      setImagePreviews([])
     }
+    
+    setNewImages([])
+    setImagePreviews([])
+    setValidationErrors([])
     setIsModalOpen(true)
   }
 
   const onDelete = async (item: { id: string, type: ListingType }) => {
-    if (!confirm('Xóa tin này?')) return
+    if (!confirm(t('seller.listings.deleteConfirm'))) return
     try {
       if (item.type === 'vehicle') {
         const res = await deleteVehicle(item.id)
@@ -194,44 +286,115 @@ function MyListings() {
   }
 
   const onSave = async () => {
-    if (!editId) return
-    try {
-      if (editType === 'vehicle') {
-        const res = await updateVehicle(editId, {
-          title: form.title,
-          price: Number(form.price) || undefined,
-          year: Number(form.year) || undefined,
-          mileage: Number(form.mileage) || undefined,
-          description: form.description,
-          brand: form.brand,
-          model: form.model,
-          status: form.status,
-          images: newImages.length > 0 ? newImages : undefined // Only send new images if there are any
-        })
-        if (!res.success) throw new Error(res.message)
-        // Fix: Handle nested data structure properly
-        const updatedVehicle = (res.data as any)?.vehicle || res.data
-        setVehicles(prev => prev.map(v => v.id === editId ? { ...v, ...updatedVehicle } : v))
-        success(t('toast.vehicleUpdateSuccess', 'Vehicle updated successfully!'))
-      } else {
-        const res = await updateBattery(editId, {
-          title: form.title,
-          price: Number(form.price) || undefined,
-          year: Number(form.year) || undefined,
-          capacity: Number(form.capacity) || undefined,
-          health: Number(form.health) || undefined,
-          description: form.description,
-          images: newImages.length > 0 ? newImages : undefined // Only send new images if there are any
-        })
-        if (!res.success) throw new Error(res.message)
-        // Fix: Handle nested data structure properly - battery data is in res.data.battery
-        const updatedBattery = (res.data as any)?.battery || res.data
-        setBatteries(prev => prev.map(b => b.id === editId ? { ...b, ...updatedBattery } : b))
-        success(t('toast.batteryUpdateSuccess', 'Battery updated successfully!'))
+    if (!editId) {
+      showError('Không tìm thấy ID để cập nhật')
+      return
+    }
+    
+      console.log('onSave called with:', { editId, editType, formData })
+
+      try {
+        // Map formData fields to validation format based on editType
+        let validationData
+        if (editType === 'vehicle') {
+          validationData = {
+            title: formData.title,
+            description: formData.description,
+            price: formData.price,
+            make: formData.brand, // Map brand to make for validation
+            model: formData.model,
+            year: formData.year,
+            mileage: formData.mileage
+          }
+        } else {
+          validationData = {
+            title: formData.title,
+            description: formData.description,
+            price: formData.price,
+            year: formData.year,
+            batteryCapacity: formData.capacity, // Map capacity to batteryCapacity for validation
+            batteryHealth: formData.health,
+            ...(formData.brand && { make: formData.brand }) // Only add make if brand has value
+          }
+        }
+        
+        console.log('validationData mapped:', validationData)
+        
+        // Validate form data
+        const validationResult = validateForm(validationData, editType)
+        console.log('Validation result:', validationResult)
+
+      if (!validationResult.isValid) {
+        console.log('Validation failed:', validationResult.errors)
+        console.log('Validation errors details:', validationResult.errors.map(e => ({ field: e.field, message: e.message })))
+        setValidationErrors(validationResult.errors)
+        showError(`Validation failed: ${validationResult.errors.map(e => `${e.field}: ${e.message}`).join(', ')}`)
+        return
       }
+
+      let result
+      if (editType === 'vehicle') {
+        const payload = {
+          title: formData.title,
+          price: Number(formData.price) || undefined,
+          year: Number(formData.year) || undefined,
+          mileage: Number(formData.mileage) || undefined,
+          description: formData.description,
+          brand: formData.brand,
+          model: formData.model,
+          status: formData.status as 'AVAILABLE' | 'SOLD' | 'DELISTED',
+          images: newImages.length > 0 ? newImages : undefined
+        }
+        console.log('Updating vehicle with payload:', payload)
+        result = await updateVehicle(editId, payload)
+      } else {
+        const payload = {
+          title: formData.title,
+          price: Number(formData.price) || undefined,
+          year: Number(formData.year) || undefined,
+          capacity: Number(formData.capacity) || undefined,
+          health: Number(formData.health) || undefined,
+          description: formData.description,
+          brand: formData.brand,
+          images: newImages.length > 0 ? newImages : undefined
+        }
+        console.log('Updating battery with payload:', payload)
+        result = await updateBattery(editId, payload)
+      }
+
+      console.log('API result:', result)
+
+      if (!result.success) {
+        console.log('API call failed:', result)
+        // Handle API validation errors
+        if ((result as any).errors || (result as any).details) {
+          const apiErrors = parseApiValidationErrors(result as any)
+          const apiValidationErrors = Object.entries(apiErrors).map(([field, message]) => ({
+            field,
+            message
+          }))
+          setValidationErrors(apiValidationErrors)
+        } else {
+          showError(result.message || t('seller.listings.updateError'))
+        }
+        return
+      }
+
+      // Update local state
+      if (editType === 'vehicle') {
+        const updatedVehicle = (result.data as any)?.vehicle || result.data
+        setVehicles(prev => prev.map(v => v.id === editId ? { ...v, ...updatedVehicle } : v))
+        success(t('toast.vehicleUpdateSuccess', 'Xe được cập nhật thành công!'))
+      } else {
+        const updatedBattery = (result.data as any)?.battery || result.data
+        setBatteries(prev => prev.map(b => b.id === editId ? { ...b, ...updatedBattery } : b))
+        success(t('toast.batteryUpdateSuccess', 'Pin được cập nhật thành công!'))
+      }
+      
       setIsModalOpen(false)
     } catch (e) {
-      showError(e instanceof Error ? e.message : t('toast.updateFailed', 'Update failed'))
+      console.error('Error in onSave:', e)
+      showError(e instanceof Error ? e.message : t('toast.updateFailed', 'Cập nhật thất bại'))
     }
   }
 
@@ -264,7 +427,7 @@ function MyListings() {
                 :'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
-            Vehicle
+            {t('seller.listings.vehicle')}
           </button>
           <button 
             onClick={() => setTab('battery')} 
@@ -274,7 +437,7 @@ function MyListings() {
                 :'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-300'
             }`}
           >
-            Battery
+            {t('seller.listings.battery')}
           </button>
         </div>
       </div>
@@ -327,12 +490,12 @@ function MyListings() {
                     ? 'bg-green-100 text-green-800 border border-green-200' 
                     : 'bg-red-100 text-red-800 border border-red-200'
                 }`}>
-                  {item.status === 'active' ? ' Còn hàng' : ' Đã bán'}
+                  {item.status === 'active' ? t('seller.listings.available') : t('seller.listings.soldStatus')}
                 </span>
               </div>
               <div className="absolute bottom-4 left-4">
                 <span className="bg-black bg-opacity-60 text-white px-2 py-1 rounded text-xs font-medium">
-                  {item.type === 'vehicle' ? ' Xe điện' : ' Pin'}
+                  {item.type === 'vehicle' ? t('seller.listings.electricVehicle') : t('seller.listings.battery')}
                 </span>
               </div>
             </div>
@@ -408,7 +571,7 @@ function MyListings() {
                   onClick={() => openEdit({ id: item.id, type: tab })} 
                   className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-lg text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
                 >
-                  Chỉnh sửa
+                  {t('seller.listings.edit')}
                 </button>
                 <button 
                   onClick={() => onDelete({ id: item.id, type: tab })} 
@@ -433,45 +596,57 @@ function MyListings() {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg w-full max-w-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto">
-            <h3 className="text-gray-800 mb-2 font-semibold">{editType === 'vehicle' ? 'Chỉnh sửa xe' : 'Chỉnh sửa pin'}</h3>
+            <h3 className="text-lg font-semibold">{editType === 'vehicle' ? t('seller.listings.editVehicle') : t('seller.listings.editBattery')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Tiêu đề <span className="text-red-600 font-bold">*</span>
+                  {t('seller.listings.form.title')} <span className="text-red-600 font-bold">*</span>
                 </label>
-                <input className={inputClass} value={form.title} onChange={e=>setForm((p:any)=>({...p,title:e.target.value}))} placeholder="Nhập tiêu đề xe/pin" />
+                <input
+                  className={getInputClass('title')}
+                  value={formData.title}
+                  onChange={(e) => handleInputChange('title', e.target.value)}
+                  onBlur={() => handleInputBlur('title')}
+                  placeholder={t('seller.listings.form.titlePlaceholder')} 
+                />
+                <ErrorMessage fieldName="title" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Giá (VNĐ) <span className="text-red-600 font-bold">*</span>
+                  {t('seller.listings.form.price')} <span className="text-red-600 font-bold">*</span>
                 </label>
-                <input type="number" className={inputClass} value={form.price} onChange={e=>setForm((p:any)=>({...p,price:e.target.value}))} placeholder="Nhập giá" />
+                <input type="number" className={getInputClass('price')} value={formData.price} onChange={(e) => handleNumberInput('price', e)} onKeyDown={(e) => handleNumberKeyPress('price', e)} onBlur={() => handleInputBlur('price')} placeholder={t('seller.listings.form.pricePlaceholder')} />
+                <ErrorMessage fieldName="price" />
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Năm sản xuất <span className="text-red-600 font-bold">*</span>
+                  {t('seller.listings.form.year')} <span className="text-red-600 font-bold">*</span>
                 </label>
-                <input type="number" className={inputClass} value={form.year} onChange={e=>setForm((p:any)=>({...p,year:e.target.value}))} placeholder="Nhập năm" />
+                <input type="number" className={getInputClass('year')} value={formData.year} onChange={(e) => handleNumberInput('year', e)} onKeyDown={(e) => handleNumberKeyPress('year', e)} onBlur={() => handleInputBlur('year')} placeholder={t('seller.listings.form.yearPlaceholder')} />
+                <ErrorMessage fieldName="year" />
               </div>
               {editType === 'vehicle' ? (
                 <>
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Số km đã chạy <span className="text-red-600 font-bold">*</span>
+                      {t('seller.listings.form.mileage')} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <input type="number" className={inputClass} value={form.mileage || ''} onChange={e=>setForm((p:any)=>({...p,mileage:e.target.value}))} placeholder="Nhập số km" />
+                    <input type="number" className={getInputClass('mileage')} value={formData.mileage || ''} onChange={(e) => handleNumberInput('mileage', e)} onKeyDown={(e) => handleNumberKeyPress('mileage', e)} onBlur={() => handleInputBlur('mileage')} placeholder={t('seller.listings.form.mileagePlaceholder')} />
+                    <ErrorMessage fieldName="mileage" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Hãng xe <span className="text-red-600 font-bold">*</span>
+                      {t('seller.listings.form.brand')} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <input className={inputClass} value={form.brand || ''} onChange={e=>setForm((p:any)=>({...p,brand:e.target.value}))} placeholder="Nhập hãng xe" />
+                    <input className={getInputClass('brand')} value={formData.brand || ''} onChange={(e) => handleInputChange('brand', e.target.value)} onBlur={() => handleInputBlur('brand')} placeholder={t('seller.listings.form.brandPlaceholder')} />
+                    <ErrorMessage fieldName="brand" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Dòng xe <span className="text-red-600 font-bold">*</span>
+                      {t('seller.listings.form.model')} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <input className={inputClass} value={form.model || ''} onChange={e=>setForm((p:any)=>({...p,model:e.target.value}))} placeholder="Nhập dòng xe" />
+                    <input className={getInputClass('model')} value={formData.model || ''} onChange={(e) => handleInputChange('model', e.target.value)} onBlur={() => handleInputBlur('model')} placeholder={t('seller.listings.form.modelPlaceholder')} />
+                    <ErrorMessage fieldName="model" />
                   </div>
                  
                 </>
@@ -479,28 +654,31 @@ function MyListings() {
                 <>
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Dung lượng (kWh) <span className="text-red-600 font-bold">*</span>
+                      {t('seller.listings.form.capacity')} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <input type="number" className={inputClass} value={form.capacity || ''} onChange={e=>setForm((p:any)=>({...p,capacity:e.target.value}))} placeholder="Nhập dung lượng" />
+                    <input type="number" className={getInputClass('capacity')} value={formData.capacity || ''} onChange={(e) => handleNumberInput('capacity', e)} onKeyDown={(e) => handleNumberKeyPress('capacity', e)} onBlur={() => handleInputBlur('capacity')} placeholder={t('seller.listings.form.capacityPlaceholder')} />
+                    <ErrorMessage fieldName="capacity" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-800 mb-2">
-                      Tình trạng (%) <span className="text-red-600 font-bold">*</span>
+                      {t('seller.listings.form.health')} <span className="text-red-600 font-bold">*</span>
                     </label>
-                    <input type="number" className={inputClass} value={form.health || ''} onChange={e=>setForm((p:any)=>({...p,health:e.target.value}))} placeholder="Nhập tình trạng" />
+                    <input type="number" className={getInputClass('health')} value={formData.health || ''} onChange={(e) => handleNumberInput('health', e)} onKeyDown={(e) => handleNumberKeyPress('health', e)} onBlur={() => handleInputBlur('health')} placeholder={t('seller.listings.form.healthPlaceholder')} />
+                    <ErrorMessage fieldName="health" />
                   </div>
                 </>
               )}
               <div className="md:col-span-2">
                 <label className="block text-sm font-semibold text-gray-800 mb-2">
-                  Mô tả <span className="text-red-600 font-bold">*</span>
+                  {t('seller.listings.form.description')} <span className="text-red-600 font-bold">*</span>
                 </label>
-                <textarea className={inputClass} rows={4} value={form.description} onChange={e=>setForm((p:any)=>({...p,description:e.target.value}))} placeholder="Nhập mô tả chi tiết..." />
+                <textarea className={getInputClass('description')} rows={4} value={formData.description} onChange={(e) => handleInputChange('description', e.target.value)} onBlur={() => handleInputBlur('description')} placeholder={t('seller.listings.form.descriptionPlaceholder')} />
+                <ErrorMessage fieldName="description" />
               </div>
               
               {/* Image Management Section */}
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-gray-800 mb-3">Hình ảnh</label>
+                <label className="block text-sm font-semibold text-gray-800 mb-3">{t('seller.addListing.fields.uploadPhotos')}</label>
                 
                 {/* Existing Images */}
                 {editImages.length > 0 && (
@@ -529,7 +707,7 @@ function MyListings() {
                 {/* New Images */}
                 {imagePreviews.length > 0 && (
                   <div className="mb-4">
-                    <label className="block text-sm font-semibold text-gray-800 mb-3">Hình ảnh mới</label>
+                    <label className="block text-sm font-semibold text-gray-800 mb-3">{t('seller.listings.newImages')}</label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {imagePreviews.map((preview, index) => (
                         <div key={index} className="relative group">
@@ -558,7 +736,7 @@ function MyListings() {
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                  <span>Thêm hình ảnh mới</span>
+                  <span>{t('seller.listings.addNewImages')}</span>
                 </button>
               </div>
             </div>
@@ -567,13 +745,13 @@ function MyListings() {
                 onClick={()=>setIsModalOpen(false)} 
                 className="px-6 py-3 border-2 border-gray-400 rounded-lg text-gray-700 hover:bg-gray-50 hover:border-gray-500 transition-colors font-semibold"
               >
-                Hủy
+                {t('seller.listings.cancel')}
               </button>
               <button 
                 onClick={onSave} 
                 className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md"
               >
-                Lưu thay đổi
+                {t('seller.listings.saveChanges')}
               </button>
             </div>
           </div>
