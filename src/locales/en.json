@@ -13,7 +13,8 @@
     "popular": "Popular",
     "login": "Login",
     "authRequired": "Please login to access this page",
-    "redirecting": "Redirecting to login..."
+    "redirecting": "Redirecting to login...",
+    "cancel": "Cancel"
   },
   "navigation": {
     "home": "Home",
@@ -588,6 +589,21 @@
     "temporarilyLocked": "Temporarily Locked",
     "lockedDescription": "These funds are held for your active auction bids and will be released when auctions end.",
     "importantNote": "Important Note",
-    "warningMessage": "Funds will be automatically released when auction ends if you don't win the auction, or when you complete the payment if you win."
+    "warningMessage": "Funds will be automatically released when auction ends if you don't win the auction, or when you complete the payment if you win.",
+    "depositAmount": "Deposit Amount",
+    "depositAmountDisplay": "Amount to deposit",
+    "quickAmount": "Quick Amount",
+    "paymentInfo": "Payment Information",
+    "paymentInfoDescription": "You will be redirected to MoMo for secure payment processing.",
+    "minimumAmountNotice": "Minimum deposit amount: 10,000 VND. Maximum deposit amount: 50,000,000 VND.",
+    "proceedToPayment": "Proceed to Payment",
+    "processing": "Processing...",
+    "depositRequestCreated": "Deposit request created successfully! Redirecting to payment...",
+    "depositFailed": "Deposit request failed. Please try again.",
+    "depositError": "An error occurred while processing your deposit.",
+    "minimumAmount": "Minimum deposit amount is 10,000 VND.",
+    "maximumAmount": "Maximum deposit amount is 50,000,000 VND.",
+    "loadError": "Failed to load wallet data. Please refresh the page.",
+    "cancel": "Cancel"
   }
 }
