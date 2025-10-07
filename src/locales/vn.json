@@ -12,7 +12,8 @@
     "popular": "Phổ biến",
     "login": "Đăng nhập",
     "authRequired": "Vui lòng đăng nhập để truy cập trang này",
-    "redirecting": "Đang chuyển hướng đến trang đăng nhập..."
+    "redirecting": "Đang chuyển hướng đến trang đăng nhập...",
+    "cancel": "Hủy"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -172,7 +173,41 @@
       "edit": "Chỉnh sửa",
       "view": "Xem",
       "noListings": "Không tìm thấy tin đăng",
-      "noListingsDesc": "Bạn chưa tạo tin đăng nào. Hãy bắt đầu bằng cách thêm chiếc xe đầu tiên."
+      "noListingsDesc": "Bạn chưa tạo tin đăng nào. Hãy bắt đầu bằng cách thêm chiếc xe đầu tiên.",
+      "vehicle": "Xe điện",
+      "battery": "Pin",
+      "available": "Còn hàng",
+      "soldStatus": "Đã bán",
+      "electricVehicle": "Xe điện",
+      "editVehicle": "Chỉnh sửa xe",
+      "editBattery": "Chỉnh sửa pin",
+      "deleteConfirm": "Xóa tin này?",
+      "updateError": "Có lỗi xảy ra khi cập nhật",
+      "cancel": "Hủy",
+      "saveChanges": "Lưu thay đổi",
+      "addNewImages": "Thêm hình ảnh mới",
+      "currentImages": "Hình ảnh hiện tại",
+      "newImages": "Hình ảnh mới",
+      "form": {
+        "title": "Tiêu đề",
+        "titlePlaceholder": "Nhập tiêu đề xe/pin",
+        "price": "Giá (VNĐ)",
+        "pricePlaceholder": "Nhập giá",
+        "year": "Năm sản xuất",
+        "yearPlaceholder": "Nhập năm",
+        "mileage": "Số km đã chạy",
+        "mileagePlaceholder": "Nhập số km",
+        "brand": "Hãng xe",
+        "brandPlaceholder": "Nhập hãng xe",
+        "model": "Dòng xe",
+        "modelPlaceholder": "Nhập dòng xe",
+        "capacity": "Dung lượng (kWh)",
+        "capacityPlaceholder": "Nhập dung lượng",
+        "health": "Tình trạng (%)",
+        "healthPlaceholder": "Nhập tình trạng",
+        "description": "Mô tả",
+        "descriptionPlaceholder": "Nhập mô tả chi tiết..."
+      }
     },
     "addListing": {
       "title": "Thêm tin đăng mới",
@@ -182,11 +217,15 @@
         "details": "Chi tiết",
         "battery": "Pin",
         "description": "Mô tả",
-        "photos": "Hình ảnh"
+        "photos": "Hình ảnh",
+        "batteryDetails": "Chi tiết pin",
+        "specifications": "Thông số kỹ thuật",
+        "reviewSubmit": "Xem lại & Gửi"
       },
       "fields": {
         "listingTitle": "Tiêu đề tin đăng",
         "price": "Giá",
+        "brand": "Thương hiệu",
         "make": "Hãng xe",
         "model": "Mẫu xe",
         "year": "Năm sản xuất",
@@ -196,19 +235,57 @@
         "exteriorColor": "Màu ngoại thất",
         "interiorColor": "Màu nội thất",
         "batteryHealth": "Tình trạng pin",
+        "batteryCapacity": "Dung lượng pin (kWh)",
         "range": "Phạm vi hoạt động",
         "chargingType": "Loại sạc",
         "description": "Mô tả",
         "features": "Tính năng",
         "uploadPhotos": "Tải lên hình ảnh",
         "photosTip": "Thêm tối đa 30 ảnh để giới thiệu xe của bạn",
-        "selectPhotos": "Chọn ảnh"
+        "selectPhotos": "Chọn ảnh",
+        "clickOrDrag": "Bấm hoặc kéo thả ảnh vào đây"
+      },
+      "batterySpecs": {
+        "weight": "Trọng lượng",
+        "voltage": "Điện áp",
+        "chemistry": "Hóa học",
+        "degradation": "Mức suy giảm",
+        "chargingTime": "Thời gian sạc",
+        "installation": "Lắp đặt",
+        "warrantyPeriod": "Thời hạn bảo hành",
+        "temperatureRange": "Dải nhiệt độ"
       },
       "buttons": {
         "previous": "Trước",
         "next": "Tiếp",
         "saveDraft": "Lưu nháp",
-        "publish": "Đăng tin"
+        "publish": "Đăng tin",
+        "submit": "Gửi",
+        "createListing": "Tạo tin đăng",
+        "creating": "Đang tạo..."
+      },
+      "validation": {
+        "uploadImageRequired": "Vui lòng tải lên ít nhất một hình ảnh",
+        "listingCreatedSuccess": "Tạo tin đăng thành công!"
+      },
+      "placeholders": {
+        "listingTitle": "VD: Tesla Model 3 2020",
+        "price": "25000",
+        "brand": "VD: CATL, BYD",
+        "model": "Model 3",
+        "year": "2020",
+        "mileage": "45000",
+        "batteryHealth": "85",
+        "range": "310",
+        "weight": "528",
+        "voltage": "408",
+        "chemistry": "NMC",
+        "degradation": "27",
+        "chargingTime": "30-80% trong 35 phút",
+        "installation": "Cần chuyên gia",
+        "warrantyPeriod": "4",
+        "temperatureRange": "-20°C đến 60°C",
+        "description": "Mô tả tin đăng của bạn..."
       }
     }
   },
@@ -512,6 +589,21 @@
     "temporarilyLocked": "Tạm thời bị khóa",
     "lockedDescription": "Số tiền này được giữ cho các lượt đấu giá đang hoạt động và sẽ được giải phóng khi đấu giá kết thúc.",
     "importantNote": "Lưu ý quan trọng",
-    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng."
+    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng.",
+    "depositAmount": "Số tiền nạp",
+    "depositAmountDisplay": "Số tiền cần nạp",
+    "quickAmount": "Số tiền nhanh",
+    "paymentInfo": "Thông tin thanh toán",
+    "paymentInfoDescription": "Bạn sẽ được chuyển hướng đến MoMo để xử lý thanh toán an toàn.",
+    "minimumAmountNotice": "Số tiền nạp tối thiểu: 10.000 VND. Số tiền nạp tối đa: 50.000.000 VND.",
+    "proceedToPayment": "Tiến hành thanh toán",
+    "processing": "Đang xử lý...",
+    "depositRequestCreated": "Yêu cầu nạp tiền đã được tạo thành công! Đang chuyển hướng đến thanh toán...",
+    "depositFailed": "Yêu cầu nạp tiền thất bại. Vui lòng thử lại.",
+    "depositError": "Đã xảy ra lỗi khi xử lý yêu cầu nạp tiền của bạn.",
+    "minimumAmount": "Số tiền nạp tối thiểu là 10.000 VND.",
+    "maximumAmount": "Số tiền nạp tối đa là 50.000.000 VND.",
+    "loadError": "Không thể tải dữ liệu ví. Vui lòng làm mới trang.",
+    "cancel": "Hủy"
   }
 }

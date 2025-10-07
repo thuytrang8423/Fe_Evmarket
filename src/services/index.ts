@@ -34,15 +34,33 @@ export {
 
 // Export Battery services
 export {
+  createBattery,
   getBatteries,
-  getBatteryById
+  getBatteryById,
+  getMyBatteries,
+  updateBattery,
+  deleteBattery
 } from './Battery'
 
 // Export Vehicle services
 export {
   getVehicles,
-  getVehicleById
+  getVehicleById,
+  getMyVehicles,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle
 } from './Vehicle'
+
+// Export Wallet services
+export {
+  getWalletBalance,
+  makeDeposit,
+  formatCurrency,
+  openPaymentUrl,
+  isMoMoPayment,
+  WalletError
+} from './Wallet'
 
 // Export types
 export type {
@@ -79,3 +97,10 @@ export type {
   VehiclesResponse,
   VehicleResponse
 } from './Vehicle'
+
+export type {
+  WalletData,
+  WalletResponse,
+  DepositRequest,
+  DepositResponse
+} from './Wallet'
