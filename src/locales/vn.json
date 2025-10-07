@@ -12,7 +12,8 @@
     "popular": "Phổ biến",
     "login": "Đăng nhập",
     "authRequired": "Vui lòng đăng nhập để truy cập trang này",
-    "redirecting": "Đang chuyển hướng đến trang đăng nhập..."
+    "redirecting": "Đang chuyển hướng đến trang đăng nhập...",
+    "cancel": "Hủy"
   },
   "navigation": {
     "home": "Trang chủ",
@@ -529,6 +530,21 @@
     "temporarilyLocked": "Tạm thời bị khóa",
     "lockedDescription": "Số tiền này được giữ cho các lượt đấu giá đang hoạt động và sẽ được giải phóng khi đấu giá kết thúc.",
     "importantNote": "Lưu ý quan trọng",
-    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng."
+    "warningMessage": "Tiền sẽ được tự động giải phóng khi đấu giá kết thúc nếu bạn không thắng đấu giá, hoặc khi bạn hoàn tất thanh toán nếu bạn thắng.",
+    "depositAmount": "Số tiền nạp",
+    "depositAmountDisplay": "Số tiền cần nạp",
+    "quickAmount": "Số tiền nhanh",
+    "paymentInfo": "Thông tin thanh toán",
+    "paymentInfoDescription": "Bạn sẽ được chuyển hướng đến MoMo để xử lý thanh toán an toàn.",
+    "minimumAmountNotice": "Số tiền nạp tối thiểu: 10.000 VND. Số tiền nạp tối đa: 50.000.000 VND.",
+    "proceedToPayment": "Tiến hành thanh toán",
+    "processing": "Đang xử lý...",
+    "depositRequestCreated": "Yêu cầu nạp tiền đã được tạo thành công! Đang chuyển hướng đến thanh toán...",
+    "depositFailed": "Yêu cầu nạp tiền thất bại. Vui lòng thử lại.",
+    "depositError": "Đã xảy ra lỗi khi xử lý yêu cầu nạp tiền của bạn.",
+    "minimumAmount": "Số tiền nạp tối thiểu là 10.000 VND.",
+    "maximumAmount": "Số tiền nạp tối đa là 50.000.000 VND.",
+    "loadError": "Không thể tải dữ liệu ví. Vui lòng làm mới trang.",
+    "cancel": "Hủy"
   }
 }

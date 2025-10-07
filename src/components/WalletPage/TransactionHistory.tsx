@@ -72,34 +72,43 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-lg p-4 sm:p-6 shadow-sm border border-gray-200">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3">
-        <h2 className="text-base sm:text-lg font-semibold text-gray-800 line-clamp-2">{t('wallet.transactionHistory')}</h2>
-        
-        <select
-          value={filter}
-          onChange={(e) => onFilterChange(e.target.value)}
-          className="border border-gray-300 rounded-lg px-3 py-2 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-green-500 min-w-0 text-black"
-        >
-          <option value="all">All Transactions</option>
-          <option value="deposit">Deposits</option>
-          <option value="withdrawal">Withdrawals</option>
-          <option value="purchase">Purchases</option>
-        </select>
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+      <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+          <div>
+            <h2 className="text-xl font-bold text-gray-800">{t('wallet.transactionHistory')}</h2>
+            <p className="text-gray-600 text-sm mt-1">Lịch sử các giao dịch gần đây</p>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <label className="text-sm font-medium text-gray-700">Lọc:</label>
+            <select
+              value={filter}
+              onChange={(e) => onFilterChange(e.target.value)}
+              className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white shadow-sm"
+            >
+              <option value="all">Tất cả giao dịch</option>
+              <option value="deposit">Nạp tiền</option>
+              <option value="withdrawal">Rút tiền</option>
+              <option value="purchase">Mua hàng</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[600px]">
-          <thead>
-            <tr className="border-b border-gray-200">
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-medium text-gray-700 text-xs sm:text-sm">{t('wallet.date')}</th>
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-medium text-gray-700 text-xs sm:text-sm">{t('wallet.type')}</th>
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-medium text-gray-700 text-xs sm:text-sm hidden sm:table-cell">{t('wallet.description')}</th>
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-medium text-gray-700 text-xs sm:text-sm">{t('wallet.amount')}</th>
-              <th className="text-left py-2 sm:py-3 px-2 sm:px-4 font-medium text-gray-700 text-xs sm:text-sm">{t('wallet.status')}</th>
-            </tr>
-          </thead>
-          <tbody>
+      <div className="p-6">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px]">
+            <thead>
+              <tr className="border-b-2 border-gray-100">
+                <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">{t('wallet.date')}</th>
+                <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">{t('wallet.type')}</th>
+                <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm hidden sm:table-cell">{t('wallet.description')}</th>
+                <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">{t('wallet.amount')}</th>
+                <th className="text-left py-4 px-4 font-semibold text-gray-700 text-sm">{t('wallet.status')}</th>
+              </tr>
+            </thead>
+            <tbody>
             {currentTransactions.map((transaction) => (
               <tr key={transaction.id} className="border-b border-gray-100 hover:bg-gray-50">
                 <td className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-gray-600">{transaction.date}</td>
@@ -127,9 +136,9 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
             ))}
           </tbody>
         </table>
-      </div>
+        </div>
 
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 gap-3 text-xs sm:text-sm text-gray-600">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 pt-4 border-t border-gray-100 gap-3 text-sm text-gray-600">
         <span className="text-center sm:text-left">
           Showing {startIndex + 1} to {Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
         </span>
@@ -168,6 +177,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
           >
             {t('wallet.next')}
           </button>
+        </div>
         </div>
       </div>
     </div>
