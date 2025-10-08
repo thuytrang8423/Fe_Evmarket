@@ -140,7 +140,6 @@ function CarDetailHero({ vehicle }: CarDetailHeroProps) {
                 {t('vehicleDetail.buyNow')}
               </button>
               <button
-                onClick={() => router.push('/auction')}
                 className="flex-1 border-2 border-blue-500 text-blue-600 hover:bg-blue-50 font-semibold py-3 px-6 rounded-lg transition-colors duration-200"
               >
                 {t('vehicleDetail.makeOffer')}

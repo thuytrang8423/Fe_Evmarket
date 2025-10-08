@@ -236,7 +236,7 @@ function Header() {
                           onClick={() => setProfileDropdownOpen(false)}
                         >
                           <Wallet size={16} />
-                          {t("header.walletManagement", "Wallet Management")}
+                          {t("header.walletManagement")}
                         </a>
                         <a
                           href="/sell"
@@ -426,6 +426,25 @@ function Header() {
                           style={{ color: colors.SubText }}
                         >
                           {t("header.profile", "Profile")}
+                        </span>
+                      </a>
+                      <a
+                        href="/wallet"
+                        className="flex flex-col items-center gap-1 p-2"
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <Image
+                          src="/Wallet.svg"
+                          alt="Wallet"
+                          width={20}
+                          height={20}
+                          className="w-5 h-5"
+                        />
+                        <span
+                          className="text-xs"
+                          style={{ color: colors.SubText }}
+                        >
+                          {t("header.wallet", "Wallet")}
                         </span>
                       </a>
                       <button

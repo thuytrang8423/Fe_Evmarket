@@ -39,7 +39,7 @@ const AccrualFundsHold: React.FC<AccrualFundsHoldProps> = ({
               <span className="text-xl font-bold text-gray-900 block">
                 {formatCurrency(holdAmount)}
               </span>
-              <p className="text-amber-700 text-sm font-medium">Số tiền tạm giữ</p>
+              <p className="text-amber-700 text-sm font-medium">{t('wallet.temporarilyLocked', 'Số tiền tạm giữ')}</p>
             </div>
           </div>
         </div>
