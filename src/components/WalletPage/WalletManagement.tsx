@@ -9,7 +9,6 @@ import DepositModal from './DepositModal';
 function WalletManagement() {
   const { t } = useI18nContext();
   const { error } = useToast();
-  const [transactionFilter, setTransactionFilter] = useState('all');
   const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDepositModalOpen, setIsDepositModalOpen] = useState(false);
@@ -37,170 +36,6 @@ function WalletManagement() {
   useEffect(() => {
     loadWalletData();
   }, []);
-
-  // Sample data - trong thực tế sẽ fetch từ API
-  const mockTransactions = [
-    {
-      id: '1',
-      date: '2024-01-20',
-      type: 'Deposit',
-      description: 'Bank Transfer',
-      amount: 500.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '2',
-      date: '2024-01-19',
-      type: 'Auction Bid',
-      description: 'Tesla Model S bid',
-      amount: -1500.00,
-      status: 'Pending' as const
-    },
-    {
-      id: '3',
-      date: '2024-01-18',
-      type: 'Withdraw',
-      description: 'Withdraw to bank account',
-      amount: -200.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '4',
-      date: '2024-01-17',
-      type: 'Purchase',
-      description: 'Nissan Leaf Purchase',
-      amount: -25000.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '5',
-      date: '2024-01-16',
-      type: 'Refund',
-      description: 'Charge Card Refund',
-      amount: 1500.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '6',
-      date: '2024-01-15',
-      type: 'Deposit',
-      description: 'Credit Card Deposit',
-      amount: 1000.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '7',
-      date: '2024-01-14',
-      type: 'Auction Bid',
-      description: 'BMW i3 auction bid',
-      amount: -800.00,
-      status: 'Failed' as const
-    },
-    {
-      id: '8',
-      date: '2024-01-13',
-      type: 'Purchase',
-      description: 'Battery Pack for Model Y',
-      amount: -3500.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '9',
-      date: '2024-01-12',
-      type: 'Deposit',
-      description: 'PayPal Transfer',
-      amount: 750.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '10',
-      date: '2024-01-11',
-      type: 'Auction Bid',
-      description: 'VinFast VF8 bid',
-      amount: -2200.00,
-      status: 'Pending' as const
-    },
-    {
-      id: '11',
-      date: '2024-01-10',
-      type: 'Withdraw',
-      description: 'ATM Withdrawal',
-      amount: -100.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '12',
-      date: '2024-01-09',
-      type: 'Purchase',
-      description: 'Tesla Charging Cable',
-      amount: -250.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '13',
-      date: '2024-01-08',
-      type: 'Deposit',
-      description: 'Wire Transfer',
-      amount: 2000.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '14',
-      date: '2024-01-07',
-      type: 'Auction Bid',
-      description: 'Hyundai Kona Electric bid',
-      amount: -1800.00,
-      status: 'Failed' as const
-    },
-    {
-      id: '15',
-      date: '2024-01-06',
-      type: 'Purchase',
-      description: 'EV Home Charger',
-      amount: -800.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '16',
-      date: '2024-01-05',
-      type: 'Refund',
-      description: 'Cancelled Order Refund',
-      amount: 600.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '17',
-      date: '2024-01-04',
-      type: 'Deposit',
-      description: 'Check Deposit',
-      amount: 1200.00,
-      status: 'Pending' as const
-    },
-    {
-      id: '18',
-      date: '2024-01-03',
-      type: 'Auction Bid',
-      description: 'Chevrolet Bolt bid',
-      amount: -1600.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '19',
-      date: '2024-01-02',
-      type: 'Purchase',
-      description: 'Replacement Battery Cell',
-      amount: -450.00,
-      status: 'Completed' as const
-    },
-    {
-      id: '20',
-      date: '2024-01-01',
-      type: 'Deposit',
-      description: 'New Year Bonus',
-      amount: 5000.00,
-      status: 'Completed' as const
-    }
-  ];
 
   const handleDeposit = () => {
     setIsDepositModalOpen(true);
@@ -240,7 +75,7 @@ function WalletManagement() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
-                <span className="text-gray-700 font-medium">Giao dịch an toàn</span>
+                <span className="text-gray-700 font-medium">{t('wallet.secureTransactions', 'Giao dịch an toàn')}</span>
               </div>
             </div>
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
@@ -250,7 +85,7 @@ function WalletManagement() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <span className="text-gray-700 font-medium">Nạp tiền nhanh</span>
+                <span className="text-gray-700 font-medium">{t('wallet.fastDeposit', 'Nạp tiền nhanh')}</span>
               </div>
             </div>
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
@@ -260,7 +95,7 @@ function WalletManagement() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                   </svg>
                 </div>
-                <span className="text-gray-700 font-medium">Ví điện tử</span>
+                <span className="text-gray-700 font-medium">{t('wallet.digitalWallet', 'Ví điện tử')}</span>
               </div>
             </div>
           </div>
@@ -290,14 +125,14 @@ function WalletManagement() {
                   {isLoading ? (
                     <div className="flex items-center space-x-2">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                      <span className="text-white/80">Đang tải...</span>
+                      <span className="text-white/80">{t('common.loading', 'Đang tải...')}</span>
                     </div>
                   ) : (
                     <div>
                       <span className="text-3xl xl:text-4xl font-bold text-white block">
                         {walletData ? formatCurrency(walletData.availableBalance) : formatCurrency(0)}
                       </span>
-                      <p className="text-green-100 text-sm mt-1">Số dư khả dụng</p>
+                      <p className="text-green-100 text-sm mt-1">{t('wallet.availableBalance', 'Số dư khả dụng')}</p>
                     </div>
                   )}
                 </div>
@@ -338,9 +173,7 @@ function WalletManagement() {
           {/* Right Column (2/3) - Transaction History */}
           <div className="xl:col-span-2">
             <TransactionHistory
-              transactions={mockTransactions}
-              filter={transactionFilter}
-              onFilterChange={setTransactionFilter}
+              onRefresh={loadWalletData}
             />
           </div>
         </div>
