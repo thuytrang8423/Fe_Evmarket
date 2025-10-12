@@ -52,6 +52,16 @@ export {
   deleteVehicle
 } from './Vehicle'
 
+// Export Wallet services
+export {
+  getWalletBalance,
+  makeDeposit,
+  formatCurrency,
+  openPaymentUrl,
+  isMoMoPayment,
+  WalletError
+} from './Wallet'
+
 // Export types
 export type {
   LoginRequest,
@@ -87,3 +97,10 @@ export type {
   VehiclesResponse,
   VehicleResponse
 } from './Vehicle'
+
+export type {
+  WalletData,
+  WalletResponse,
+  DepositRequest,
+  DepositResponse
+} from './Wallet'

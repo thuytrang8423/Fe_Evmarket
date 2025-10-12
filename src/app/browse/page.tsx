@@ -1,5 +1,6 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import BrowseHeader from '../../components/Browse/BrowseHeader'
@@ -9,9 +10,12 @@ import { getVehicles, Vehicle } from '../../services/Vehicle'
 import { getBatteries, Battery } from '../../services/Battery'
 import { Product, FilterState } from '../../types/product'
 
-export default function BrowsePage() {
+function BrowsePageContent() {
+  const searchParams = useSearchParams()
+  const urlSearch = searchParams.get('search') || ''
+
   const [filters, setFilters] = useState<FilterState>({
-    search: '',
+    search: urlSearch, // Initialize with URL search parameter
     productType: 'all',
     minPrice: '',
     maxPrice: '',
@@ -58,6 +62,16 @@ export default function BrowsePage() {
     brand: battery.brand,
     originalData: battery
   })
+
+  // Update filters when URL search parameter changes
+  useEffect(() => {
+    if (urlSearch !== filters.search) {
+      setFilters(prev => ({
+        ...prev,
+        search: urlSearch
+      }))
+    }
+  }, [urlSearch])
 
   // Fetch data from APIs
   useEffect(() => {
@@ -193,5 +207,20 @@ export default function BrowsePage() {
      
       <Footer />
     </div>
+  )
+}
+
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex items-center space-x-3">
+          <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    }>
+      <BrowsePageContent />
+    </Suspense>
   )
 }
