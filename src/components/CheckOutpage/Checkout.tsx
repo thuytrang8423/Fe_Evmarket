@@ -1,24 +1,28 @@
 "use client"
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { useI18nContext } from '../../providers/I18nProvider'
 import colors from '../../Utils/Color'
 import Image from 'next/image'
-import { ChevronDown, Shield, RotateCcw, Headphones, CreditCard, Smartphone, Building2 } from 'lucide-react'
+import { ChevronDown, Shield, RotateCcw, Headphones, Wallet as WalletIcon, QrCode } from 'lucide-react'
+import { getWalletBalance, formatCurrency, makeDeposit, openPaymentUrl } from '@/services/Wallet'
 
 export default function Checkout() {
   const { t } = useI18nContext()
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('creditCard')
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'wallet' | 'qr'>('wallet')
   const [isOrderSummaryExpanded, setIsOrderSummaryExpanded] = useState(true)
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
     billingAddress: '',
-    cardholderName: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: ''
+    // Card fields removed; not used anymore
   })
+
+  const [termsAccepted, setTermsAccepted] = useState(false)
+  const [balanceLoading, setBalanceLoading] = useState(false)
+  const [balanceError, setBalanceError] = useState<string | null>(null)
+  const [walletBalance, setWalletBalance] = useState<number | null>(null)
+  const [processing, setProcessing] = useState(false)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -28,6 +32,17 @@ export default function Checkout() {
     }))
   }
 
+  // For demo purposes, use static pricing numbers and format on render
+  const orderPricing = {
+    productPrice: 850_000_000,
+    serviceFee: 5_000_000,
+    vat: 85_500_000,
+    discount: 10_000_000,
+  }
+  const totalAmount = useMemo(() => {
+    return orderPricing.productPrice + orderPricing.serviceFee + orderPricing.vat - orderPricing.discount
+  }, [])
+
   const orderData = {
     product: {
       name: 'Tesla Model 3 Standard Range Plus',
@@ -36,14 +51,69 @@ export default function Checkout() {
       batteryCapacity: '54 kWh',
       mileage: '25,000 km',
       condition: 'used',
-      price: '850.000.000 ₫'
+      price: formatCurrency(orderPricing.productPrice)
     },
     breakdown: {
-      productPrice: '850.000.000 ₫',
-      serviceFee: '5.000.000 ₫',
-      vat: '85.500.000 ₫',
-      discount: '-10.000.000 ₫',
-      total: '930.500.000 ₫'
+      productPrice: formatCurrency(orderPricing.productPrice),
+      serviceFee: formatCurrency(orderPricing.serviceFee),
+      vat: formatCurrency(orderPricing.vat),
+      discount: `-${formatCurrency(orderPricing.discount)}`,
+      total: formatCurrency(totalAmount)
+    }
+  }
+
+  // Load wallet balance on mount
+  useEffect(() => {
+    let mounted = true
+    const loadBalance = async () => {
+      try {
+        setBalanceLoading(true)
+        setBalanceError(null)
+        const res = await getWalletBalance()
+        if (!mounted) return
+        setWalletBalance(res.data?.availableBalance ?? null)
+      } catch (err: any) {
+        if (!mounted) return
+        setBalanceError(err?.message || 'Failed to load wallet balance')
+      } finally {
+        if (mounted) setBalanceLoading(false)
+      }
+    }
+    loadBalance()
+    return () => { mounted = false }
+  }, [])
+
+  const sufficientBalance = useMemo(() => {
+    if (walletBalance == null) return false
+    return walletBalance >= totalAmount
+  }, [walletBalance, totalAmount])
+
+  const handlePay = async () => {
+    if (!termsAccepted) return
+    setProcessing(true)
+    try {
+      if (selectedPaymentMethod === 'wallet') {
+        // No order API available in codebase; here we would call an endpoint to pay with wallet.
+        // For now, validate balance and simulate success.
+        if (!sufficientBalance) {
+          alert('Số dư ví không đủ để thanh toán đơn hàng.')
+          return
+        }
+        alert('Thanh toán bằng số dư ví: thành công (mock). Tích hợp API thanh toán đơn hàng tại đây.')
+      } else if (selectedPaymentMethod === 'qr') {
+        const res = await makeDeposit({ amount: totalAmount })
+        if (res?.data?.payUrl) {
+          openPaymentUrl(res.data.payUrl, '_blank')
+        } else if (res?.data?.qrCodeUrl) {
+          openPaymentUrl(res.data.qrCodeUrl, '_blank')
+        } else {
+          alert('Không tìm thấy liên kết thanh toán.')
+        }
+      }
+    } catch (error: any) {
+      alert(error?.message || 'Thanh toán thất bại')
+    } finally {
+      setProcessing(false)
     }
   }
 
@@ -185,130 +255,61 @@ export default function Checkout() {
             </h2>
             
             <div className="space-y-4">
-              {/* Credit Card Option */}
+              {/* Wallet Method */}
               <div 
                 className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                  selectedPaymentMethod === 'creditCard' 
+                  selectedPaymentMethod === 'wallet' 
                     ? 'border-green-500 bg-green-50 shadow-md' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
-                onClick={() => setSelectedPaymentMethod('creditCard')}
+                onClick={() => setSelectedPaymentMethod('wallet')}
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center">
-                    <CreditCard className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium" style={{color: colors.Text}}>
-                    {t('checkout.paymentMethods.creditCard')}
-                  </span>
-                </div>
-              </div>
-              
-              {/* Credit Card Details Form - Completely separate, no container */}
-              {selectedPaymentMethod === 'creditCard' && (
-                <div className="mt-4 space-y-4">
-                  {/* Row 1: Cardholder Name */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                      {t('checkout.paymentMethods.cardholderName')} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="cardholderName"
-                      value={formData.cardholderName}
-                      onChange={handleInputChange}
-                      placeholder="NGUYEN VAN A"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      style={{color: colors.Text}}
-                    />
-                  </div>
-                  
-                  {/* Row 2: Card Number */}
-                  <div>
-                    <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                      {t('checkout.paymentMethods.cardNumber')} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      placeholder="1234 5678 9012 3456"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      style={{color: colors.Text}}
-                    />
-                  </div>
-                  
-                  {/* Row 3: Expiry Date and CVV */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                        {t('checkout.paymentMethods.expiryDate')} <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleInputChange}
-                        placeholder="MM/YY"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        style={{color: colors.Text}}
-                      />
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-green-600 rounded flex items-center justify-center">
+                      <WalletIcon className="w-4 h-4 text-white" />
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>
-                        {t('checkout.paymentMethods.cvv')} <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleInputChange}
-                        placeholder="123"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        style={{color: colors.Text}}
-                      />
-                    </div>
+                    <span className="font-medium" style={{color: colors.Text}}>
+                      Thanh toán bằng số dư ví
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    {balanceLoading ? (
+                      <span className="text-sm text-gray-500">Đang tải số dư...</span>
+                    ) : balanceError ? (
+                      <span className="text-sm text-red-600">{balanceError}</span>
+                    ) : (
+                      <span className={`text-sm font-medium ${sufficientBalance ? 'text-green-600' : 'text-yellow-600'}`}>
+                        Số dư: {walletBalance != null ? formatCurrency(walletBalance) : '--'}
+                      </span>
+                    )}
                   </div>
                 </div>
-              )}
-
-              {/* E-wallet Option */}
-              <div 
-                className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                  selectedPaymentMethod === 'ewallet' 
-                    ? 'border-green-500 bg-green-50 shadow-md' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => setSelectedPaymentMethod('ewallet')}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center">
-                    <Smartphone className="w-4 h-4 text-white" />
-                  </div>
-                  <span className="font-medium" style={{color: colors.Text}}>
-                    {t('checkout.paymentMethods.ewallet')}
-                  </span>
-                </div>
+                {walletBalance != null && (
+                  <p className={`mt-2 text-sm ${sufficientBalance ? 'text-green-600' : 'text-red-600'}`}>
+                    {sufficientBalance ? 'Số dư đủ để thanh toán đơn này.' : 'Số dư chưa đủ cho đơn này.'}
+                  </p>
+                )}
               </div>
 
-              {/* Bank Transfer Option */}
+              {/* QR Method */}
               <div 
                 className={`border-2 rounded-lg p-4 cursor-pointer transition-all duration-200 ${
-                  selectedPaymentMethod === 'bankTransfer' 
+                  selectedPaymentMethod === 'qr' 
                     ? 'border-green-500 bg-green-50 shadow-md' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
-                onClick={() => setSelectedPaymentMethod('bankTransfer')}
+                onClick={() => setSelectedPaymentMethod('qr')}
               >
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-5 bg-blue-600 rounded flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-white" />
+                  <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center">
+                    <QrCode className="w-4 h-4 text-white" />
                   </div>
                   <span className="font-medium" style={{color: colors.Text}}>
-                    {t('checkout.paymentMethods.bankTransfer')}
+                    Quét mã QR để thanh toán
                   </span>
                 </div>
+                <p className="mt-2 text-sm text-gray-500">Chúng tôi sẽ mở trang thanh toán của đối tác (VD: MoMo) với số tiền tương ứng.</p>
               </div>
             </div>
 
@@ -318,6 +319,8 @@ export default function Checkout() {
                 <input
                   type="checkbox"
                   className="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
                 />
                 <span className="text-sm" style={{color: colors.SubText}}>
                   Tôi đồng ý với{' '}
@@ -334,8 +337,16 @@ export default function Checkout() {
             </div>
 
             {/* Complete Payment Button */}
-            <button className="w-full mt-6 py-3 px-6 bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold rounded-lg hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105">
-              {t('checkout.completePayment')}
+            <button
+              disabled={!termsAccepted || processing}
+              onClick={handlePay}
+              className={`w-full mt-6 py-3 px-6 text-white font-semibold rounded-lg transition-all duration-300 ${
+                !termsAccepted || processing
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 transform hover:scale-105'
+              }`}
+            >
+              {processing ? 'Đang xử lý...' : t('checkout.completePayment')}
             </button>
           </div>
         </div>
