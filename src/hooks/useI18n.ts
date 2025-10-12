@@ -52,25 +52,36 @@ export const useI18n = () => {
     }
   }, [locale, allTranslations]);
 
-  // Get translation function
+  // Get translation function with English fallback when key missing
   const t = (key: string, fallback?: string): string => {
-    // Nếu đang loading và chưa có translations, return fallback hoặc empty string thay vì key
+    // When loading or translations not ready, prefer fallback or empty string
     if (loading || Object.keys(translations).length === 0) {
       return fallback || '';
     }
-    
-    const keys = key.split('.');
-    let value = translations;
-    
-    for (const k of keys) {
-      if (value && typeof value === 'object' && k in value) {
-        value = value[k];
-      } else {
-        return fallback || key;
+
+    const resolveKey = (source: Translation, lookupKey: string): string | undefined => {
+      const parts = lookupKey.split('.');
+      let current: any = source;
+      for (const part of parts) {
+        if (current && typeof current === 'object' && part in current) {
+          current = current[part];
+        } else {
+          return undefined;
+        }
       }
-    }
-    
-    return typeof value === 'string' ? value : fallback || key;
+      return typeof current === 'string' ? current : undefined;
+    };
+
+    // 1) Try current locale
+    const fromCurrent = resolveKey(translations, key);
+    if (fromCurrent !== undefined) return fromCurrent;
+
+    // 2) Fallback to English if available
+    const fromEnglish = resolveKey(allTranslations.en || {}, key);
+    if (fromEnglish !== undefined) return fromEnglish;
+
+    // 3) Last resort: provided fallback or empty string (avoid leaking keys to UI)
+    return fallback || '';
   };
 
   // Change locale function
