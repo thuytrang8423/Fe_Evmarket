@@ -191,7 +191,7 @@ function SellerInfo({ vehicle }: SellerInfoProps) {
         
           
           <button className="w-full border-2 border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors duration-200">
-            {t('vehicleDetail.reportSeller')}
+            {t('vehicleDetail.report')}
           </button>
         </div>
       </div>
