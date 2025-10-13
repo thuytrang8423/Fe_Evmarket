@@ -136,7 +136,10 @@ function CarDetailHero({ vehicle }: CarDetailHeroProps) {
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              <button className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg">
+              <button
+                onClick={() => router.push(`/checkout?listingId=${vehicle.id}&listingType=VEHICLE`)}
+                className="flex-1 bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg"
+              >
                 {t('vehicleDetail.buyNow')}
               </button>
               <button
