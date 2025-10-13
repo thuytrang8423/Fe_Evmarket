@@ -210,11 +210,15 @@ export const refreshAccessToken = async (refreshToken?: string): Promise<Refresh
       console.log('🔄 Refresh Token - All cookies:', document.cookie)
       
       // Check if refreshToken cookie exists
-      const refreshTokenExists = document.cookie.includes('refreshToken')
-      console.log('🔄 Refresh Token - RefreshToken cookie exists:', refreshTokenExists)
+      const refreshTokenExists =
+        document.cookie.includes('refreshToken') ||
+        document.cookie.includes('refresh_token') ||
+        document.cookie.includes('rt=') ||
+        document.cookie.includes('refresh=')
+      console.log('🔄 Refresh Token - Refresh token cookie exists:', refreshTokenExists)
       
       if (!refreshTokenExists) {
-        console.error('❌ Refresh Token - No refreshToken cookie found!')
+        // Silently return failure without spamming console errors
         return {
           success: false,
           message: 'No refresh token cookie found',

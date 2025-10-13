@@ -5,6 +5,7 @@ import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { ChevronDown, Shield, RotateCcw, Headphones, Wallet as WalletIcon, QrCode } from 'lucide-react'
 import { getWalletBalance, formatCurrency, openPaymentUrl } from '@/services/Wallet'
+import { ensureValidToken } from '@/services/Auth'
 import { checkout, payWithWallet } from '@/services/Checkout'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { getVehicleById, type Vehicle } from '@/services/Vehicle'
@@ -149,6 +150,21 @@ export default function Checkout() {
 
   // Load wallet balance on mount
   useEffect(() => {
+    // Client-side auth guard: if not authenticated, redirect to login before using the page
+    (async () => {
+      try {
+        const token = await ensureValidToken()
+        if (!token) {
+          const redirectUrl = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/checkout'
+          router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
+          return
+        }
+      } catch {
+        const redirectUrl = typeof window !== 'undefined' ? `${window.location.pathname}${window.location.search}` : '/checkout'
+        router.push(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
+        return
+      }
+    })()
     let mounted = true
     const loadBalance = async () => {
       try {
