@@ -32,7 +32,7 @@
     "language": "Language",
     "walletManagement": "My Wallet ",
     "currentBalance": "Current Balance",
-    "wallet": "Wallet"
+    "wallet": "My Wallet"
   },
   "home": {
     "title": "Home",
@@ -490,6 +490,7 @@
   },
   "vehicleDetail": {
     "sellerInfo": "Seller Information",
+    "viewProfile": "View Profile",
     "memberSince": "Member since",
     "activeListings": "active listings",
     "usuallyResponds": "Usually responds in",
@@ -498,7 +499,7 @@
     "makeOffer": "Make Offer",
     "save": "Save",
     "share": "Share",
-    "report": "Report",
+    "report": "Report Seller",
     "reportSeller": "Report Seller",
     "description": "Description",
     "specifications": "Specifications",
@@ -588,7 +589,7 @@
     "withdrawals": "Withdrawals",
     "purchases": "Purchases",
     "depositType": "Deposit",
-    "withdrawalType": "Withdrawal", 
+    "withdrawalType": "Withdrawal",
     "purchaseType": "Purchase",
     "statusCompleted": "Completed",
     "statusPending": "Pending",

@@ -444,7 +444,7 @@ function Header() {
                           className="text-xs"
                           style={{ color: colors.SubText }}
                         >
-                          {t("header.wallet", "Wallet")}
+                          {t("header.wallet", "Ví của tôi")}
                         </span>
                       </a>
                       <button
