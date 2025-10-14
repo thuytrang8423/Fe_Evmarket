@@ -1,9 +1,12 @@
+"use client"
 import React, { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { registerUser, storeAuthToken } from '../../services'
+import { useToast } from '../../providers/ToastProvider'
+import { useRouter } from 'next/navigation'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -35,9 +38,9 @@ function Register() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [agreeToTerms, setAgreeToTerms] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
+  const toast = useToast()
+  const router = useRouter()
 
   const handleGoogleLoginClick = () => {
     // TODO: Implement Google login later
@@ -49,12 +52,10 @@ function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
-    setSuccess(null)
 
     // Validate password match
     if (password !== confirmPassword) {
-      setError(t('auth.register.passwordMismatch', 'Mật khẩu xác nhận không khớp!'))
+      toast.error(t('auth.register.passwordMismatch', 'Mật khẩu xác nhận không khớp!'))
       setIsLoading(false)
       return
     }
@@ -78,23 +79,23 @@ function Register() {
           // Note: refreshToken is now managed via HTTP-only cookies by backend
           console.log('✅ Register - RefreshToken managed via cookies')
           
-          setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang chủ...'))
+          toast.success(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang chủ...'))
           setTimeout(() => {
-            window.location.href = '/'
+            router.push('/')
           }, 1500)
         } else {
           // No token, redirect to login page
-          setSuccess(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'))
+          toast.success(t('auth.register.registerSuccess', 'Đăng ký thành công! Đang chuyển hướng đến trang đăng nhập...'))
           setTimeout(() => {
-            window.location.href = '/login'
+            router.push('/login')
           }, 2000)
         }
       } else {
         // Use localized error message based on server response
-        setError(getLocalizedErrorMessage(response.message || '', t))
+        toast.error(getLocalizedErrorMessage(response.message || '', t))
       }
     } catch (error) {
-      setError(t('auth.register.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
+      toast.error(t('auth.register.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
     } finally {
       setIsLoading(false)
     }
@@ -147,21 +148,6 @@ function Register() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Error Message */}
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
-            {/* Success Message */}
-            {success && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-600">{success}</p>
-                <p className="text-xs text-green-500 mt-1">Redirecting to login page...</p>
-              </div>
-            )}
-
             {/* Name Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>

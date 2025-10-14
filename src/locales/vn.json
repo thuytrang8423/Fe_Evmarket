@@ -244,6 +244,14 @@
     "noResults": "Không tìm thấy kết quả",
     "noResultsDesc": "Thử điều chỉnh bộ lọc hoặc từ khóa tìm kiếm"
   },
+  "vehicles": {
+    "noVehicles": "Không có xe nào khả dụng",
+    "noVehiclesDesc": "Hiện tại không có xe điện nào. Vui lòng quay lại sau."
+  },
+  "batteries": {
+    "noBatteries": "Không có pin nào khả dụng",
+    "noBatteriesDesc": "Hiện tại không có pin nào. Vui lòng quay lại sau."
+  },
   "auth": {
     "login": {
       "title": "Đăng nhập",

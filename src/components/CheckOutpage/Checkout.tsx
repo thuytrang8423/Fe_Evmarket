@@ -10,9 +10,11 @@ import { checkout, payWithWallet } from '@/services/Checkout'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { getVehicleById, type Vehicle } from '@/services/Vehicle'
 import { getBatteryById, type Battery } from '@/services/Battery'
+import { useToast } from '../../providers/ToastProvider'
 
 export default function Checkout() {
   const { t } = useI18nContext()
+  const toast = useToast()
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'wallet' | 'qr'>('wallet')
   const [isOrderSummaryExpanded, setIsOrderSummaryExpanded] = useState(true)
   const [formData, setFormData] = useState({
@@ -150,7 +152,27 @@ export default function Checkout() {
 
   // Load wallet balance on mount
   useEffect(() => {
-    // Client-side auth guard: if not authenticated, redirect to login before using the page
+    let mounted = true
+    
+    // Check if this is a MoMo callback (has resultCode param)
+    const resultCode = searchParams.get('resultCode')
+    const orderId = searchParams.get('orderId')
+    
+    if (resultCode !== null) {
+      // This is a MoMo payment callback
+      if (resultCode === '0') {
+        // Success
+        toast.success('Thanh toán MoMo thành công! Đơn hàng của bạn đã được xác nhận.')
+        setTimeout(() => router.push('/'), 1500)
+      } else {
+        // Failed
+        toast.error(`Thanh toán MoMo thất bại. Mã lỗi: ${resultCode}`)
+        setTimeout(() => router.push('/'), 2000)
+      }
+      return // Don't proceed with normal auth check
+    }
+    
+    // Normal flow: Client-side auth guard
     (async () => {
       try {
         const token = await ensureValidToken()
@@ -165,7 +187,7 @@ export default function Checkout() {
         return
       }
     })()
-    let mounted = true
+    
     const loadBalance = async () => {
       try {
         setBalanceLoading(true)
@@ -182,7 +204,7 @@ export default function Checkout() {
     }
     loadBalance()
     return () => { mounted = false }
-  }, [])
+  }, [searchParams, router])
 
   const sufficientBalance = useMemo(() => {
     if (walletBalance == null) return false
@@ -192,7 +214,7 @@ export default function Checkout() {
   const handlePay = async () => {
     if (!termsAccepted) return
     if (!listingId || !listingType) {
-      alert('Thiếu thông tin sản phẩm. Vui lòng quay lại trang chi tiết và thử lại.')
+      toast.error('Thiếu thông tin sản phẩm. Vui lòng quay lại trang chi tiết và thử lại.')
       return
     }
     setProcessing(true)
@@ -214,13 +236,13 @@ export default function Checkout() {
           setPaymentLinks({ payUrl, deeplink, qrCodeUrl })
           setQrOpen(true)
         } else {
-          alert('Không tìm thấy liên kết thanh toán MoMo.')
+          toast.error('Không tìm thấy liên kết thanh toán MoMo.')
         }
       } else {
         // WALLET flow: two-step, requires transactionId
         const transactionId = (res as any)?.data?.transactionId
         if (!transactionId) {
-          alert('Không tìm thấy transactionId để thanh toán ví.')
+          toast.error('Không tìm thấy transactionId để thanh toán ví.')
           return
         }
         try {
@@ -229,14 +251,14 @@ export default function Checkout() {
             const bal = await getWalletBalance()
             setWalletBalance(bal.data?.availableBalance ?? null)
           } catch {}
-          alert(payRes?.message || 'Thanh toán bằng ví thành công!')
-          router.push('/')
+          toast.success(payRes?.message || 'Thanh toán bằng ví thành công!')
+          setTimeout(() => router.push('/'), 1500)
         } catch (e: any) {
-          alert(e?.message || 'Thanh toán ví thất bại')
+          toast.error(e?.message || 'Thanh toán ví thất bại')
         }
       }
     } catch (error: any) {
-      alert(error?.message || 'Thanh toán thất bại')
+      toast.error(error?.message || 'Thanh toán thất bại')
     } finally {
       setProcessing(false)
     }
@@ -498,8 +520,10 @@ export default function Checkout() {
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(paymentLinks?.deeplink || paymentLinks?.payUrl || '')
-                      alert('Đã sao chép liên kết thanh toán')
-                    } catch {}
+                      toast.success('Đã sao chép liên kết thanh toán')
+                    } catch {
+                      toast.error('Không thể sao chép liên kết')
+                    }
                   }}
                   className="w-full py-2.5 rounded-lg font-medium border hover:bg-gray-50"
                 >

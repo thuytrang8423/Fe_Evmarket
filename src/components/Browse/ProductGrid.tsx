@@ -5,6 +5,7 @@ import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { Product } from '../../types/product'
+import { ListSkeleton } from '../common/Skeleton'
 
 interface ProductGridProps {
   products?: Product[]
@@ -281,11 +282,15 @@ function ProductGrid({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p style={{ color: colors.SubText }}>{t('common.loading')}</p>
+      <div className="space-y-6">
+        {/* Sort Header Skeleton */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="h-5 bg-gray-200 rounded w-48 animate-pulse"></div>
+          <div className="h-10 bg-gray-200 rounded w-40 animate-pulse"></div>
         </div>
+        
+        {/* Grid Skeleton */}
+        <ListSkeleton count={9} showBadge={true} />
       </div>
     )
   }

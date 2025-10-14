@@ -1,9 +1,12 @@
+"use client"
 import React, { useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 import Image from 'next/image'
 import colors from '../../Utils/Color'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { loginUser, storeAuthToken, loginWithGoogle } from '../../services'
+import { useToast } from '../../providers/ToastProvider'
+import { useRouter } from 'next/navigation'
 
 // Helper function to map server errors to i18n keys
 const getLocalizedErrorMessage = (serverMessage: string, t: any): string => {
@@ -26,9 +29,9 @@ function Login() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState<string | null>(null)
   const { t } = useI18nContext()
+  const toast = useToast()
+  const router = useRouter()
 
   const handleGoogleLoginClick = () => {
     loginWithGoogle()
@@ -39,8 +42,6 @@ function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
-    setError(null)
-    setSuccess(null)
 
     try {
       const response = await loginUser({ email, password })
@@ -57,19 +58,19 @@ function Login() {
         // Note: refreshToken is now managed via HTTP-only cookies by backend
         console.log('✅ Login - Token stored, refreshToken managed via cookies')
         
-        // Always show localized success message
-        setSuccess(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
+        // Show success toast
+        toast.success(t('auth.login.loginSuccess', 'Đăng nhập thành công!'))
         
         // Redirect to home page or dashboard after a short delay
         setTimeout(() => {
-          window.location.href = '/'
+          router.push('/')
         }, 1500)
       } else {
         // Use localized error message based on server response
-        setError(getLocalizedErrorMessage(response.message || '', t))
+        toast.error(getLocalizedErrorMessage(response.message || '', t))
       }
     } catch (error) {
-      setError(t('auth.login.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
+      toast.error(t('auth.login.unexpectedError', 'Đã xảy ra lỗi không mong muốn'))
     } finally {
       setIsLoading(false)
     }
@@ -122,20 +123,6 @@ function Login() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Success Message */}
-            {success && (
-              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-sm text-green-600">{success}</p>
-              </div>
-            )}
-
-            {/* Error Message */}
-            {error && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600">{error}</p>
-              </div>
-            )}
-
             {/* Email Field */}
             <div>
               <label className="block text-sm font-medium mb-2" style={{color: colors.Text}}>

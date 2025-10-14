@@ -41,10 +41,53 @@ function SellerProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4" style={{color: colors.SubText}}>{t('sellerProfile.loadingProfile')}</p>
+      <div className="min-h-screen" style={{backgroundColor: colors.Background}}>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Skeleton UI for Seller Profile */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Left Column - Seller Info Skeleton */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm p-6 sticky top-6">
+                <div className="flex flex-col items-center mb-6">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse mb-4"></div>
+                  <div className="h-6 bg-gray-200 animate-pulse rounded w-32 mb-2"></div>
+                  <div className="h-4 bg-gray-200 animate-pulse rounded w-24"></div>
+                </div>
+                <div className="space-y-4">
+                  {[1,2,3,4].map(i => (
+                    <div key={i}>
+                      <div className="h-4 bg-gray-200 animate-pulse rounded w-20 mb-2"></div>
+                      <div className="h-5 bg-gray-200 animate-pulse rounded w-full"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Right Column - Stats & Reviews Skeleton */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Stats Cards */}
+              <div className="grid grid-cols-2 gap-4">
+                {[1,2,3,4].map(i => (
+                  <div key={i} className="bg-white rounded-xl shadow-sm p-6">
+                    <div className="h-4 bg-gray-200 animate-pulse rounded w-24 mb-2"></div>
+                    <div className="h-8 bg-gray-200 animate-pulse rounded w-16"></div>
+                  </div>
+                ))}
+              </div>
+              {/* Reviews Section */}
+              <div className="bg-white rounded-xl shadow-sm p-6">
+                <div className="h-6 bg-gray-200 animate-pulse rounded w-48 mb-4"></div>
+                <div className="space-y-4">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="border-b pb-4">
+                      <div className="h-4 bg-gray-200 animate-pulse rounded w-full mb-2"></div>
+                      <div className="h-4 bg-gray-200 animate-pulse rounded w-3/4"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
