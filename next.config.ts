@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
-const { i18n } = require('./next-i18next.config');
 
 const nextConfig: NextConfig = {
-  i18n,
   images: {
     remotePatterns: [
       {
@@ -23,6 +21,12 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     unoptimized: false,
   },
+  // Optimize page transitions - no loading delay
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'date-fns'],
+  },
+  // Disable automatic static optimization for smoother transitions
+  reactStrictMode: true,
   /* config options here */
 };
 

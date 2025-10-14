@@ -602,3 +602,24 @@ export const isGoogleAuthCallback = (): { isCallback: boolean; accessToken?: str
   
   return { isCallback: false }
 }
+
+// Get current user ID from token or API
+export const getCurrentUserId = async (): Promise<string | null> => {
+  try {
+    const token = getAuthToken()
+    if (!token) return null
+    
+    // Import getUserProfile from User service dynamically to avoid circular dependency
+    const { getUserProfile } = await import('./User')
+    const response = await getUserProfile()
+    
+    if (response.success && response.data?.user) {
+      return response.data.user.id
+    }
+    
+    return null
+  } catch (error) {
+    console.error('Failed to get current user ID:', error)
+    return null
+  }
+}
