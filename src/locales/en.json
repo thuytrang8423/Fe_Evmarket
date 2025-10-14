@@ -325,6 +325,14 @@
     "noResults": "No results found",
     "noResultsDesc": "Try adjusting your filters or search terms"
   },
+  "vehicles": {
+    "noVehicles": "No vehicles available",
+    "noVehiclesDesc": "Currently no electric vehicles available. Please check back later."
+  },
+  "batteries": {
+    "noBatteries": "No batteries available",
+    "noBatteriesDesc": "Currently no batteries available. Please check back later."
+  },
   "auth": {
     "login": {
       "title": "Login",

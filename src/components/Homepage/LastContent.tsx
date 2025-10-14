@@ -2,17 +2,19 @@
 import React from 'react'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { isAuthenticated } from '../../services'
+import { useRouter } from 'next/navigation'
 
 function LastContent() {
   const { t } = useI18nContext()
+  const router = useRouter()
   
   // Handle navigation with authentication check for browsing
   const handleBrowseNavigation = () => {
     if (!isAuthenticated()) {
-      window.location.href = '/login'
+      router.push('/login')
       return
     }
-    window.location.href = '/browse'
+    router.push('/browse')
   }
   
   return (

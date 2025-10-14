@@ -43,7 +43,7 @@ export default function SellPage() {
   }
 
   return (
-    <AuthWrapper loadingMessage="Loading seller dashboard...">
+    <AuthWrapper>
       <div className="min-h-screen bg-white">
         <Header />
         <SellerTitle />
