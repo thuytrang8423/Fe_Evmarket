@@ -295,7 +295,7 @@ function AddListing() {
                 { value: 'bmw', label: 'BMW' }
               ]} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
             ) : (
-              <Input field="make" label={t('seller.addListing.fields.brand')} placeholder={t('seller.addListing.placeholders.brand')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+              <Input field="make" label={t('seller.addListing.fields.make')} placeholder={t('seller.addListing.placeholders.brand')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
             )}
             {listingType === 'vehicle' && (
               <Input field="model" label={t('seller.addListing.fields.model')} placeholder={t('seller.addListing.placeholders.model')} required form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
@@ -312,14 +312,14 @@ function AddListing() {
       case 2:
         if (listingType === 'vehicle') return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input field="location" label="Location" placeholder="San Francisco, CA" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
-            <Select field="bodyType" label="Body Type" options={[
-              { value: 'sedan', label: 'Sedan' },
-              { value: 'suv', label: 'SUV' },
-              { value: 'hatchback', label: 'Hatchback' }
+            <Input field="location" label={t('seller.addListing.fields.location')} placeholder="Hà Nội, Việt Nam" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Select field="bodyType" label={t('seller.addListing.fields.bodyType')} options={[
+              { value: 'sedan', label: t('seller.addListing.bodyTypeOptions.sedan') },
+              { value: 'suv', label: t('seller.addListing.bodyTypeOptions.suv') },
+              { value: 'hatchback', label: t('seller.addListing.bodyTypeOptions.hatchback') }
             ]} form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
-            <Input field="exteriorColor" label="Exterior Color" placeholder="Pearl White" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
-            <Input field="interiorColor" label="Interior Color" placeholder="Black" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="exteriorColor" label={t('seller.addListing.fields.exteriorColor')} placeholder="Trắng ngọc trai" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
+            <Input field="interiorColor" label={t('seller.addListing.fields.interiorColor')} placeholder="Đen" form={form} errors={errors} handleChange={handleChange} handleBlur={handleBlur} />
           </div>
         )
         return (
@@ -359,7 +359,7 @@ function AddListing() {
                 <label className="w-64 h-48 border-2 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-colors">
                   <span className="text-4xl text-blue-600 mb-2">+</span>
                   <span className="text-sm text-gray-600 font-medium">{t('seller.addListing.fields.selectPhotos')}</span>
-                  <span className="text-xs text-gray-500 mt-1">{t('seller.addListing.fields.clickOrDrag')}</span>
+                  <span className="text-xs text-gray-500 mt-1">{t('seller.addListing.actions.clickOrDrag')}</span>
                   <input
                     type="file"
                     multiple
@@ -379,7 +379,7 @@ function AddListing() {
                       onClick={() => removeImage(i)}
                       className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      Remove
+                      {t('seller.addListing.actions.remove')}
                     </button>
                   </div>
                 ))}
@@ -421,7 +421,7 @@ function AddListing() {
                   <span className="text-base font-semibold text-gray-900">{form.year || '-'}</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.brand')}:</span>
+                  <span className="text-sm font-semibold text-gray-700 min-w-[110px]">{t('seller.addListing.fields.make')}:</span>
                   <span className="text-base font-semibold text-gray-900">{form.make || '-'}</span>
                 </div>
                 {listingType === 'vehicle' && (
@@ -546,7 +546,7 @@ function AddListing() {
                         onClick={() => removeImage(i)}
                         className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 rounded text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        Remove
+                        {t('seller.addListing.actions.remove')}
                       </button>
                     </div>
                   ))}

@@ -170,7 +170,9 @@
       "edit": "Chỉnh sửa",
       "view": "Xem",
       "noListings": "Không tìm thấy tin đăng",
-      "noListingsDesc": "Bạn chưa tạo tin đăng nào. Hãy bắt đầu bằng cách thêm chiếc xe đầu tiên."
+      "noListingsDesc": "Bạn chưa tạo tin đăng nào. Hãy bắt đầu bằng cách thêm chiếc xe đầu tiên.",
+      "vehicle": "Xe điện",
+      "battery": "Pin"
     },
     "addListing": {
       "title": "Thêm tin đăng mới",
@@ -180,7 +182,10 @@
         "details": "Chi tiết",
         "battery": "Pin",
         "description": "Mô tả",
-        "photos": "Hình ảnh"
+        "photos": "Hình ảnh",
+        "batteryDetails": "Chi tiết pin",
+        "specifications": "Thông số kỹ thuật",
+        "reviewSubmit": "Xem lại & Gửi"
       },
       "fields": {
         "listingTitle": "Tiêu đề tin đăng",
@@ -206,7 +211,52 @@
         "previous": "Trước",
         "next": "Tiếp",
         "saveDraft": "Lưu nháp",
-        "publish": "Đăng tin"
+        "publish": "Đăng tin",
+        "createListing": "Tạo tin đăng",
+        "creating": "Đang tạo..."
+      },
+      "validation": {
+        "uploadImageRequired": "Vui lòng tải lên ít nhất một hình ảnh",
+        "listingCreatedSuccess": "Tạo tin đăng thành công!"
+      },
+      "placeholders": {
+        "listingTitle": "ví dụ: Tesla Model 3 2020",
+        "price": "25000",
+        "brand": "ví dụ: CATL, BYD",
+        "model": "Model 3",
+        "year": "2020",
+        "mileage": "45000",
+        "batteryHealth": "85",
+        "range": "310",
+        "weight": "528",
+        "voltage": "408",
+        "chemistry": "NMC",
+        "degradation": "27",
+        "chargingTime": "30-80% trong 35 phút",
+        "installation": "Cần chuyên gia",
+        "warrantyPeriod": "4",
+        "temperatureRange": "-20°C đến 60°C",
+        "description": "Mô tả tin đăng của bạn..."
+      },
+      "batterySpecs": {
+        "weight": "Trọng lượng",
+        "voltage": "Điện áp",
+        "chemistry": "Hóa học",
+        "degradation": "Suy giảm",
+        "chargingTime": "Thời gian sạc",
+        "installation": "Cài đặt",
+        "warrantyPeriod": "Thời hạn bảo hành",
+        "temperatureRange": "Khoảng nhiệt độ"
+      },
+      "bodyTypeOptions": {
+        "sedan": "Sedan",
+        "suv": "SUV",
+        "hatchback": "Hatchback"
+      },
+      "actions": {
+        "remove": "Xóa",
+        "selectPhotos": "Chọn ảnh",
+        "clickOrDrag": "Nhấp hoặc kéo ảnh vào đây"
       }
     }
   },

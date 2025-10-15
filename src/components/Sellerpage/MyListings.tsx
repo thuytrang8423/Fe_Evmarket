@@ -475,11 +475,41 @@ function MyListings() {
         </button>
       </div>
 
-      {loading && <p>Loading...</p>}
-      {error && <p className="text-red-600 text-sm">{error}</p>}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-20">
+          <div className="relative">
+            {/* Spinning ring */}
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            {/* Inner pulse */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="w-6 h-6 bg-blue-600 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+          <p className="mt-4 text-lg font-medium text-gray-600">{t('common.loading')}</p>
+          <p className="mt-1 text-sm text-gray-500">Đang tải danh sách tin đăng...</p>
+        </div>
+      )}
+      {error && (
+        <div className="flex flex-col items-center justify-center py-12">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
+            <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <p className="text-red-600 text-lg font-medium mb-2">Có lỗi xảy ra</p>
+          <p className="text-red-500 text-sm text-center max-w-md">{error}</p>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+          >
+            Thử lại
+          </button>
+        </div>
+      )}
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-        {filteredListings.map((item) => (
+      {!loading && !error && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+          {filteredListings.map((item) => (
           <div key={item.id} className="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
             {/* Image Section */}
             <div className="relative h-56 bg-gradient-to-br from-gray-50 to-gray-100">
@@ -582,11 +612,17 @@ function MyListings() {
               </div>
             </div>
           </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
-      {filteredListings.length === 0 && !loading && (
+      {!loading && !error && filteredListings.length === 0 && (
         <div className="text-center py-12">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+          </div>
           <h3 className="text-lg font-medium" style={{ color: colors.Text }}>{t('seller.listings.noListings')}</h3>
           <p className="text-sm" style={{ color: colors.SubText }}>{t('seller.listings.noListingsDesc')}</p>
         </div>
