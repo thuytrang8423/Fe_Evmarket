@@ -12,34 +12,37 @@ export interface Vehicle {
   brand: string
   model: string
   year: number
-  color?: string
   mileage: number
-  batteryType?: string
   specifications: {
-    warranty?: {
-      basic?: string
-      battery?: string
-      drivetrain?: string
+    warranty: {
+      basic: string
+      battery: string
+      drivetrain: string
     }
-    dimensions?: {
-      width?: string
-      height?: string
-      length?: string
-      curbWeight?: string
+    dimensions: {
+      width: string
+      height: string
+      length: string
+      curbWeight: string
     }
-    performance?: {
-      topSpeed?: string
-      motorType?: string
-      horsepower?: string
-      acceleration?: string
+    performance: {
+      topSpeed: string
+      motorType: string
+      horsepower: string
+      acceleration: string
     }
-    batteryAndCharging?: {
-      range?: string
-      chargeTime?: string
-      chargingSpeed?: string
-      batteryCapacity?: string
+    batteryAndCharging: {
+      range: string
+      chargeTime: string
+      chargingSpeed: string
+      batteryCapacity: string
     }
   }
+  isAuction: boolean
+  auctionEndsAt: string | null
+  startingPrice: number | null
+  bidIncrement: number | null
+  depositAmount: number | null
   isVerified: boolean
   createdAt: string
   updatedAt: string
@@ -117,7 +120,63 @@ export const createVehicle = async (payload: CreateVehicleRequest): Promise<Vehi
       throw new Error('Not authenticated')
     }
 
-    const hasFileImages = Array.isArray(payload.images) && payload.images.some((img) => img instanceof File)
+    // ✅ Auto-fill missing specification subfields to prevent backend validation errors
+    if (payload.specifications) {
+      payload.specifications = {
+        performance: payload.specifications.performance || {
+          topSpeed: '',
+          motorType: '',
+          horsepower: '',
+          acceleration: ''
+        },
+        dimensions: payload.specifications.dimensions || {
+          width: '',
+          height: '',
+          length: '',
+          curbWeight: ''
+        },
+        warranty: payload.specifications.warranty || {
+          basic: '',
+          battery: '',
+          drivetrain: ''
+        },
+        batteryAndCharging: payload.specifications.batteryAndCharging || {
+          range: '',
+          chargeTime: '',
+          chargingSpeed: '',
+          batteryCapacity: ''
+        }
+      }
+    } else {
+      payload.specifications = {
+        performance: {
+          topSpeed: '',
+          motorType: '',
+          horsepower: '',
+          acceleration: ''
+        },
+        dimensions: {
+          width: '',
+          height: '',
+          length: '',
+          curbWeight: ''
+        },
+        warranty: {
+          basic: '',
+          battery: '',
+          drivetrain: ''
+        },
+        batteryAndCharging: {
+          range: '',
+          chargeTime: '',
+          chargingSpeed: '',
+          batteryCapacity: ''
+        }
+      }
+    }
+
+    const hasFileImages =
+      Array.isArray(payload.images) && payload.images.some((img) => img instanceof File)
 
     let response: Response
     if (hasFileImages) {
@@ -129,9 +188,16 @@ export const createVehicle = async (payload: CreateVehicleRequest): Promise<Vehi
       formData.append('model', payload.model)
       formData.append('year', String(payload.year))
       formData.append('mileage', String(payload.mileage))
+
+      if (payload.color) formData.append('color', payload.color)
+      if (payload.batteryType) formData.append('batteryType', payload.batteryType)
+      if (payload.status) formData.append('status', payload.status)
+
+      // ✅ Always append full specification structure
       if (payload.specifications) {
         formData.append('specifications', JSON.stringify(payload.specifications))
       }
+
       if (payload.images) {
         for (const img of payload.images) {
           if (img instanceof File) formData.append('images', img)
@@ -173,6 +239,7 @@ export const createVehicle = async (payload: CreateVehicleRequest): Promise<Vehi
     }
   }
 }
+
 
 // Get all vehicles
 export const getVehicles = async (): Promise<VehiclesResponse> => {

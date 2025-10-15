@@ -24,7 +24,7 @@ function CarDetailHero({ vehicle }: CarDetailHeroProps) {
   const condition = vehicle.status === 'AVAILABLE' ? 'Available' : vehicle.status
 
   return (
-    <div className="bg-white">
+    <div className="bg-white/10 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto px-6 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left Side - Images */}

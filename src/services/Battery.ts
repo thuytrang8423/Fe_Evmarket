@@ -23,6 +23,11 @@ export interface Battery {
     warrantyPeriod: string
     temperatureRange: string
   }
+  isAuction: boolean
+  auctionEndsAt: string | null
+  startingPrice: number | null
+  bidIncrement: number | null
+  depositAmount: number | null
   isVerified: boolean
   createdAt: string
   updatedAt: string
@@ -73,7 +78,16 @@ export interface CreateBatteryRequest {
   capacity: number
   year: number
   health: number
-  specifications?: Partial<Battery['specifications']>
+  specifications?: {
+    weight: string
+    voltage: string
+    chemistry: string
+    degradation: string
+    chargingTime: string
+    installation: string
+    warrantyPeriod: string
+    temperatureRange: string
+  }
 }
 
 export const createBattery = async (payload: CreateBatteryRequest): Promise<BatteryResponse> => {
@@ -235,7 +249,16 @@ export interface UpdateBatteryRequest {
   year?: number;
   health?: number;
   images?: (string | File)[];
-  specifications?: Partial<Battery['specifications']>;
+  specifications?: {
+    weight: string
+    voltage: string
+    chemistry: string
+    degradation: string
+    chargingTime: string
+    installation: string
+    warrantyPeriod: string
+    temperatureRange: string
+  };
 }
 
 // Update battery (multipart aware)
