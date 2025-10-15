@@ -4,7 +4,8 @@ import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { getVehicles, type Vehicle } from '../../services'
+import { getVehicles, type Vehicle, getCurrentUserId } from '../../services'
+import { GridSkeleton } from '../common/Skeleton'
 
 export default function TopEV() {
   const { t } = useI18nContext()
@@ -20,10 +21,22 @@ export default function TopEV() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
+        // Get current user ID (if logged in)
+        const currentUserId = await getCurrentUserId()
+        
         const response = await getVehicles()
         if (response.success && response.data?.vehicles) {
+          // Filter vehicles:
+          // 1. Only show vehicles with status === 'AVAILABLE'
+          // 2. Don't show current user's vehicles
+          const filteredVehicles = response.data.vehicles.filter(vehicle => {
+            const isAvailable = vehicle.status === 'AVAILABLE'
+            const isNotOwnVehicle = !currentUserId || vehicle.sellerId !== currentUserId
+            return isAvailable && isNotOwnVehicle
+          })
+          
           // Take only first 4 vehicles for top deals
-          setVehicles(response.data.vehicles.slice(0, 4))
+          setVehicles(filteredVehicles.slice(0, 4))
         } else {
           setError(response.message || 'Failed to fetch vehicles')
         }
@@ -46,18 +59,7 @@ export default function TopEV() {
               {t('homepage.topEV.title')}
             </h2>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse">
-                <div className="h-48 bg-gray-200"></div>
-                <div className="p-4 space-y-3">
-                  <div className="h-4 bg-gray-200 rounded"></div>
-                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <GridSkeleton count={4} columns={4} showBadge={true} />
         </div>
       </div>
     )
@@ -72,6 +74,7 @@ export default function TopEV() {
       </div>
     )
   }
+  
   return (
     <div className="py-16 px-6 bg-gray-50">
       <div className="max-w-7xl mx-auto">
@@ -88,8 +91,24 @@ export default function TopEV() {
           </button>
         </div>
 
-        {/* EV Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Empty State */}
+        {vehicles.length === 0 ? (
+          <div className="text-center py-16 bg-white rounded-xl shadow-sm">
+            <div className="max-w-md mx-auto">
+              <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+              </svg>
+              <h3 className="text-xl font-semibold mb-2" style={{color: colors.Text}}>
+                {t('vehicles.noVehicles', 'Không có xe nào khả dụng')}
+              </h3>
+              <p className="text-sm" style={{color: colors.SubText}}>
+                {t('vehicles.noVehiclesDesc', 'Hiện tại không có xe điện nào. Vui lòng quay lại sau.')}
+              </p>
+            </div>
+          </div>
+        ) : (
+          /* EV Cards Grid */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {vehicles.map((vehicle) => (
             <div 
               key={vehicle.id} 
@@ -200,6 +219,7 @@ export default function TopEV() {
             </div>
           ))}
         </div>
+        )}
       </div>
     </div>
   )

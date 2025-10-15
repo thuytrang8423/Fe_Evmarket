@@ -1,6 +1,6 @@
 "use client"
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import { getBatteryById, type Battery } from '../../services'
 import PinDetailHero from './PinDetailHero'
 import PinSpecifications from './PinSpecifications'
@@ -8,6 +8,7 @@ import SellerInfo from '../CarDetailpage/SellerInfo'
 
 function PinDetailPage() {
   const params = useParams()
+  const router = useRouter()
   const [battery, setBattery] = useState<Battery | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -39,10 +40,41 @@ function PinDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading battery details...</p>
+      <div className="min-h-screen bg-white">
+        {/* Skeleton UI for Battery Detail */}
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Hero Section Skeleton */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Image Skeleton */}
+            <div className="bg-gray-200 animate-pulse rounded-xl h-96"></div>
+            {/* Info Skeleton */}
+            <div className="space-y-4">
+              <div className="h-8 bg-gray-200 animate-pulse rounded w-3/4"></div>
+              <div className="h-6 bg-gray-200 animate-pulse rounded w-1/2"></div>
+              <div className="h-10 bg-gray-200 animate-pulse rounded w-1/3"></div>
+              <div className="space-y-2 mt-4">
+                <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded"></div>
+                <div className="h-4 bg-gray-200 animate-pulse rounded w-5/6"></div>
+              </div>
+              <div className="flex gap-4 mt-6">
+                <div className="h-12 bg-gray-200 animate-pulse rounded flex-1"></div>
+                <div className="h-12 bg-gray-200 animate-pulse rounded flex-1"></div>
+              </div>
+            </div>
+          </div>
+          {/* Specifications Skeleton */}
+          <div className="bg-white rounded-xl shadow-sm border p-6">
+            <div className="h-6 bg-gray-200 animate-pulse rounded w-48 mb-4"></div>
+            <div className="grid grid-cols-2 gap-4">
+              {[1,2,3,4,5,6].map(i => (
+                <div key={i} className="space-y-2">
+                  <div className="h-4 bg-gray-200 animate-pulse rounded w-24"></div>
+                  <div className="h-5 bg-gray-200 animate-pulse rounded w-32"></div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     )

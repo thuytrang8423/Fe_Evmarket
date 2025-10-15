@@ -151,10 +151,40 @@ function ProfileSettings({}: ProfileSettingsProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center" style={{backgroundColor: colors.Background}}>
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-green-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p style={{color: colors.SubText}}>{t('profile.settings.loading', 'Loading profile...')}</p>
+      <div className="min-h-screen" style={{backgroundColor: colors.Background}}>
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          {/* Skeleton UI for Profile Settings */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            {/* Sidebar Skeleton */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="flex flex-col items-center mb-6">
+                  <div className="w-24 h-24 rounded-full bg-gray-200 animate-pulse mb-4"></div>
+                  <div className="h-6 bg-gray-200 animate-pulse rounded w-32 mb-2"></div>
+                  <div className="h-4 bg-gray-200 animate-pulse rounded w-24"></div>
+                </div>
+                <div className="space-y-2">
+                  {[1,2,3].map(i => (
+                    <div key={i} className="h-10 bg-gray-200 animate-pulse rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            {/* Content Skeleton */}
+            <div className="lg:col-span-3">
+              <div className="bg-white rounded-lg shadow-sm p-6">
+                <div className="h-8 bg-gray-200 animate-pulse rounded w-48 mb-6"></div>
+                <div className="space-y-4">
+                  {[1,2,3,4,5].map(i => (
+                    <div key={i}>
+                      <div className="h-4 bg-gray-200 animate-pulse rounded w-24 mb-2"></div>
+                      <div className="h-10 bg-gray-200 animate-pulse rounded"></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
