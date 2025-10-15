@@ -4,8 +4,7 @@ import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { getBatteries, type Battery, getCurrentUserId } from '../../services'
-import { GridSkeleton } from '../common/Skeleton'
+import { getBatteries, type Battery } from '../../services/Battery'
 
 function TopBattery() {
   const { t } = useI18nContext()
@@ -21,22 +20,10 @@ function TopBattery() {
   useEffect(() => {
     const fetchBatteries = async () => {
       try {
-        // Get current user ID (if logged in)
-        const currentUserId = await getCurrentUserId()
-        
         const response = await getBatteries()
         if (response.success && response.data?.batteries) {
-          // Filter batteries:
-          // 1. Only show batteries with status === 'AVAILABLE'
-          // 2. Don't show current user's batteries
-          const filteredBatteries = response.data.batteries.filter(battery => {
-            const isAvailable = battery.status === 'AVAILABLE'
-            const isNotOwnBattery = !currentUserId || battery.sellerId !== currentUserId
-            return isAvailable && isNotOwnBattery
-          })
-          
           // Take only first 4 batteries for top deals
-          setBatteries(filteredBatteries.slice(0, 4))
+          setBatteries(response.data.batteries.slice(0, 4))
         } else {
           setError(response.message || 'Failed to fetch batteries')
         }
@@ -59,7 +46,18 @@ function TopBattery() {
               {t('homepage.topBattery.title')}
             </h2>
           </div>
-          <GridSkeleton count={4} columns={4} showBadge={true} />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white rounded-xl shadow-sm overflow-hidden animate-pulse border border-gray-200">
+                <div className="h-48 bg-gray-200"></div>
+                <div className="p-4 space-y-3">
+                  <div className="h-4 bg-gray-200 rounded"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     )
@@ -91,24 +89,8 @@ function TopBattery() {
           </button>
         </div>
 
-        {/* Empty State */}
-        {batteries.length === 0 ? (
-          <div className="text-center py-16 bg-gray-50 rounded-xl shadow-sm border border-gray-200">
-            <div className="max-w-md mx-auto">
-              <svg className="mx-auto h-16 w-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z"/>
-              </svg>
-              <h3 className="text-xl font-semibold mb-2" style={{color: colors.Text}}>
-                {t('batteries.noBatteries', 'Không có pin nào khả dụng')}
-              </h3>
-              <p className="text-sm" style={{color: colors.SubText}}>
-                {t('batteries.noBatteriesDesc', 'Hiện tại không có pin nào. Vui lòng quay lại sau.')}
-              </p>
-            </div>
-          </div>
-        ) : (
-          /* Battery Cards Grid */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Battery Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {batteries.map((battery) => (
             <div 
               key={battery.id} 
@@ -218,8 +200,7 @@ function TopBattery() {
               </div>
             </div>
           ))}
-          </div>
-        )}
+        </div>
       </div>
     </div>
   )

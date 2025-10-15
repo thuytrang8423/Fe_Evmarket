@@ -1,6 +1,6 @@
 import { ensureValidToken } from './Auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_ENDPOINT || 'https://evmarket-api-staging.onrender.com/api/v1';
+const API_BASE_URL = 'https://evmarket-api-staging.onrender.com/api/v1';
 
 // Wallet Types
 export interface WalletData {
@@ -11,6 +11,7 @@ export interface WalletData {
   createdAt: string;
   updatedAt: string;
 }
+
 export interface WalletResponse {
   message: string;
   data: WalletData;
@@ -48,24 +49,26 @@ export class WalletError extends Error {
 export const getWalletBalance = async (): Promise<WalletResponse> => {
   try {
     const token = await ensureValidToken();
-    if (!token) {
-      throw new WalletError('Not authenticated', 401);
-    }
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-    headers['Authorization'] = `Bearer ${token}`;
-
+    
+    console.log('Making wallet API call with token:', token ? 'Token present' : 'No token');
+    
     const response = await fetch(`${API_BASE_URL}/wallet/`, {
       method: 'GET',
-      headers,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       mode: 'cors',
       credentials: 'omit',
     });
 
+    console.log('Wallet API response status:', response.status);
+    console.log('Wallet API response ok:', response.ok);
+
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Wallet API error response:', errorText);
       
       let errorData;
       try {
@@ -78,6 +81,7 @@ export const getWalletBalance = async (): Promise<WalletResponse> => {
     }
 
     const data: WalletResponse = await response.json();
+    console.log('Wallet API success response:', data);
     return data;
   } catch (error) {
     if (error instanceof WalletError) {
@@ -99,25 +103,26 @@ export const getWalletBalance = async (): Promise<WalletResponse> => {
 export const makeDeposit = async (depositData: DepositRequest): Promise<DepositResponse> => {
   try {
     const token = await ensureValidToken();
-    if (!token) {
-      throw new WalletError('Not authenticated', 401);
-    }
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    };
-    headers['Authorization'] = `Bearer ${token}`;
-
+    
+    console.log('Making deposit API call with amount:', depositData.amount);
+    
     const response = await fetch(`${API_BASE_URL}/wallet/deposit`, {
       method: 'POST',
-      headers,
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
       mode: 'cors',
       credentials: 'omit',
       body: JSON.stringify(depositData),
     });
 
+    console.log('Deposit API response status:', response.status);
+
     if (!response.ok) {
       const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Deposit API error response:', errorText);
       
       let errorData;
       try {
@@ -130,6 +135,7 @@ export const makeDeposit = async (depositData: DepositRequest): Promise<DepositR
     }
 
     const data: DepositResponse = await response.json();
+    console.log('Deposit API success response:', data);
     return data;
   } catch (error) {
     if (error instanceof WalletError) {

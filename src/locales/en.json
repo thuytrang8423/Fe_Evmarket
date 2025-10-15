@@ -32,7 +32,7 @@
     "language": "Language",
     "walletManagement": "My Wallet ",
     "currentBalance": "Current Balance",
-    "wallet": "My Wallet"
+    "wallet": "Wallet"
   },
   "home": {
     "title": "Home",
@@ -325,14 +325,6 @@
     "noResults": "No results found",
     "noResultsDesc": "Try adjusting your filters or search terms"
   },
-  "vehicles": {
-    "noVehicles": "No vehicles available",
-    "noVehiclesDesc": "Currently no electric vehicles available. Please check back later."
-  },
-  "batteries": {
-    "noBatteries": "No batteries available",
-    "noBatteriesDesc": "Currently no batteries available. Please check back later."
-  },
   "auth": {
     "login": {
       "title": "Login",
@@ -498,7 +490,6 @@
   },
   "vehicleDetail": {
     "sellerInfo": "Seller Information",
-    "viewProfile": "View Profile",
     "memberSince": "Member since",
     "activeListings": "active listings",
     "usuallyResponds": "Usually responds in",
@@ -507,7 +498,7 @@
     "makeOffer": "Make Offer",
     "save": "Save",
     "share": "Share",
-    "report": "Report Seller",
+    "report": "Report",
     "reportSeller": "Report Seller",
     "description": "Description",
     "specifications": "Specifications",
@@ -597,7 +588,7 @@
     "withdrawals": "Withdrawals",
     "purchases": "Purchases",
     "depositType": "Deposit",
-    "withdrawalType": "Withdrawal",
+    "withdrawalType": "Withdrawal", 
     "purchaseType": "Purchase",
     "statusCompleted": "Completed",
     "statusPending": "Pending",

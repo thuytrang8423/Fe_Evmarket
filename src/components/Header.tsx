@@ -4,7 +4,7 @@ import colors from "../Utils/Color";
 import Image from "next/image";
 import { User, List, LogOut, Wallet } from "lucide-react";
 import { useI18nContext } from "../providers/I18nProvider";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { isAuthenticated, logoutUser } from "../services";
 
 function Header() {
@@ -15,7 +15,6 @@ function Header() {
   const [isLoggingOut, setIsLoggingOut] = useState(false); // Track logout process
   const { locale, changeLocale, t } = useI18nContext();
   const pathname = usePathname();
-  const router = useRouter();
 
   // Check login status on component mount and when pathname changes
   useEffect(() => {
@@ -82,11 +81,11 @@ function Header() {
   const handleNavigation = (href: string, requireAuth: boolean = false) => {
     if (requireAuth && !isLoggedIn) {
       // Redirect to login page if authentication is required but user is not logged in
-      router.push("/login");
+      window.location.href = "/login";
       return;
     }
-    // Navigate normally using Next.js router for smooth transitions
-    router.push(href);
+    // Navigate normally
+    window.location.href = href;
   };
 
   return (
@@ -445,7 +444,7 @@ function Header() {
                           className="text-xs"
                           style={{ color: colors.SubText }}
                         >
-                          {t("header.wallet", "Ví của tôi")}
+                          {t("header.wallet", "Wallet")}
                         </span>
                       </a>
                       <button

@@ -4,19 +4,17 @@ import colors from '../../Utils/Color'
 import Image from 'next/image'
 import { useI18nContext } from '../../providers/I18nProvider'
 import { isAuthenticated } from '../../services'
-import { useRouter } from 'next/navigation'
 
 function Content() {
   const { t } = useI18nContext()
-  const router = useRouter()
   
   // Handle navigation with authentication check
   const handleSellNavigation = () => {
     if (!isAuthenticated()) {
-      router.push('/login')
+      window.location.href = '/login'
       return
     }
-    router.push('/sell')
+    window.location.href = '/sell'
   }
   
   return (

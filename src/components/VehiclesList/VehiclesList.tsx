@@ -3,16 +3,13 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { getVehicles, type Vehicle, getCurrentUserId } from '../../services'
+import { getVehicles, type Vehicle } from '../../services'
 import colors from '../../Utils/Color'
 import VerifiedBadge from '../common/VerifiedBadge'
-import { ListSkeleton } from '../common/Skeleton'
-import { useToast } from '../../providers/ToastProvider'
 
 export default function VehiclesList() {
   const { t } = useI18nContext()
   const router = useRouter()
-  const toast = useToast()
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,42 +33,22 @@ export default function VehiclesList() {
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
-        // Get current user ID (if logged in)
-        const currentUserId = await getCurrentUserId()
-        
         const response = await getVehicles()
         if (response.success && response.data?.vehicles) {
-          // Filter vehicles:
-          // 1. Only show vehicles with status === 'AVAILABLE'
-          // 2. Don't show current user's vehicles
-          const availableVehicles = response.data.vehicles.filter(vehicle => {
-            const isAvailable = vehicle.status === 'AVAILABLE'
-            const isNotOwnVehicle = !currentUserId || vehicle.sellerId !== currentUserId
-            return isAvailable && isNotOwnVehicle
-          })
-          
-          setVehicles(availableVehicles)
-          setFilteredVehicles(availableVehicles)
-          
-          // Show info toast if no vehicles available
-          if (availableVehicles.length === 0) {
-            toast.info(t('vehicles.noVehicles', 'Hiện tại không có xe nào khả dụng'))
-          }
+          setVehicles(response.data.vehicles)
+          setFilteredVehicles(response.data.vehicles)
         } else {
           setError(response.message || 'Failed to fetch vehicles')
-          toast.error(response.message || t('vehicles.fetchError', 'Không thể tải danh sách xe'))
         }
       } catch (err) {
-        const errorMsg = 'Failed to fetch vehicles'
-        setError(errorMsg)
-        toast.error(t('vehicles.fetchError', 'Không thể tải danh sách xe'))
+        setError('Failed to fetch vehicles')
       } finally {
         setLoading(false)
       }
     }
 
     fetchVehicles()
-  }, [toast, t])
+  }, [])
 
   // Filter and sort vehicles
   useEffect(() => {
@@ -105,18 +82,9 @@ export default function VehiclesList() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        {/* Header Skeleton */}
-        <div className="mb-8 space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="h-12 bg-gray-200 rounded flex-1 animate-pulse"></div>
-            <div className="h-12 bg-gray-200 rounded w-48 animate-pulse"></div>
-            <div className="h-12 bg-gray-200 rounded w-48 animate-pulse"></div>
-          </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-        
-        {/* Grid Skeleton */}
-        <ListSkeleton count={8} showBadge={true} />
       </div>
     )
   }
@@ -151,7 +119,7 @@ export default function VehiclesList() {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-black">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* Search */}
           <div className="md:col-span-2">
             <div className="relative">

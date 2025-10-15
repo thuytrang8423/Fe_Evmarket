@@ -7,7 +7,7 @@ import React from 'react'
 
 function page() {
   return (
-    <AuthWrapper>
+    <AuthWrapper loadingMessage="Loading profile...">
       <Header />
       <ProfileSettings />
       <Footer />

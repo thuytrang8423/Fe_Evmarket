@@ -3,16 +3,13 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useI18nContext } from '../../providers/I18nProvider'
-import { getBatteries, type Battery, getCurrentUserId } from '../../services'
+import { getBatteries, type Battery } from '../../services'
 import colors from '../../Utils/Color'
 import VerifiedBadge from '../common/VerifiedBadge'
-import { ListSkeleton } from '../common/Skeleton'
-import { useToast } from '../../providers/ToastProvider'
 
 export default function BatteriesList() {
   const { t } = useI18nContext()
   const router = useRouter()
-  const toast = useToast()
   const [batteries, setBatteries] = useState<Battery[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -36,42 +33,22 @@ export default function BatteriesList() {
   useEffect(() => {
     const fetchBatteries = async () => {
       try {
-        // Get current user ID (if logged in)
-        const currentUserId = await getCurrentUserId()
-        
         const response = await getBatteries()
         if (response.success && response.data?.batteries) {
-          // Filter batteries:
-          // 1. Only show batteries with status === 'AVAILABLE'
-          // 2. Don't show current user's batteries
-          const availableBatteries = response.data.batteries.filter(battery => {
-            const isAvailable = battery.status === 'AVAILABLE'
-            const isNotOwnBattery = !currentUserId || battery.sellerId !== currentUserId
-            return isAvailable && isNotOwnBattery
-          })
-          
-          setBatteries(availableBatteries)
-          setFilteredBatteries(availableBatteries)
-          
-          // Show info toast if no batteries available
-          if (availableBatteries.length === 0) {
-            toast.info(t('batteries.noBatteries', 'Hiện tại không có pin nào khả dụng'))
-          }
+          setBatteries(response.data.batteries)
+          setFilteredBatteries(response.data.batteries)
         } else {
           setError(response.message || 'Failed to fetch batteries')
-          toast.error(response.message || t('batteries.fetchError', 'Không thể tải danh sách pin'))
         }
       } catch (err) {
-        const errorMsg = 'Failed to fetch batteries'
-        setError(errorMsg)
-        toast.error(t('batteries.fetchError', 'Không thể tải danh sách pin'))
+        setError('Failed to fetch batteries')
       } finally {
         setLoading(false)
       }
     }
 
     fetchBatteries()
-  }, [toast, t])
+  }, [])
 
   // Filter and sort batteries
   useEffect(() => {
@@ -105,18 +82,9 @@ export default function BatteriesList() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
-        {/* Header Skeleton */}
-        <div className="mb-8 space-y-4">
-          <div className="h-8 bg-gray-200 rounded w-64 animate-pulse"></div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="h-12 bg-gray-200 rounded flex-1 animate-pulse"></div>
-            <div className="h-12 bg-gray-200 rounded w-48 animate-pulse"></div>
-            <div className="h-12 bg-gray-200 rounded w-48 animate-pulse"></div>
-          </div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         </div>
-        
-        {/* Grid Skeleton */}
-        <ListSkeleton count={8} showBadge={true} />
       </div>
     )
   }
@@ -160,7 +128,7 @@ export default function BatteriesList() {
                 placeholder={t('browse.searchPlaceholder')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-black"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,7 +143,7 @@ export default function BatteriesList() {
             <select
               value={selectedBrand}
               onChange={(e) => setSelectedBrand(e.target.value)}
-              className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="">{t('browse.brands')} - All</option>
               {uniqueBrands.map((brand) => (
@@ -191,7 +159,7 @@ export default function BatteriesList() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="text-black w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             >
               <option value="newest">{t('browse.sortOptions.newest')}</option>
               <option value="priceLow">{t('browse.sortOptions.priceLow')}</option>

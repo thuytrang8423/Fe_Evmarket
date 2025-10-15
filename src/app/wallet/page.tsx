@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 
 export default function WalletPage() {
   return (
-    <AuthWrapper>
+    <AuthWrapper loadingMessage="Loading wallet...">
       <Header />
       <WalletManagement />
       <Footer />

@@ -1,5 +1,5 @@
 "use client"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
@@ -8,7 +8,6 @@ import BrowseFilters from '../../components/Browse/BrowseFilters'
 import ProductGrid from '../../components/Browse/ProductGrid'
 import { getVehicles, Vehicle } from '../../services/Vehicle'
 import { getBatteries, Battery } from '../../services/Battery'
-import { getCurrentUserId } from '../../services'
 import { Product, FilterState } from '../../types/product'
 
 function BrowsePageContent() {
@@ -81,9 +80,6 @@ function BrowsePageContent() {
       setError(null)
       
       try {
-        // Get current user ID to filter out their own products
-        const currentUserId = await getCurrentUserId()
-        
         const [vehiclesResponse, batteriesResponse] = await Promise.all([
           getVehicles(),
           getBatteries()
@@ -91,26 +87,16 @@ function BrowsePageContent() {
 
         const allProducts: Product[] = []
 
-        // Process vehicles - only AVAILABLE and not user's own
+        // Process vehicles
         if (vehiclesResponse.success && vehiclesResponse.data) {
           const vehicles = vehiclesResponse.data.vehicles || []
-          const availableVehicles = vehicles.filter(vehicle => {
-            const isAvailable = vehicle.status === 'AVAILABLE'
-            const isNotOwnVehicle = !currentUserId || vehicle.sellerId !== currentUserId
-            return isAvailable && isNotOwnVehicle
-          })
-          allProducts.push(...availableVehicles.map(convertVehicleToProduct))
+          allProducts.push(...vehicles.map(convertVehicleToProduct))
         }
 
-        // Process batteries - only AVAILABLE and not user's own
+        // Process batteries
         if (batteriesResponse.success && batteriesResponse.data) {
           const batteries = batteriesResponse.data.batteries || []
-          const availableBatteries = batteries.filter(battery => {
-            const isAvailable = battery.status === 'AVAILABLE'
-            const isNotOwnBattery = !currentUserId || battery.sellerId !== currentUserId
-            return isAvailable && isNotOwnBattery
-          })
-          allProducts.push(...availableBatteries.map(convertBatteryToProduct))
+          allProducts.push(...batteries.map(convertBatteryToProduct))
         }
 
         setProducts(allProducts)
@@ -224,4 +210,17 @@ function BrowsePageContent() {
   )
 }
 
-export default BrowsePageContent
+export default function BrowsePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex items-center space-x-3">
+          <div className="w-6 h-6 border-2 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">Loading...</span>
+        </div>
+      </div>
+    }>
+      <BrowsePageContent />
+    </Suspense>
+  )
+}

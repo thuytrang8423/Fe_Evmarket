@@ -21,10 +21,7 @@ export {
   // Google Auth functions
   loginWithGoogle,
   handleGoogleAuthSuccess,
-  isGoogleAuthCallback,
-  
-  // User ID helper
-  getCurrentUserId
+  isGoogleAuthCallback
 } from './Auth'
 
 // Export User services
