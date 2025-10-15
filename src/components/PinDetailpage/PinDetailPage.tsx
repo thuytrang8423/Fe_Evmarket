@@ -76,7 +76,36 @@ function PinDetailPage() {
     model: '',
     year: battery.year,
     mileage: 0,
-    specifications: {},
+    specifications: {
+      warranty: {
+        basic: '',
+        battery: '',
+        drivetrain: ''
+      },
+      dimensions: {
+        width: '',
+        height: '',
+        length: '',
+        curbWeight: ''
+      },
+      performance: {
+        topSpeed: '',
+        motorType: '',
+        horsepower: '',
+        acceleration: ''
+      },
+      batteryAndCharging: {
+        range: '',
+        chargeTime: '',
+        chargingSpeed: '',
+        batteryCapacity: ''
+      }
+    },
+    isAuction: false,
+    auctionEndsAt: null,
+    startingPrice: null,
+    bidIncrement: null,
+    depositAmount: null,
     isVerified: battery.isVerified,
     createdAt: battery.createdAt,
     updatedAt: battery.updatedAt,
